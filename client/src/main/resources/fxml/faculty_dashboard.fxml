@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/19"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.quizclient.controllers.FacultyDashboardController"
+            styleClass="root">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 0, 0, 0, 2);">
+            <Label text="Faculty Dashboard" styleClass="title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="View Scoreboard" onAction="#onViewScoreboard" styleClass="button, secondary"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 20;">
+            <VBox spacing="25">
+                
+                <!-- Section 1: Syllabus -->
+                <VBox styleClass="card" spacing="15">
+                    <Label text="1. Generate Questions" styleClass="subtitle"/>
+                    <Label text="Paste syllabus text below or upload a file to generate questions using AI." wrapText="true" style="-fx-text-fill: #7f8c8d;"/>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button text="Upload File" onAction="#onBrowse" styleClass="button, secondary"/>
+                        <Label text="or paste text below"/>
+                    </HBox>
+                    
+                    <TextArea fx:id="syllabusArea" promptText="Paste syllabus content here..." prefRowCount="5" wrapText="true"/>
+                    
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Label text="Number of questions:"/>
+                        <Spinner fx:id="countSpinner" prefWidth="80" editable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Generate Questions" onAction="#onGenerateQuestions" styleClass="button, success"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Section 2: Review -->
+                <VBox styleClass="card" spacing="15" VBox.vgrow="ALWAYS">
+                    <Label text="2. Review &amp; Edit" styleClass="subtitle"/>
+                    <Label text="Double click a question to edit its text." style="-fx-text-fill: #7f8c8d;"/>
+                    
+                    <ListView fx:id="questionsList" VBox.vgrow="ALWAYS" prefHeight="250"/>
+                </VBox>
+
+                <!-- Section 3: Start -->
+                <VBox styleClass="card" spacing="15">
+                    <Label text="3. Start Session" styleClass="subtitle"/>
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <Button text="Start Quiz Session" onAction="#onStartSession" styleClass="button"/>
+                        <Label fx:id="sessionInfo" text="Ready to start" style="-fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

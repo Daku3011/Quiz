@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="16" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="com.quizclient.controllers.LoginController" styleClass="card" prefWidth="720" prefHeight="480">
+    <Label text="Quiz System" styleClass="title"/>
+    <HBox spacing="12">
+        <Button text="Faculty" onAction="#onFaculty" />
+        <Button text="Student" onAction="#onStudent" />
+    </HBox>
+</VBox>
