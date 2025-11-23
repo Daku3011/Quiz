@@ -36,12 +36,12 @@ Students can join the quiz using **either** the Desktop App or the Web Interface
 ```mermaid
 graph TD
     subgraph "Faculty Station"
-        FD[Faculty Dashboard\n(JavaFX)] -->|REST API| API
+        FD["Faculty Dashboard\n(JavaFX)"] -->|REST API| API
     end
 
     subgraph "Student Devices"
-        SD[Student Desktop App\n(JavaFX)] -->|REST API| API
-        SW[Student Web Client\n(Browser)] -->|HTTP/REST| API
+        SD["Student Desktop App\n(JavaFX)"] -->|REST API| API
+        SW["Student Web Client\n(Browser)"] -->|HTTP/REST| API
     end
 
     subgraph "Backend Server"
