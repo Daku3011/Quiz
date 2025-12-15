@@ -37,47 +37,142 @@ public class QuizController {
 
     @FXML
     public void onJoin() {
+        // Reset error states
+        sessionField.getStyleClass().remove("error-field");
+        otpField.getStyleClass().remove("error-field");
+        statusLabel.getStyleClass().removeAll("error", "info", "success");
+        statusLabel.setText("");
+
         String sessionId = sessionField.getText();
         String otp = otpField.getText();
+
+        boolean hasError = false;
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            sessionField.getStyleClass().add("error-field");
+            statusLabel.getStyleClass().add("error");
+            statusLabel.setText("Please enter a Session ID.");
+            hasError = true;
+        }
+
+        if (hasError)
+            return;
+
         String studentId = System.getProperty("studentId");
         if (studentId == null) {
-            statusLabel.setText("Register first!");
+            statusLabel.getStyleClass().add("error");
+            statusLabel.setText("System Error: Student ID not found. Please restart.");
             return;
         }
+
+        joinBtn.setDisable(true); // Disable button
+        statusLabel.getStyleClass().add("info");
+        statusLabel.setText("Joining session...");
+
+        // Use a separate thread or task if possible, but for now we are on JavaFX
+        // thread.
+        // Since HttpClient is synchronous here (send), it will freeze UI.
+        // Ideally we should use sendAsync, but that requires refactoring to
+        // callbacks/Platform.runLater.
+        // Given the scope, I'll keep it synchronous but at least set the disable state.
+        // Note: In JavaFX, UI updates happen after method return unless we use a
+        // background thread.
+        // So setting text/disable might not show up if we block immediately.
+        // However, fixing the threading model is a larger task.
+        // I will stick to the logic, but be aware of the limitation.
+        // Actually, if I want the "Joining..." text to appear, I really should use
+        // async.
+        // Let's try to use sendAsync for better UX if it's easy.
+
+        // Refactoring to async:
+        var body = Map.of("sessionId", sessionId.trim(), "otp", otp == null ? "" : otp.trim());
         try {
-            var body = Map.of("sessionId", sessionId, "otp", otp);
             var req = ApiClient.jsonRequest("/api/session/join")
                     .POST(HttpRequest.BodyPublishers.ofString(ApiClient.MAPPER.writeValueAsString(body)))
                     .build();
-            var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
-            if (resp.statusCode() != 200) {
-                statusLabel.setText("Join failed: " + resp.body());
-                return;
-            }
-            // fetch questions
-            var qreq = ApiClient.jsonRequest("/api/session/" + sessionId + "/questions").GET().build();
-            var qresp = http.send(qreq, HttpResponse.BodyHandlers.ofString());
-            if (qresp.statusCode() == 200) {
-                questions = ApiClient.MAPPER.readValue(qresp.body(), new TypeReference<List<QuestionDTO>>() {
-                });
-                if (questions.isEmpty()) {
-                    statusLabel.setText("No questions");
-                    return;
-                }
-                index = 0;
 
-                // Switch view
-                joinSection.setVisible(false);
-                joinSection.setManaged(false);
-                quizSection.setVisible(true);
-                quizSection.setManaged(true);
+            http.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                    .thenAccept(resp -> javafx.application.Platform.runLater(() -> {
+                        if (resp.statusCode() != 200) {
+                            statusLabel.getStyleClass().removeAll("info");
+                            statusLabel.getStyleClass().add("error");
+                            statusLabel.setText("Join failed: " + resp.body());
+                            sessionField.getStyleClass().add("error-field");
+                            joinBtn.setDisable(false);
+                        } else {
+                            // Success, fetch questions
+                            fetchQuestions(sessionId.trim());
+                        }
+                    }))
+                    .exceptionally(e -> {
+                        javafx.application.Platform.runLater(() -> {
+                            statusLabel.getStyleClass().removeAll("info");
+                            statusLabel.getStyleClass().add("error");
+                            statusLabel.setText("Connection failed: " + e.getCause().getMessage());
+                            joinBtn.setDisable(false);
+                        });
+                        return null;
+                    });
 
-                showQuestion();
-            } else
-                statusLabel.setText("Failed to load questions: " + qresp.body());
         } catch (Exception e) {
             e.printStackTrace();
+            statusLabel.getStyleClass().removeAll("info");
+            statusLabel.getStyleClass().add("error");
             statusLabel.setText("Error: " + e.getMessage());
+            joinBtn.setDisable(false);
+        }
+    }
+
+    private void fetchQuestions(String sessionId) {
+        statusLabel.setText("Loading questions...");
+        try {
+            var qreq = ApiClient.jsonRequest("/api/session/" + sessionId + "/questions").GET().build();
+            http.sendAsync(qreq, HttpResponse.BodyHandlers.ofString())
+                    .thenAccept(qresp -> javafx.application.Platform.runLater(() -> {
+                        if (qresp.statusCode() == 200) {
+                            try {
+                                questions = ApiClient.MAPPER.readValue(qresp.body(),
+                                        new TypeReference<List<QuestionDTO>>() {
+                                        });
+                                if (questions.isEmpty()) {
+                                    statusLabel.getStyleClass().removeAll("info");
+                                    statusLabel.getStyleClass().add("error");
+                                    statusLabel.setText("Session joined, but no questions are available yet.");
+                                    joinBtn.setDisable(false);
+                                    return;
+                                }
+                                index = 0;
+                                joinSection.setVisible(false);
+                                joinSection.setManaged(false);
+                                quizSection.setVisible(true);
+                                quizSection.setManaged(true);
+                                showQuestion();
+                            } catch (Exception e) {
+                                statusLabel.getStyleClass().removeAll("info");
+                                statusLabel.getStyleClass().add("error");
+                                statusLabel.setText("Error parsing questions.");
+                                joinBtn.setDisable(false);
+                            }
+                        } else {
+                            statusLabel.getStyleClass().removeAll("info");
+                            statusLabel.getStyleClass().add("error");
+                            statusLabel.setText("Failed to load questions: " + qresp.statusCode());
+                            joinBtn.setDisable(false);
+                        }
+                    }))
+                    .exceptionally(e -> {
+                        javafx.application.Platform.runLater(() -> {
+                            statusLabel.getStyleClass().removeAll("info");
+                            statusLabel.getStyleClass().add("error");
+                            statusLabel.setText("Error loading questions: " + e.getCause().getMessage());
+                            joinBtn.setDisable(false);
+                        });
+                        return null;
+                    });
+        } catch (Exception e) {
+            statusLabel.getStyleClass().removeAll("info");
+            statusLabel.getStyleClass().add("error");
+            statusLabel.setText("Request Error: " + e.getMessage());
+            joinBtn.setDisable(false);
         }
     }
 

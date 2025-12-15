@@ -7,30 +7,43 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.effect.DropShadow?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.quizclient.controllers.LoginController"
            styleClass="root">
 
-    <VBox alignment="CENTER" spacing="20" maxWidth="400" maxHeight="300" styleClass="card">
+    <!-- Main Card Container -->
+    <VBox alignment="CENTER" spacing="30" maxWidth="450" maxHeight="400" styleClass="card">
         <padding>
-            <Insets top="40" right="40" bottom="40" left="40"/>
+            <Insets top="50" right="50" bottom="50" left="50"/>
         </padding>
 
-        <Text text="Welcome to QuizApp" styleClass="title"/>
-        <Text text="Select your role to continue" style="-fx-fill: #7f8c8d;"/>
+        <!-- Header Section -->
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="QuizApp" styleClass="title" style="-fx-font-size: 36px; -fx-text-fill: #2575fc;"/>
+            <Label text="Welcome Back" styleClass="subtitle"/>
+            <Text text="Please select your role to continue" style="-fx-fill: #b2bec3; -fx-font-size: 14px;"/>
+        </VBox>
 
-        <VBox spacing="15" alignment="CENTER">
+        <!-- Actions Section -->
+        <VBox spacing="20" alignment="CENTER">
             <Button text="I am a Faculty"
                     maxWidth="Infinity"
                     styleClass="button"
-                    onAction="#onFaculty"/>
+                    onAction="#onFaculty"
+                    prefHeight="45"/>
+
+            <HBox alignment="CENTER">
+                <Label text="— OR —" style="-fx-text-fill: #dfe6e9; -fx-font-weight: bold;"/>
+            </HBox>
 
             <Button text="I am a Student"
                     maxWidth="Infinity"
                     styleClass="button, secondary"
-                    onAction="#onStudent"/>
+                    onAction="#onStudent"
+                    prefHeight="45"/>
         </VBox>
     </VBox>
 
