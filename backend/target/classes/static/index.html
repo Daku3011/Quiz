@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Student Client</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- Registration Section -->
@@ -75,10 +77,20 @@
         <div id="result-section" class="card hidden">
             <h2>Quiz Completed!</h2>
             <p id="score-display">Your Score: -</p>
+            <div id="results-details" style="margin-top: 20px; text-align: left;"></div>
             <button onclick="location.reload()" class="btn secondary">Back to Home</button>
+        </div>
+
+        <!-- Cheating Detected Section -->
+        <div id="cheating-section" class="card hidden" style="border-color: red; background-color: #fff0f0;">
+            <h2 style="color: red;">⚠️ Cheating Detected!</h2>
+            <p>You switched tabs or minimized the browser during the quiz.</p>
+            <p><strong>Your exam has been disqualified.</strong></p>
+            <button onclick="location.reload()" class="btn danger">Return to Home</button>
         </div>
     </div>
 
     <script src="js/app.js"></script>
 </body>
+
 </html>

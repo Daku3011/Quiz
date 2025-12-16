@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/api/auth/**", "/api/session/**",
                                 "/api/syllabus/**", "/api/quiz/**",
-                                "/api/student/**", "/h2-console/**")
+                                "/api/student/**", "/api/admin/**", "/h2-console/**")
                         .permitAll()
                         .anyRequest().authenticated());
         return http.build();
@@ -41,5 +41,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
 }

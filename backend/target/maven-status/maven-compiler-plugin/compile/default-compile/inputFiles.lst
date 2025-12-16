@@ -1,3 +1,4 @@
+/mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Role.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/repository/QuestionRepository.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/repository/FacultyRepository.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/StudentController.java
@@ -10,7 +11,9 @@
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/repository/SyllabusRepository.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Submission.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/repository/SessionRepository.java
+/mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/AdminController.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/QuizApplication.java
+/mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/repository/UserRepository.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Session.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/dto/SessionDTOs.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/config/SecurityConfig.java
@@ -18,9 +21,11 @@
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/QuizController.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/service/SessionService.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/AuthController.java
+/mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/User.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/TestController.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Student.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Faculty.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/model/Syllabus.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/ScoreboardController.java
 /mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/controller/SessionController.java
+/mnt/Dwarkesh/QuizFinal/backend/src/main/java/com/quiz/config/DataInitializer.java

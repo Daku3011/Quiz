@@ -18,16 +18,19 @@
     <Label text="Live Scoreboard" styleClass="title"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="← Back" onAction="#onBack" styleClass="button, secondary"/>
+        <Region prefWidth="10"/>
         <Label text="Session ID:"/>
         <TextField fx:id="sessionIdField" promptText="Enter Session ID" style="-fx-font-weight: bold;"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Refresh" onAction="#onRefresh" styleClass="button, secondary"/>
+        <Button text="Refresh" onAction="#onRefresh" styleClass="button"/>
     </HBox>
 
     <TableView fx:id="table" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="nameCol" text="Student Name" prefWidth="150"/>
             <TableColumn fx:id="enrollCol" text="Enrollment" prefWidth="100"/>
+            <TableColumn fx:id="setCol" text="Set" prefWidth="50" style="-fx-alignment: CENTER;"/>
             <TableColumn fx:id="scoreCol" text="Score" prefWidth="80"/>
             <TableColumn fx:id="timeCol" text="Submitted At" prefWidth="150"/>
         </columns>

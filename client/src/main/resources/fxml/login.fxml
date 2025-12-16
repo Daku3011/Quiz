@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
@@ -24,15 +26,25 @@
         <VBox alignment="CENTER" spacing="10">
             <Label text="QuizApp" styleClass="title" style="-fx-font-size: 36px; -fx-text-fill: #2575fc;"/>
             <Label text="Welcome Back" styleClass="subtitle"/>
-            <Text text="Please select your role to continue" style="-fx-fill: #b2bec3; -fx-font-size: 14px;"/>
+            <Text text="Please sign in to continue" style="-fx-fill: #b2bec3; -fx-font-size: 14px;"/>
         </VBox>
 
         <!-- Actions Section -->
-        <VBox spacing="20" alignment="CENTER">
-            <Button text="I am a Faculty"
+        <VBox spacing="15" alignment="CENTER">
+            <VBox spacing="5" alignment="CENTER_LEFT" maxWidth="Infinity">
+                <Label text="Username" style="-fx-font-weight: bold; -fx-text-fill: #636e72;"/>
+                <TextField fx:id="usernameField" promptText="Enter your username" styleClass="text-field"/>
+            </VBox>
+            
+            <VBox spacing="5" alignment="CENTER_LEFT" maxWidth="Infinity">
+                <Label text="Password" style="-fx-font-weight: bold; -fx-text-fill: #636e72;"/>
+                <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="text-field"/>
+            </VBox>
+
+            <Button text="Login"
                     maxWidth="Infinity"
                     styleClass="button"
-                    onAction="#onFaculty"
+                    onAction="#onLogin"
                     prefHeight="45"/>
 
             <HBox alignment="CENTER">

@@ -39,6 +39,7 @@ public class ScoreboardController {
                                 "studentName", studentName,
                                 "enrollment", enrollment,
                                 "score", s.getScore(),
+                                "questionSet", s.getQuestionSet() != null ? s.getQuestionSet() : "-",
                                 "submittedAt", s.getSubmittedAt().toString());
                     }).collect(Collectors.toList()));
                 })

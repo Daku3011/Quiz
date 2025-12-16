@@ -20,8 +20,8 @@ public class SyllabusController {
     @PostMapping("/generate")
     public ResponseEntity<?> generateFromText(@RequestBody Map<String, String> body) {
         String text = body.get("text");
-        String countStr = body.getOrDefault("count", "5");
-        int count = 5;
+        String countStr = body.getOrDefault("count", "60");
+        int count = 60;
         try {
             count = Integer.parseInt(countStr);
         } catch (NumberFormatException e) {

@@ -11,6 +11,7 @@ public class Submission {
     private Long sessionId;
     private Long studentId;
     private int score;
+    private String questionSet; // "A", "B", ...
     private Instant submittedAt = Instant.now();
 
     public Long getId() {
@@ -51,5 +52,13 @@ public class Submission {
 
     public void setSubmittedAt(Instant submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    public String getQuestionSet() {
+        return questionSet;
+    }
+
+    public void setQuestionSet(String questionSet) {
+        this.questionSet = questionSet;
     }
 }

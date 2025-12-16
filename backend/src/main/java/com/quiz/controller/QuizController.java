@@ -15,10 +15,13 @@ public class QuizController {
 
     private final QuestionRepository questionRepo;
     private final com.quiz.repository.SubmissionRepository submissionRepo;
+    private final com.quiz.repository.SessionRepository sessionRepo;
 
-    public QuizController(QuestionRepository questionRepo, com.quiz.repository.SubmissionRepository submissionRepo) {
+    public QuizController(QuestionRepository questionRepo, com.quiz.repository.SubmissionRepository submissionRepo,
+            com.quiz.repository.SessionRepository sessionRepo) {
         this.questionRepo = questionRepo;
         this.submissionRepo = submissionRepo;
+        this.sessionRepo = sessionRepo;
     }
 
     @PostMapping("/submit")
@@ -49,12 +52,48 @@ public class QuizController {
             sub.setSessionId(sessionId);
             sub.setStudentId(studentId);
             sub.setScore(score.get());
+
+            // Calculate Set
+            sessionRepo.findById(sessionId).ifPresent(session -> {
+                int sets = session.getNumberOfSets();
+                if (sets < 1)
+                    sets = 1;
+                long setIndex = studentId % sets;
+                char setChar = (char) ('A' + setIndex);
+                sub.setQuestionSet("Set " + setChar);
+            });
+
             submissionRepo.save(sub);
         } catch (Exception e) {
             e.printStackTrace();
             // Don't fail the request if saving fails, just log it
         }
 
-        return ResponseEntity.ok(Map.of("score", score.get(), "message", "Submission successful"));
+        return ResponseEntity.ok(Map.of(
+                "score", score.get(),
+                "message", "Submission successful",
+                "results", generateResults(answers)));
+    }
+
+    private List<Map<String, Object>> generateResults(List<Map<String, Object>> answers) {
+        return answers.stream().map(ans -> {
+            Long qId = ((Number) ans.get("questionId")).longValue();
+            String selected = (String) ans.get("selectedOption");
+            Map<String, Object> res = new java.util.HashMap<>();
+            res.put("questionId", qId);
+            res.put("selected", selected);
+
+            questionRepo.findById(qId).ifPresent(q -> {
+                res.put("correctOption", q.getCorrect());
+                res.put("explanation", q.getExplanation());
+                res.put("isCorrect", q.getCorrect() != null && q.getCorrect().equalsIgnoreCase(selected));
+                res.put("text", q.getText());
+                res.put("optionA", q.getOptionA());
+                res.put("optionB", q.getOptionB());
+                res.put("optionC", q.getOptionC());
+                res.put("optionD", q.getOptionD());
+            });
+            return res;
+        }).collect(java.util.stream.Collectors.toList());
     }
 }

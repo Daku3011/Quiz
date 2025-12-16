@@ -12,9 +12,11 @@
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-bar">
+            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
             <Label text="Faculty Dashboard" styleClass="title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="View Scoreboard" onAction="#onViewScoreboard" styleClass="button, secondary"/>
+            <Button text="Logout" onAction="#onLogout" styleClass="button, danger"/>
         </HBox>
     </top>
 
@@ -44,6 +46,7 @@
                             <Spinner fx:id="countSpinner" prefWidth="100" editable="true" styleClass="text-field"/>
                         </HBox>
                         <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Add Manual Question" onAction="#onAddQuestion" styleClass="button, secondary"/>
                         <Button text="Generate Questions" onAction="#onGenerateQuestions" styleClass="button, success"/>
                     </HBox>
                 </VBox>
@@ -55,7 +58,7 @@
                         <Label text="Review &amp; Edit" styleClass="subtitle"/>
                     </HBox>
                     
-                    <Label text="Double click a question to edit its text." style="-fx-text-fill: #636e72;"/>
+                    <Label text="Double click a question to edit. Use buttons to delete." style="-fx-text-fill: #636e72;"/>
                     
                     <ListView fx:id="questionsList" VBox.vgrow="ALWAYS" prefHeight="300" styleClass="list-view"/>
                 </VBox>
@@ -65,6 +68,21 @@
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="3" style="-fx-background-color: #2575fc; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 5 12; -fx-background-radius: 20;"/>
                         <Label text="Start Session" styleClass="subtitle"/>
+                    </HBox>
+                    
+                    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                        <VBox spacing="5">
+                             <Label text="Start Time (ISO 8601):" style="-fx-font-size: 10px; -fx-text-fill: #636e72;"/>
+                             <TextField fx:id="startTimeField" promptText="2023-12-15T10:00:00" prefWidth="200"/>
+                        </VBox>
+                        <VBox spacing="5">
+                             <Label text="Duration (min):" style="-fx-font-size: 10px; -fx-text-fill: #636e72;"/>
+                             <TextField fx:id="durationField" promptText="60" prefWidth="80"/>
+                        </VBox>
+                        <VBox spacing="5">
+                             <Label text="Sets:" style="-fx-font-size: 10px; -fx-text-fill: #636e72;"/>
+                             <Spinner fx:id="setsSpinner" prefWidth="80" editable="true" styleClass="text-field"/>
+                        </VBox>
                     </HBox>
                     
                     <HBox spacing="25" alignment="CENTER_LEFT">

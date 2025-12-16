@@ -15,7 +15,9 @@ public class SessionService {
     // simple in-memory mapping sessionId -> questions
     private final Map<Long, List<Question>> sessionQuestions = new HashMap<>();
 
-    public SessionService(SessionRepository sessionRepo) { this.sessionRepo = sessionRepo; }
+    public SessionService(SessionRepository sessionRepo) {
+        this.sessionRepo = sessionRepo;
+    }
 
     public Session createSession(String title, String otp, List<Question> questions) {
         Session s = new Session();
@@ -35,5 +37,9 @@ public class SessionService {
         return sessionRepo.findById(sessionId)
                 .map(s -> s.isActive() && s.getOtp().equals(otp))
                 .orElse(false);
+    }
+
+    public Session getSession(Long sessionId) {
+        return sessionRepo.findById(sessionId).orElse(null);
     }
 }

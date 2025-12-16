@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import java.net.http.*;
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
 
 public class ScoreboardController {
     @FXML
@@ -17,6 +18,8 @@ public class ScoreboardController {
     public TableColumn<Map<String, Object>, String> nameCol;
     @FXML
     public TableColumn<Map<String, Object>, String> enrollCol;
+    @FXML
+    public TableColumn<Map<String, Object>, String> setCol;
     @FXML
     public TableColumn<Map<String, Object>, Integer> scoreCol;
     @FXML
@@ -29,6 +32,8 @@ public class ScoreboardController {
                 c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().get("studentName"))));
         enrollCol.setCellValueFactory(
                 c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().get("enrollment"))));
+        setCol.setCellValueFactory(
+                c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().get("questionSet"))));
         scoreCol.setCellValueFactory(
                 c -> new javafx.beans.property.SimpleIntegerProperty(((Number) c.getValue().get("score")).intValue())
                         .asObject());
@@ -82,7 +87,12 @@ public class ScoreboardController {
         }
     }
 
-    private void alert(String s) {
-        new Alert(Alert.AlertType.INFORMATION, s, ButtonType.OK).showAndWait();
+    @FXML
+    public void onBack(javafx.event.ActionEvent event) throws IOException {
+        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/fxml/faculty_dashboard.fxml"));
+        javafx.scene.Parent root = loader.load();
+        javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new javafx.scene.Scene(root));
     }
 }

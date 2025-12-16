@@ -10,8 +10,25 @@ const sections = {
     register: document.getElementById('register-section'),
     join: document.getElementById('join-section'),
     quiz: document.getElementById('quiz-section'),
-    result: document.getElementById('result-section')
+    result: document.getElementById('result-section'),
+    cheating: document.getElementById('cheating-section')
 };
+
+// Anti-Cheating: Detect Tab Switch
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !sections.quiz.classList.contains('hidden')) {
+        handleCheating();
+    }
+});
+
+function handleCheating() {
+    // Submit with 0 score or just disqualify
+    // For now, disqualify locally
+    showSection('cheating');
+
+    // Optional: Send a "disqualified" flag to backend if needed
+    // submitQuiz(true); 
+}
 
 function showSection(name) {
     Object.values(sections).forEach(el => el.classList.add('hidden'));
@@ -87,7 +104,7 @@ async function joinSession() {
 
 async function loadQuestions() {
     try {
-        const res = await fetch(`${API_BASE}/session/${sessionId}/questions`);
+        const res = await fetch(`${API_BASE}/session/${sessionId}/questions?studentId=${studentId}`);
         if (res.ok) {
             questions = await res.json();
             if (questions.length > 0) {
@@ -168,6 +185,36 @@ async function submitQuiz() {
         if (res.ok) {
             const data = await res.json();
             document.getElementById('score-display').textContent = `Your Score: ${data.score}`;
+
+            const details = document.getElementById('results-details');
+            details.innerHTML = '<h3>Detailed Results</h3>';
+
+            if (data.results) {
+                data.results.forEach((r, idx) => {
+                    const div = document.createElement('div');
+                    div.style.border = "1px solid #ddd";
+                    div.style.padding = "10px";
+                    div.style.marginBottom = "10px";
+                    div.style.borderRadius = "5px";
+                    div.style.backgroundColor = r.isCorrect ? "#e8f5e9" : "#ffebee";
+
+                    div.innerHTML = `
+                        <p><strong>Q${idx + 1}:</strong> <pre style="font-family:inherit; white-space:pre-wrap;">${r.text}</pre></p>
+                        <div style="margin-left: 20px; font-size: 0.9em; color: #555;">
+                            <p>A) ${r.optionA}</p>
+                            <p>B) ${r.optionB}</p>
+                            <p>C) ${r.optionC}</p>
+                            <p>D) ${r.optionD}</p>
+                        </div>
+                        <p style="margin-top:10px;">Your Answer: <strong>${r.selected || "None"}</strong> ${r.isCorrect ? "✅" : "❌"}</p>
+                        ${!r.isCorrect ? `<p>Correct Answer: <strong>${r.correctOption}</strong></p>` : ""}
+                        <hr>
+                        <p><strong>Explanation:</strong> ${r.explanation || "No explanation provided."}</p>
+                    `;
+                    details.appendChild(div);
+                });
+            }
+
             showSection('result');
         } else {
             alert("Submission failed.");

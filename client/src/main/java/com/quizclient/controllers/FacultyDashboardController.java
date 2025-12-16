@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 
@@ -28,17 +29,51 @@ public class FacultyDashboardController {
     private final HttpClient http = ApiClient.HTTP;
 
     @FXML
+    public Spinner<Integer> setsSpinner;
+
+    @FXML
     public void initialize() {
         // default question count
-        countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50, 5));
+        countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 60));
+        setsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1));
+
         questionsList.setCellFactory(lv -> new ListCell<>() {
+            private final HBox content;
+            private final Label label;
+            private final Button editBtn;
+            private final Button deleteBtn;
+
+            {
+                label = new Label();
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, javafx.scene.layout.Priority.ALWAYS);
+
+                editBtn = new Button("Edit");
+                editBtn.setOnAction(e -> {
+                    questionsList.getSelectionModel().select(getItem());
+                    editSelectedQuestion();
+                });
+
+                deleteBtn = new Button("Delete");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+                deleteBtn.setOnAction(e -> {
+                    questionsList.getItems().remove(getItem());
+                });
+
+                content = new HBox(10, label, editBtn, deleteBtn);
+                content.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            }
+
             @Override
             protected void updateItem(QuestionDTO item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null)
+                if (empty || item == null) {
                     setText(null);
-                else
-                    setText((getIndex() + 1) + ". " + item.getText());
+                    setGraphic(null);
+                } else {
+                    label.setText((getIndex() + 1) + ". " + item.getText());
+                    setGraphic(content);
+                }
             }
         });
 
@@ -46,6 +81,21 @@ public class FacultyDashboardController {
             if (e.getClickCount() == 2)
                 editSelectedQuestion();
         });
+    }
+
+    @FXML
+    public void onAddQuestion() {
+        QuestionDTO newQ = new QuestionDTO();
+        newQ.setText("New Question");
+        newQ.setOptionA("Option A");
+        newQ.setOptionB("Option B");
+        newQ.setOptionC("Option C");
+        newQ.setOptionD("Option D");
+        newQ.setCorrect("A");
+        newQ.setExplanation("Explanation...");
+        questionsList.getItems().add(newQ);
+        questionsList.getSelectionModel().select(newQ);
+        editSelectedQuestion();
     }
 
     @FXML
@@ -62,13 +112,13 @@ public class FacultyDashboardController {
             var req = ApiClient.jsonRequest("/api/syllabus/generate")
                     .POST(HttpRequest.BodyPublishers
                             .ofString(ApiClient.MAPPER.writeValueAsString(body)))
+                    .timeout(java.time.Duration.ofSeconds(60))
                     .build();
             var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() == 200) {
                 List<QuestionDTO> list = ApiClient.MAPPER.readValue(resp.body(),
                         new TypeReference<List<QuestionDTO>>() {
                         });
-                questionsList.getItems().clear();
                 questionsList.getItems().addAll(list);
             } else {
                 alert("AI error: " + resp.body());
@@ -86,18 +136,64 @@ public class FacultyDashboardController {
             alert("Select a question");
             return;
         }
-        // Simple edit dialog for question text
-        TextInputDialog d = new TextInputDialog(sel.getText());
-        d.setTitle("Edit Question");
-        d.setHeaderText("Edit question text");
-        var res = d.showAndWait();
-        res.ifPresent(newText -> {
-            sel.setText(newText);
-            questionsList.refresh();
-        });
+
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/fxml/question_editor.fxml"));
+            DialogPane pane = loader.load();
+
+            // Populate fields
+            TextArea qText = (TextArea) pane.lookup("#qTextArea");
+            TextField optA = (TextField) pane.lookup("#optAField");
+            TextField optB = (TextField) pane.lookup("#optBField");
+            TextField optC = (TextField) pane.lookup("#optCField");
+            TextField optD = (TextField) pane.lookup("#optDField");
+            @SuppressWarnings("unchecked")
+            ComboBox<String> correctBox = (ComboBox<String>) pane.lookup("#correctBox");
+            // Looking for explanation field in dialog? Maybe simpler to add prompt for now
+            // or leave out of editor if dialog not updated yet.
+            // The user didn't explicitly ask for explanation in editor, but good to have.
+            // For now I'll just keep existing editor fields.
+
+            qText.setText(sel.getText());
+            optA.setText(sel.getOptionA());
+            optB.setText(sel.getOptionB());
+            optC.setText(sel.getOptionC());
+            optD.setText(sel.getOptionD());
+
+            correctBox.getItems().addAll("A", "B", "C", "D");
+            correctBox.setValue(sel.getCorrect() != null ? sel.getCorrect() : "A");
+
+            Dialog<Boolean> dialog = new Dialog<>();
+            dialog.setTitle("Edit Question");
+            dialog.setDialogPane(pane);
+            dialog.setResultConverter(btn -> btn == ButtonType.OK);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            Optional<Boolean> result = dialog.showAndWait();
+            if (result.isPresent() && result.get()) {
+                sel.setText(qText.getText());
+                sel.setOptionA(optA.getText());
+                sel.setOptionB(optB.getText());
+                sel.setOptionC(optC.getText());
+                sel.setOptionD(optD.getText());
+                sel.setCorrect(correctBox.getValue());
+
+                questionsList.refresh();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert("Error opening editor: " + e.getMessage());
+        }
     }
 
     private String currentSessionId;
+
+    @FXML
+    private TextField startTimeField;
+    @FXML
+    private TextField durationField;
 
     @FXML
     public void onStartSession() {
@@ -110,10 +206,31 @@ public class FacultyDashboardController {
             m.put("optionC", q.getOptionC() == null ? "C" : q.getOptionC());
             m.put("optionD", q.getOptionD() == null ? "D" : q.getOptionD());
             m.put("correct", q.getCorrect() == null ? "A" : q.getCorrect());
+            m.put("explanation", q.getExplanation());
             qlist.add(m);
         }
         try {
-            var body = Map.of("title", "Quiz by " + System.getProperty("facultyName", "Faculty"), "questions", qlist);
+            Map<String, Object> body = new HashMap<>();
+            body.put("title", "Quiz by " + System.getProperty("facultyName", "Faculty"));
+            body.put("questions", qlist);
+
+            String st = startTimeField.getText();
+            if (st != null && !st.isBlank())
+                body.put("startTime", st);
+
+            String dur = durationField.getText();
+            if (dur != null && !dur.isBlank()) {
+                try {
+                    body.put("durationMinutes", Integer.parseInt(dur));
+                } catch (NumberFormatException e) {
+                    alert("Invalid duration");
+                    return;
+                }
+            }
+
+            Integer sets = setsSpinner.getValue();
+            body.put("numberOfSets", sets != null ? sets : 1);
+
             var req = ApiClient.jsonRequest("/api/session/start")
                     .POST(HttpRequest.BodyPublishers.ofString(ApiClient.MAPPER.writeValueAsString(body)))
                     .build();
@@ -164,7 +281,7 @@ public class FacultyDashboardController {
 
     @FXML
     public void onBrowse(ActionEvent event) {
-        // File chooser for uploading syllabus
+        // ... existing browse code ...
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Syllabus File");
         chooser.getExtensionFilters().add(
@@ -197,6 +314,16 @@ public class FacultyDashboardController {
                 alert("Failed to read file: " + e.getMessage());
             }
         }
+    }
+
+    @FXML
+    public void onLogout(ActionEvent event) throws java.io.IOException {
+        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+        javafx.scene.Parent root = loader.load();
+        javafx.scene.Scene scene = new javafx.scene.Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
+        javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
     }
 
     private void alert(String s) {
