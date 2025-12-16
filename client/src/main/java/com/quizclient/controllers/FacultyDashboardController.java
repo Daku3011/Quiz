@@ -117,55 +117,88 @@ public class FacultyDashboardController {
 
         // Disable UI & Show Loading
         setLoadingState(true);
+        questionsList.getItems().clear(); // Clear previous generation? Or append? Usually clear is expected for
+                                          // "Generate"
 
-        int count = countSpinner.getValue();
+        int totalCount = countSpinner.getValue();
+        final int BATCH_SIZE = 10; // Request in chunks of 10
 
         // Run in background
         generationTask = new javafx.concurrent.Task<>() {
             @Override
             protected List<QuestionDTO> call() throws Exception {
-                // Check cancellation
-                if (isCancelled())
-                    return null;
+                List<QuestionDTO> allQuestions = new ArrayList<>();
+                int remaining = totalCount;
 
-                @SuppressWarnings("unused")
-                var body = Map.of("text", text, "count", String.valueOf(count));
+                while (remaining > 0) {
+                    // Check cancellation
+                    if (isCancelled())
+                        break;
 
-                // Create request
-                var req = ApiClient.jsonRequest("/api/syllabus/generate")
-                        .POST(HttpRequest.BodyPublishers
-                                .ofString(ApiClient.MAPPER.writeValueAsString(body)))
-                        .timeout(java.time.Duration.ofSeconds(600)) // Increased timeout
-                        .build();
+                    int currentBatch = Math.min(BATCH_SIZE, remaining);
 
-                // Use synchronous send but it's interruptible
-                var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+                    try {
+                        @SuppressWarnings("unused")
+                        var body = Map.of("text", text, "count", String.valueOf(currentBatch));
 
-                if (isCancelled())
-                    return null;
+                        // Create request
+                        var req = ApiClient.jsonRequest("/api/syllabus/generate")
+                                .POST(HttpRequest.BodyPublishers
+                                        .ofString(ApiClient.MAPPER.writeValueAsString(body)))
+                                .timeout(java.time.Duration.ofSeconds(120)) // Timeout per batch
+                                .build();
 
-                if (resp.statusCode() == 200) {
-                    return ApiClient.MAPPER.readValue(resp.body(), new TypeReference<List<QuestionDTO>>() {
-                    });
-                } else {
-                    throw new RuntimeException("AI error: " + resp.body());
+                        // Synch send
+                        var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+
+                        if (isCancelled())
+                            break;
+
+                        if (resp.statusCode() == 200) {
+                            List<QuestionDTO> batch = ApiClient.MAPPER.readValue(resp.body(),
+                                    new TypeReference<List<QuestionDTO>>() {
+                                    });
+                            if (batch != null && !batch.isEmpty()) {
+                                allQuestions.addAll(batch);
+
+                                // Update UI Immediately
+                                javafx.application.Platform.runLater(() -> {
+                                    questionsList.getItems().addAll(batch);
+                                    questionsList.scrollTo(questionsList.getItems().size() - 1);
+                                });
+                            }
+                        } else {
+                            System.err.println("Batch error: " + resp.body());
+                            // Continue to try next batch or stop?
+                            // Let's continue to get as many as possible
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // If one batch fails (timeout etc), we continue
+                    }
+
+                    remaining -= currentBatch;
                 }
+                return allQuestions;
             }
         };
 
         generationTask.setOnSucceeded(e -> {
-            List<QuestionDTO> result = generationTask.getValue();
-            if (result != null) {
-                questionsList.getItems().addAll(result);
-                alert("Questions generated successfully!");
-            }
             setLoadingState(false);
+            if (questionsList.getItems().isEmpty()) {
+                alert("Generation failed or returned no questions.");
+            } else {
+                // Determine if we got all of them
+                if (questionsList.getItems().size() < totalCount) {
+                    // Optional: alert restricted
+                }
+            }
         });
 
         generationTask.setOnFailed(e -> {
             Throwable ex = generationTask.getException();
             if (ex instanceof java.util.concurrent.CancellationException || generationTask.isCancelled()) {
-                // Ignore if cancelled
+                // Ignore
             } else {
                 ex.printStackTrace();
                 alert("Error: " + ex.getMessage());

@@ -68,8 +68,8 @@ public class AIService {
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
-        // Batch size for parallel requests. 5 is a sweet spot for reliability vs speed.
-        private static final int BATCH_SIZE = 5;
+        // Batch size for parallel requests. Increased to 10 for higher throughput.
+        private static final int BATCH_SIZE = 10;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
                 if (ollamaUrl == null || ollamaUrl.isBlank()) {
