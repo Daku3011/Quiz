@@ -7,27 +7,29 @@ A modern, hybrid quiz platform designed for seamless interaction between Faculty
 ## 🚀 Key Features
 
 ### 👨‍🏫 Faculty Dashboard (Desktop App)
-*   **Syllabus Upload**: Upload text or PDF files to automatically generate quiz questions using AI.
+*   **AI-Powered Generation**: Generates high-quality questions from text/PDF using local LLMs (**Ollama/Gemma**).
+*   **Fast & Reliable**: Uses **Parallel Request Batching** to generate 100+ questions in seconds without crashing.
+*   **Smart Recovery**: Automatically fixes cut-off JSON using intelligent repair logic.
+*   **Interactive UI**: Includes **Loading Indicators** and **Cancel** options for long operations.
 *   **Question Management**: Review, edit, and customize generated questions before starting the session.
 *   **Session Management**: Start a new quiz session with a unique **Session ID** and **OTP**.
-*   **Live Scoreboard**: Monitor student progress in real-time with a dynamic scoreboard that updates as students submit their answers.
-*   **Secure**: Built-in authentication and OTP verification for session security.
+*   **Live Scoreboard**: Monitor student progress in real-time with a dynamic scoreboard.
 
 ### 👨‍🎓 Student Client (Hybrid Access)
-Students can join the quiz using **either** the Desktop App or the Web Interface:
-*   **Desktop Client**: A native JavaFX application for a focused, distraction-free experience.
-*   **Web Client**: A responsive web interface accessible from any device (Mobile, Tablet, Laptop) via the browser.
-*   **Seamless Flow**: Register -> Join Session (ID + OTP) -> Take Quiz -> Submit & View Score.
+*   **Cross-Platform**: Accessible via **Desktop App** (JavaFX) or **Web Client** (Mobile/Laptop).
+*   **Secure Access**: Register with Enrollment ID and join via OTP.
+*   **Anti-Cheating**: Tab-switch detection (Web) to ensure integrity.
+*   **Instant Feedback**: View scores and detailed explanations immediately after submission.
 
 ---
 
 ## 🛠️ Technology Stack
 
-*   **Backend**: Java 17, Spring Boot 3, Spring Security, Spring Data JPA, H2 Database.
-*   **Frontend (Desktop)**: JavaFX 19, CSS3 (Modern UI).
+*   **Backend**: Java 17, Spring Boot 3, Spring Security, H2 Database.
+*   **AI Engine**: **Ollama** (Local LLM), running `gemma:2b` or custom models.
+*   **Frontend (Desktop)**: JavaFX 19, CSS3 (Modern Glassmorphism UI).
 *   **Frontend (Web)**: HTML5, CSS3, Vanilla JavaScript (SPA).
-*   **AI Integration**: Mock AI Service (extensible for OpenAI/Gemini integration).
-*   **Tools**: Maven, PDFBox (for PDF parsing).
+*   **Performance**: `CompletableFuture` for asynchronous, parallel AI processing.
 
 ---
 
@@ -47,10 +49,10 @@ graph TD
     subgraph "Backend Server"
         API[Spring Boot API]
         DB[(H2 Database)]
-        AI[AI Service]
+        Ollama[Ollama (Local LLM)]
         
         API --> DB
-        API --> AI
+        API -->|HTTP JSON| Ollama
         API --> Static[Static Web Resources]
     end
 ```
@@ -60,10 +62,17 @@ graph TD
 ## 📦 Installation & Setup
 
 ### Prerequisites
-*   **Java 17** or higher installed.
+*   **Java 17** or higher.
 *   **Maven** installed.
+*   **Ollama** installed ([Download Here](https://ollama.com)).
 
-### 1. Start the Backend Server
+### 1. Setup AI Model
+Pull the lightweight Gemma model:
+```bash
+ollama run gemma:2b
+```
+
+### 2. Start the Backend Server
 The backend hosts the API and the Student Web Client.
 ```bash
 cd backend
@@ -71,50 +80,37 @@ mvn spring-boot:run
 ```
 *Server starts at `http://localhost:8080`*
 
-### 2. Run the Faculty Dashboard
+### 3. Run the Faculty Dashboard / Student App
 Open a new terminal:
 ```bash
 cd client
 mvn javafx:run
 ```
-*Select "I am a Faculty" to log in.*
+*Select "Faculty" to generate questions or "Student" to take a quiz.*
 
-### 3. Run the Student Client
-**Option A: Desktop App**
-Run the client command again and select "I am a Student".
-```bash
-cd client
-mvn javafx:run
-```
-
-**Option B: Web Client (Mobile/Laptop)**
-Open your browser and navigate to:
-*   **Local**: `http://localhost:8080`
-*   **Network**: `http://<YOUR_IP_ADDRESS>:8080` (e.g., `http://192.168.1.5:8080`)
+### 4. Student Web Access
+Open your browser (or phone on same WiFi) and navigate to:
+`http://localhost:8080` or `http://<YOUR_CTX_IP>:8080`
 
 ---
 
 ## 📖 Usage Guide
 
 1.  **Faculty**:
-    *   Launch the Dashboard.
-    *   Upload a syllabus (Text/PDF) or paste content.
-    *   Select the number of questions and click **"Generate Questions"**.
-    *   Review/Edit questions and click **"Start Session"**.
-    *   Share the **Session ID** and **OTP** with students.
-    *   Click **"View Scoreboard"** to watch live results.
+    *   **Login**: Use faculty credentials.
+    *   **Generate**: Paste syllabus -> "Generate Questions" (watches the loading bar!).
+    *   **Review**: Edit questions if needed -> "Start Session".
+    *   **Monitor**: Share ID/OTP and watch the live scoreboard.
 
 2.  **Student**:
-    *   Open the App or Web Page.
-    *   **Register** with Name and Enrollment Number.
-    *   **Join** using the provided Session ID and OTP.
-    *   Answer questions and **Submit**.
-    *   View your score instantly!
+    *   **Join**: Enter ID & OTP.
+    *   **Quiz**: Answer questions (clean, focused UI).
+    *   **Result**: See score and explanations instantly.
 
 ---
 
 ## 🤝 Contributing
-Feel free to fork this repository and submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
+Feel free to fork this repository and submit pull requests.
 
 ---
 
