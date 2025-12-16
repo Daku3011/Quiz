@@ -68,33 +68,44 @@ public class AIService {
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
+        // Batch size for parallel requests. 5 is a sweet spot for reliability vs speed.
+        private static final int BATCH_SIZE = 5;
+
         public List<Question> generateQuestions(String syllabusText, int count) {
                 if (ollamaUrl == null || ollamaUrl.isBlank()) {
                         System.out.println("Using Mock DB (No Ollama URL provided)");
                         return generateMockQuestions(count);
                 }
 
-                System.out.println("DEBUG: Generating " + count + " questions in PARALLEL...");
-                List<java.util.concurrent.CompletableFuture<Question>> futures = new ArrayList<>();
+                System.out.println("DEBUG: Generating " + count + " questions using PARALLEL BATCHES (Size: "
+                                + BATCH_SIZE + ")...");
+                List<java.util.concurrent.CompletableFuture<List<Question>>> futures = new ArrayList<>();
 
-                for (int i = 0; i < count; i++) {
+                int questionsRemaining = count;
+                while (questionsRemaining > 0) {
+                        int currentBatchSize = Math.min(BATCH_SIZE, questionsRemaining);
+                        questionsRemaining -= currentBatchSize;
+
+                        // Capture effective final variable for lambda
+                        final int batchCount = currentBatchSize;
+
                         futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                                 try {
-                                        return generateOneQuestion(syllabusText);
+                                        return generateBatch(syllabusText, batchCount);
                                 } catch (Exception e) {
                                         e.printStackTrace();
-                                        return null;
+                                        return new ArrayList<>(); // Return empty on failure to avoid nulls
                                 }
                         }));
                 }
 
                 List<Question> allQuestions = futures.stream()
                                 .map(java.util.concurrent.CompletableFuture::join)
-                                .filter(q -> q != null)
+                                .flatMap(List::stream)
                                 .collect(java.util.stream.Collectors.toList());
 
                 if (allQuestions.isEmpty()) {
-                        System.out.println("DEBUG: All parallel requests failed, returning mocks.");
+                        System.out.println("DEBUG: All batch requests failed, returning mocks.");
                         return generateMockQuestions(count);
                 }
 
@@ -102,14 +113,27 @@ public class AIService {
                 return allQuestions;
         }
 
-        private Question generateOneQuestion(String syllabusText) throws Exception {
-                String systemPrompt = "You are a precise assistant that generates multiple-choice questions in strict JSON format.";
-                String userPrompt = "Generate ONE multiple-choice question based on the reference text.\n" +
-                                "Return ONLY a single raw JSON object (no markdown, no code blocks, just the object) with keys:\n"
+        private List<Question> generateBatch(String syllabusText, int count) throws Exception {
+                // Strict prompt for batch generation
+                String systemPrompt = "You are a precise assistant that generates JSON arrays of questions.";
+                String userPrompt = "Generate EXACTLY " + count
+                                + " multiple-choice questions based on the reference text.\n" +
+                                "Return the response as a valid JSON ARRAY of objects. Do NOT return a single object.\n"
                                 +
-                                "text, optionA, optionB, optionC, optionD, correct (A/B/C/D), explanation.\n" +
+                                "JSON Format:\n"
+                                +
+                                "[\n"
+                                +
+                                "  {\"text\": \"...\", \"optionA\": \"...\", \"optionB\": \"...\", \"optionC\": \"...\", \"optionD\": \"...\", \"correct\": \"A\", \"explanation\": \"...\"},\n"
+                                +
+                                "  ... (make sure there are " + count + " objects)\n"
+                                +
+                                "]\n"
+                                +
+                                "Required Keys: text, optionA, optionB, optionC, optionD, correct (A/B/C/D), explanation.\n"
+                                +
                                 "CRITICAL REQUIREMENTS:\n" +
-                                "1. Difficulty: Randomly selected (Hard/Medium/Conceptual).\n" +
+                                "1. Mix of difficulty: 30% Hard, 40% Medium, 30% Conceptual.\n" +
                                 "2. INCLUDE CODE SNIPPETS in the 'text' field where applicable.\n" +
                                 "3. Do NOT copy sentences from syllabus verbatim; rephrase them as questions.\n" +
                                 "4. 'explanation' must be concise (max 30 words).\n" +
@@ -121,7 +145,7 @@ public class AIService {
                                                 Map.of("role", "system", "content", systemPrompt),
                                                 Map.of("role", "user", "content", userPrompt)),
                                 "stream", false,
-                                "options", Map.of("num_predict", 1024, "num_ctx", 4096));
+                                "options", Map.of("num_predict", 4096, "num_ctx", 4096)); // Higher predict for batch
 
                 String requestBody = mapper.writeValueAsString(bodyMap);
 
@@ -138,42 +162,16 @@ public class AIService {
                         com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
                         String responseText = root.path("message").path("content").asText();
 
-                        // LOGGING REQUESTED BY USER
-                        System.out.println("DEBUG RAW AI RESPONSE: " + responseText);
+                        // LOGGING
+                        System.out.println("DEBUG RAW AI BATCH RESPONSE: "
+                                        + responseText.substring(0, Math.min(responseText.length(), 200)) + "...");
 
                         responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
                         try {
-                                return mapper.readValue(responseText, Question.class);
+                                return mapper.readValue(responseText,
+                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                });
                         } catch (Exception e) {
-                                // Attempt Repair
-                                try {
-                                        String repaired = responseText.trim();
-                                        if (!repaired.endsWith("}")) {
-                                                // Check if it ended inside a string
-                                                int lastQuote = repaired.lastIndexOf("\"");
-                                                int lastColon = repaired.lastIndexOf(":");
-                                                if (lastQuote > lastColon) {
-                                                        // likely ended inside string value, close quote
-                                                        repaired += "\"";
-                                                }
-                                                repaired += "}";
-                                                System.out.println("DEBUG: Attempting to repair JSON: " + repaired);
-                                                return mapper.readValue(repaired, Question.class);
-                                        }
-                                } catch (Exception repairEx) {
-                                        System.err.println("Repair failed: " + repairEx.getMessage());
-                                }
-
-                                // Try list in case it returned a list of 1
-                                try {
-                                        List<Question> list = mapper.readValue(responseText,
-                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                        });
-                                        if (!list.isEmpty())
-                                                return list.get(0);
-                                } catch (Exception ignore) {
-                                }
-
                                 System.err.println("Failed to parse question JSON: " + e.getMessage());
                                 return null;
                         }
