@@ -49,7 +49,7 @@ graph TD
     subgraph "Backend Server"
         API[Spring Boot API]
         DB[(H2 Database)]
-        Ollama[Ollama (Local LLM)]
+        Ollama["Ollama (Local LLM)"]
         
         API --> DB
         API -->|HTTP JSON| Ollama
