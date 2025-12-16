@@ -59,79 +59,127 @@ public class AIService {
                 MOCK_DB.add(q);
         }
 
-        @org.springframework.beans.factory.annotation.Value("${openai.api.key}")
-        private String apiKey;
+        @org.springframework.beans.factory.annotation.Value("${ollama.api.url}")
+        private String ollamaUrl;
+
+        @org.springframework.beans.factory.annotation.Value("${ollama.model}")
+        private String ollamaModel;
 
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
         public List<Question> generateQuestions(String syllabusText, int count) {
-                // 1. Check if API key is provided
-                if (apiKey == null || apiKey.isBlank() || apiKey.contains("INSERT_YOUR_OPEN_AI_KEY")) {
-                        System.out.println("Using Mock DB (No API Key provided)");
+                if (ollamaUrl == null || ollamaUrl.isBlank()) {
+                        System.out.println("Using Mock DB (No Ollama URL provided)");
                         return generateMockQuestions(count);
                 }
 
-                // 2. Call OpenAI API
-                try {
-                        String systemPrompt = "You are a helpful assistant that generates multiple-choice questions.";
-                        String userPrompt = "Generate " + count
-                                        + " multiple-choice questions based on the following syllabus.\n" +
-                                        "Return ONLY a raw JSON array (no markdown, no code blocks, just the array) of objects with keys:\n"
-                                        +
-                                        "text, optionA, optionB, optionC, optionD, correct (A/B/C/D), explanation.\n" +
-                                        "CRITICAL REQUIREMENTS:\n" +
-                                        "1. Mix of difficulty: 30% Hard (Numerical/Code), 40% Medium, 30% Conceptual.\n"
-                                        +
-                                        "2. INCLUDE CODE SNIPPETS in the 'text' field where applicable (use \\n for line breaks).\n"
-                                        +
-                                        "3. INCLUDE NUMERICAL PROBLEMS if the topic allows.\n" +
-                                        "4. Ensure questions are UNIQUE and not repetitive.\n" +
-                                        "5. 'explanation' must be detailed and explain WHY the answer is correct.\n" +
-                                        "Syllabus: " + syllabusText;
+                System.out.println("DEBUG: Generating " + count + " questions in PARALLEL...");
+                List<java.util.concurrent.CompletableFuture<Question>> futures = new ArrayList<>();
 
-                        // correct structure for OpenAI: { "model": "gpt-4o", "messages": [...] }
-                        Map<String, Object> bodyMap = Map.of(
-                                        "model", "gpt-4o",
-                                        "messages", List.of(
-                                                        Map.of("role", "system", "content", systemPrompt),
-                                                        Map.of("role", "user", "content", userPrompt)),
-                                        "temperature", 0.7);
+                for (int i = 0; i < count; i++) {
+                        futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                                try {
+                                        return generateOneQuestion(syllabusText);
+                                } catch (Exception e) {
+                                        e.printStackTrace();
+                                        return null;
+                                }
+                        }));
+                }
 
-                        String requestBody = mapper.writeValueAsString(bodyMap);
+                List<Question> allQuestions = futures.stream()
+                                .map(java.util.concurrent.CompletableFuture::join)
+                                .filter(q -> q != null)
+                                .collect(java.util.stream.Collectors.toList());
 
-                        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                                        .uri(java.net.URI.create("https://api.openai.com/v1/chat/completions"))
-                                        .header("Content-Type", "application/json")
-                                        .header("Authorization", "Bearer " + apiKey)
-                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
-                                        .build();
-
-                        java.net.http.HttpResponse<String> response = httpClient.send(request,
-                                        java.net.http.HttpResponse.BodyHandlers.ofString());
-
-                        if (response.statusCode() == 200) {
-                                // Parse response
-                                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
-                                String responseText = root.path("choices").get(0).path("message").path("content")
-                                                .asText();
-
-                                // Clean up markdown if present (sometimes gpt adds ```json ... ```)
-                                responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
-
-                                List<Question> questions = mapper.readValue(responseText,
-                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                });
-                                return questions;
-                        } else {
-                                System.err.println(
-                                                "OpenAI API Error: " + response.statusCode() + " " + response.body());
-                                return generateMockQuestions(count);
-                        }
-
-                } catch (Exception e) {
-                        e.printStackTrace();
+                if (allQuestions.isEmpty()) {
+                        System.out.println("DEBUG: All parallel requests failed, returning mocks.");
                         return generateMockQuestions(count);
+                }
+
+                System.out.println("DEBUG: Successfully generated " + allQuestions.size() + " questions.");
+                return allQuestions;
+        }
+
+        private Question generateOneQuestion(String syllabusText) throws Exception {
+                String systemPrompt = "You are a precise assistant that generates multiple-choice questions in strict JSON format.";
+                String userPrompt = "Generate ONE multiple-choice question based on the reference text.\n" +
+                                "Return ONLY a single raw JSON object (no markdown, no code blocks, just the object) with keys:\n"
+                                +
+                                "text, optionA, optionB, optionC, optionD, correct (A/B/C/D), explanation.\n" +
+                                "CRITICAL REQUIREMENTS:\n" +
+                                "1. Difficulty: Randomly selected (Hard/Medium/Conceptual).\n" +
+                                "2. INCLUDE CODE SNIPPETS in the 'text' field where applicable.\n" +
+                                "3. Do NOT copy sentences from syllabus verbatim; rephrase them as questions.\n" +
+                                "4. 'explanation' must be concise (max 30 words).\n" +
+                                "Syllabus: " + syllabusText;
+
+                Map<String, Object> bodyMap = Map.of(
+                                "model", ollamaModel,
+                                "messages", List.of(
+                                                Map.of("role", "system", "content", systemPrompt),
+                                                Map.of("role", "user", "content", userPrompt)),
+                                "stream", false,
+                                "options", Map.of("num_predict", 1024, "num_ctx", 4096));
+
+                String requestBody = mapper.writeValueAsString(bodyMap);
+
+                java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                                .uri(java.net.URI.create(ollamaUrl))
+                                .header("Content-Type", "application/json")
+                                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                .build();
+
+                java.net.http.HttpResponse<String> response = httpClient.send(request,
+                                java.net.http.HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                        com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+                        String responseText = root.path("message").path("content").asText();
+
+                        // LOGGING REQUESTED BY USER
+                        System.out.println("DEBUG RAW AI RESPONSE: " + responseText);
+
+                        responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
+                        try {
+                                return mapper.readValue(responseText, Question.class);
+                        } catch (Exception e) {
+                                // Attempt Repair
+                                try {
+                                        String repaired = responseText.trim();
+                                        if (!repaired.endsWith("}")) {
+                                                // Check if it ended inside a string
+                                                int lastQuote = repaired.lastIndexOf("\"");
+                                                int lastColon = repaired.lastIndexOf(":");
+                                                if (lastQuote > lastColon) {
+                                                        // likely ended inside string value, close quote
+                                                        repaired += "\"";
+                                                }
+                                                repaired += "}";
+                                                System.out.println("DEBUG: Attempting to repair JSON: " + repaired);
+                                                return mapper.readValue(repaired, Question.class);
+                                        }
+                                } catch (Exception repairEx) {
+                                        System.err.println("Repair failed: " + repairEx.getMessage());
+                                }
+
+                                // Try list in case it returned a list of 1
+                                try {
+                                        List<Question> list = mapper.readValue(responseText,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                        });
+                                        if (!list.isEmpty())
+                                                return list.get(0);
+                                } catch (Exception ignore) {
+                                }
+
+                                System.err.println("Failed to parse question JSON: " + e.getMessage());
+                                return null;
+                        }
+                } else {
+                        System.err.println("Ollama API Error: " + response.statusCode() + " " + response.body());
+                        return null;
                 }
         }
 

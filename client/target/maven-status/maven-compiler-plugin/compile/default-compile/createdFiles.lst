@@ -1,9 +1,12 @@
+com/quizclient/controllers/FacultyDashboardController$2$1.class
 com/quizclient/MainApp.class
 com/quizclient/controllers/LoginController.class
 com/quizclient/controllers/FacultyDashboardController$1.class
 com/quizclient/controllers/QuizController$1.class
+com/quizclient/controllers/LoginController$1.class
 com/quizclient/controllers/ScoreboardController$1.class
 com/quizclient/dto/QuestionDTO.class
+com/quizclient/controllers/AdminDashboardController.class
 com/quizclient/controllers/FacultyDashboardController$2.class
 com/quizclient/controllers/FacultyDashboardController.class
 com/quizclient/ApiClient.class

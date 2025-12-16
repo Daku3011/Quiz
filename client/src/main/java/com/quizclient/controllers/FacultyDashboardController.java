@@ -99,34 +99,105 @@ public class FacultyDashboardController {
     }
 
     @FXML
+    public Button generateBtn;
+    @FXML
+    public ProgressIndicator loadingIndicator;
+    @FXML
+    public Button cancelBtn;
+
+    private javafx.concurrent.Task<List<QuestionDTO>> generationTask;
+
+    @FXML
     public void onGenerateQuestions() {
         String text = syllabusArea.getText();
         if (text == null || text.isBlank()) {
             alert("Paste syllabus first");
             return;
         }
-        try {
-            int count = countSpinner.getValue();
-            @SuppressWarnings("unused")
-            var body = Map.of("text", text, "count", String.valueOf(count));
-            var req = ApiClient.jsonRequest("/api/syllabus/generate")
-                    .POST(HttpRequest.BodyPublishers
-                            .ofString(ApiClient.MAPPER.writeValueAsString(body)))
-                    .timeout(java.time.Duration.ofSeconds(60))
-                    .build();
-            var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
-            if (resp.statusCode() == 200) {
-                List<QuestionDTO> list = ApiClient.MAPPER.readValue(resp.body(),
-                        new TypeReference<List<QuestionDTO>>() {
-                        });
-                questionsList.getItems().addAll(list);
-            } else {
-                alert("AI error: " + resp.body());
+
+        // Disable UI & Show Loading
+        setLoadingState(true);
+
+        int count = countSpinner.getValue();
+
+        // Run in background
+        generationTask = new javafx.concurrent.Task<>() {
+            @Override
+            protected List<QuestionDTO> call() throws Exception {
+                // Check cancellation
+                if (isCancelled())
+                    return null;
+
+                @SuppressWarnings("unused")
+                var body = Map.of("text", text, "count", String.valueOf(count));
+
+                // Create request
+                var req = ApiClient.jsonRequest("/api/syllabus/generate")
+                        .POST(HttpRequest.BodyPublishers
+                                .ofString(ApiClient.MAPPER.writeValueAsString(body)))
+                        .timeout(java.time.Duration.ofSeconds(600)) // Increased timeout
+                        .build();
+
+                // Use synchronous send but it's interruptible
+                var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
+
+                if (isCancelled())
+                    return null;
+
+                if (resp.statusCode() == 200) {
+                    return ApiClient.MAPPER.readValue(resp.body(), new TypeReference<List<QuestionDTO>>() {
+                    });
+                } else {
+                    throw new RuntimeException("AI error: " + resp.body());
+                }
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            alert("Error: " + ex.getMessage());
+        };
+
+        generationTask.setOnSucceeded(e -> {
+            List<QuestionDTO> result = generationTask.getValue();
+            if (result != null) {
+                questionsList.getItems().addAll(result);
+                alert("Questions generated successfully!");
+            }
+            setLoadingState(false);
+        });
+
+        generationTask.setOnFailed(e -> {
+            Throwable ex = generationTask.getException();
+            if (ex instanceof java.util.concurrent.CancellationException || generationTask.isCancelled()) {
+                // Ignore if cancelled
+            } else {
+                ex.printStackTrace();
+                alert("Error: " + ex.getMessage());
+            }
+            setLoadingState(false);
+        });
+
+        generationTask.setOnCancelled(e -> setLoadingState(false));
+
+        new Thread(generationTask).start();
+    }
+
+    @FXML
+    public void onCancelGeneration() {
+        if (generationTask != null && !generationTask.isDone()) {
+            generationTask.cancel(true); // Interrupt thread
+            setLoadingState(false);
         }
+    }
+
+    private void setLoadingState(boolean loading) {
+        syllabusArea.setDisable(loading);
+        countSpinner.setDisable(loading);
+
+        generateBtn.setVisible(!loading);
+        generateBtn.setManaged(!loading);
+
+        loadingIndicator.setVisible(loading);
+        loadingIndicator.setManaged(loading);
+
+        cancelBtn.setVisible(loading);
+        cancelBtn.setManaged(loading);
     }
 
     @FXML

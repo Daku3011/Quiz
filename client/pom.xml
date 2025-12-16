@@ -49,6 +49,10 @@
         </executions>
         <configuration>
           <mainClass>com.quizclient.MainApp</mainClass>
+          <options>
+              <option>--enable-native-access=javafx.graphics</option>
+              <option>-Xmx512m</option>
+          </options>
         </configuration>
       </plugin>
       <plugin>

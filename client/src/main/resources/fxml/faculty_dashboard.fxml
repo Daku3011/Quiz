@@ -46,8 +46,10 @@
                             <Spinner fx:id="countSpinner" prefWidth="100" editable="true" styleClass="text-field"/>
                         </HBox>
                         <Region HBox.hgrow="ALWAYS"/>
+                        <ProgressIndicator fx:id="loadingIndicator" visible="false" managed="false" prefHeight="20" prefWidth="20"/>
+                        <Button fx:id="cancelBtn" text="Cancel" onAction="#onCancelGeneration" visible="false" managed="false" styleClass="button, danger"/>
                         <Button text="Add Manual Question" onAction="#onAddQuestion" styleClass="button, secondary"/>
-                        <Button text="Generate Questions" onAction="#onGenerateQuestions" styleClass="button, success"/>
+                        <Button fx:id="generateBtn" text="Generate Questions" onAction="#onGenerateQuestions" styleClass="button, success"/>
                     </HBox>
                 </VBox>
 
