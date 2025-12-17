@@ -1,3 +1,8 @@
 *.class
 .vscode/
 .env
+*.jar
+backend.log
+client/target/quiz-client-0.0.1.jar
+backend/target/maven-archiver/pom.properties
+client/target/maven-archiver/pom.properties

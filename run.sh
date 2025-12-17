@@ -34,9 +34,9 @@ echo "   Backend running with PID $BACKEND_PID. Logs: backend.log"
 echo "   Waiting for server to be ready on port 8080..."
 MAX_RETRIES=30
 COUNT=0
-URL="http://localhost:8080/api/auth/login" # Health check endpoint
+URL="http://localhost:8080/" # Health check execution (index.html)
 
-while ! curl --output /dev/null --silent --head --fail "$URL"; do
+while ! curl --output /dev/null --silent --fail "$URL"; do
     printf "."
     sleep 2
     COUNT=$((COUNT+1))
