@@ -2,6 +2,10 @@ package com.quiz.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a student registered for a specific session.
+ * Stores enrollment details and links to the session.
+ */
 @Entity
 public class Student {
 
@@ -11,6 +15,8 @@ public class Student {
 
     private String name;
     private String enrollment;
+
+    /** The specific session ID this student is registered for. */
     private Long sessionId;
 
     // GETTERS

@@ -5,6 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Main entry point for the JavaFX Client Application.
+ * Loads the Login screen on startup.
+ */
 public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
@@ -17,5 +21,8 @@ public class MainApp extends Application {
         stage.setMinHeight(480);
         stage.show();
     }
-    public static void main(String[] args) { launch(); }
+
+    public static void main(String[] args) {
+        launch();
+    }
 }

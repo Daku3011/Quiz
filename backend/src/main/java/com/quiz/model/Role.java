@@ -1,7 +1,15 @@
 package com.quiz.model;
 
+/**
+ * Defines the roles available in the system for authorization.
+ */
 public enum Role {
+    /** Administrator with full system access */
     ADMIN,
+
+    /** Faculty member who creates quizzes */
     FACULTY,
-    STUDENT // Kept for completeness, though students might still join via session ID
+
+    /** Student who takes quizzes */
+    STUDENT
 }

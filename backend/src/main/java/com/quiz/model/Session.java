@@ -3,17 +3,31 @@ package com.quiz.model;
 import jakarta.persistence.*;
 import java.time.Instant;
 
+/**
+ * Represents a live quiz session.
+ * Manages the timing, OTP access, and associated questions for an exam.
+ */
 @Entity
 public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+
+    /** One-time password for students to join */
     private String otp;
+
     private boolean active = true;
+
     private Instant createdAt = Instant.now();
+
+    /** Exam start time; students cannot join before this. */
     private Instant startTime;
+
+    /** Exam end time; late submissions might be rejected or flagged. */
     private Instant endTime;
+
+    /** Number of question sets (e.g., 4 for Sets A, B, C, D) to deter cheating. */
     private int numberOfSets = 1; // Default 1 set
 
     public int getNumberOfSets() {

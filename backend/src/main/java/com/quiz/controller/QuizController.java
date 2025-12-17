@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Handles quiz submissions from students.
+ * Caclulates scores, assigns question sets, and returns detailed results.
+ */
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
+
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QuizController.class);
 
     private final QuestionRepository questionRepo;
     private final com.quiz.repository.SubmissionRepository submissionRepo;
@@ -24,6 +30,12 @@ public class QuizController {
         this.sessionRepo = sessionRepo;
     }
 
+    /**
+     * Processes a quiz submission.
+     * Calculates score based on correct answers, prevents duplicate submissions
+     * (logic pending),
+     * and returns the result with explanations.
+     */
     @PostMapping("/submit")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, Object> body) {
         // body: { sessionId, studentId, answers: [{questionId, selectedOption}] }
@@ -64,8 +76,9 @@ public class QuizController {
             });
 
             submissionRepo.save(sub);
+            logger.info("Submission saved: Session={}, Student={}, Score={}", sessionId, studentId, score.get());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error saving submission", e);
             // Don't fail the request if saving fails, just log it
         }
 

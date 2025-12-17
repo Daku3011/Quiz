@@ -2,6 +2,11 @@ package com.quiz.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a multiple-choice question.
+ * Contains the question text, four options, the correct answer key, and an
+ * explanation.
+ */
 @Entity
 public class Question {
     @Id

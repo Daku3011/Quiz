@@ -12,6 +12,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Configures application security using Spring Security.
+ * Defines public endpoints, CORS policies, and password encoding.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

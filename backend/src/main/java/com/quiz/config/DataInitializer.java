@@ -7,6 +7,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Seeds the database with initial data on startup.
+ * Creates a default Admin user if none exists.
+ */
 @Configuration
 public class DataInitializer {
 

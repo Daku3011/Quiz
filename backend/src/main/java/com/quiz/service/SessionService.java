@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manage the lifecycle of quiz sessions.
+ * Handles creation, retrieval, and OTP validation.
+ */
 @Service
 public class SessionService {
     private final SessionRepository sessionRepo;
@@ -19,6 +23,14 @@ public class SessionService {
         this.sessionRepo = sessionRepo;
     }
 
+    /**
+     * Creates a new session and stores associated questions in memory.
+     * 
+     * @param title     Quiz title.
+     * @param otp       Secure OTP.
+     * @param questions List of generated questions.
+     * @return Persisted session entity.
+     */
     public Session createSession(String title, String otp, List<Question> questions) {
         Session s = new Session();
         s.setTitle(title);

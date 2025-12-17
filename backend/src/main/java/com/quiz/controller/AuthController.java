@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Manages user authentication (Login).
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -21,6 +24,12 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Authenticates a user (Admin/Faculty).
+     * 
+     * @param credentials map with "username" and "password"
+     * @return User role and status if successful, or 401 error.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");

@@ -18,6 +18,8 @@ import com.quiz.repository.SessionRepository;
 @RestController
 @RequestMapping("/api/session")
 public class SessionController {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionController.class);
+
     private final SessionService sessionService;
     private final OTPService otpService;
     private final QuestionRepository questionRepo;
@@ -31,8 +33,14 @@ public class SessionController {
         this.sessionRepo = sessionRepo;
     }
 
+    /**
+     * Starts a new quiz session with the provided configuration.
+     * Logs the event and triggers OTP generation.
+     */
     @PostMapping("/start")
     public ResponseEntity<?> startSession(@RequestBody com.quiz.dto.SessionDTOs.StartSessionRequest body) {
+        logger.info("Request to start session: Title='{}'", body.getTitle());
+
         String title = body.getTitle() == null ? "Quiz" : body.getTitle();
         List<com.quiz.dto.SessionDTOs.QuestionRequest> qlist = body.getQuestions() == null ? List.of()
                 : body.getQuestions();
@@ -68,23 +76,31 @@ public class SessionController {
                 s.setNumberOfSets(body.getNumberOfSets());
             }
             sessionRepo.save(s);
+            logger.info("Session started: ID={}, Title='{}', Questions={}", s.getId(), s.getTitle(), saved.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error setting session times", e);
         }
 
         otpService.sendOtpTo("faculty-console", otp);
         return ResponseEntity.ok(Map.of("sessionId", s.getId(), "otp", otp));
     }
 
+    /**
+     * Validates a student's attempt to join a session.
+     * Checks OTP and Time boundaries.
+     */
     @PostMapping("/join")
     public ResponseEntity<?> joinSession(@RequestBody com.quiz.dto.SessionDTOs.JoinSessionRequest body) {
         Long sessionId = body.getSessionId();
         if (sessionId == null)
             return ResponseEntity.badRequest().body(Map.of("error", "invalid sessionId"));
+
         String otp = body.getOtp();
         boolean ok = sessionService.validateOtp(sessionId, otp);
-        if (!ok)
+        if (!ok) {
+            logger.warn("Failed join attempt: SessionID={}, OTP={}", sessionId, otp);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "invalid otp"));
+        }
 
         // Time Validation
         Session s = sessionService.getSession(sessionId);
@@ -99,6 +115,7 @@ public class SessionController {
             }
         }
 
+        logger.info("Student joined session: SessionID={}", sessionId);
         return ResponseEntity.ok(Map.of("status", "ok"));
     }
 

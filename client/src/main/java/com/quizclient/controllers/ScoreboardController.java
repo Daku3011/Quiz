@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.io.IOException;
 
+/**
+ * Displays live or final scores for a specific session.
+ * Includes auto-refresh polling and print functionality.
+ */
 public class ScoreboardController {
     @FXML
     public TextField sessionIdField;
@@ -87,6 +91,9 @@ public class ScoreboardController {
         }
     }
 
+    /**
+     * Opens a native print dialog to print the scoreboard table.
+     */
     @FXML
     public void onPrint() {
         javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();

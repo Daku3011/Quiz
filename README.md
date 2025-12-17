@@ -7,29 +7,32 @@ A modern, hybrid quiz platform designed for seamless interaction between Faculty
 ## 🚀 Key Features
 
 ### 👨‍🏫 Faculty Dashboard (Desktop App)
-*   **AI-Powered Generation**: Generates high-quality questions from text/PDF using local LLMs (**Ollama/Gemma**).
-*   **Fast & Reliable**: Uses **Parallel Request Batching** to generate 100+ questions in seconds without crashing.
+*   **AI-Powered Generation**: Generates high-quality questions from syllabus text using **Google Gemini 2.5 Flash**.
+*   **Fast & Reliable**: Uses **Parallel Request Batching** to generate large question sets efficiently.
 *   **Smart Recovery**: Automatically fixes cut-off JSON using intelligent repair logic.
-*   **Interactive UI**: Includes **Loading Indicators** and **Cancel** options for long operations.
+*   **Interactive UI**: Includes **Loading Indicators**, **Cancel** options, and a rich **PCB/Scoreboard** interface.
 *   **Question Management**: Review, edit, and customize generated questions before starting the session.
 *   **Session Management**: Start a new quiz session with a unique **Session ID** and **OTP**.
-*   **Live Scoreboard**: Monitor student progress in real-time with a dynamic scoreboard.
+*   **Live Scoreboard**: Monitor student progress in real-time with formatting and printing capabilities.
 
 ### 👨‍🎓 Student Client (Hybrid Access)
-*   **Cross-Platform**: Accessible via **Desktop App** (JavaFX) or **Web Client** (Mobile/Laptop).
+*   **Cross-Platform**: Accessible via **Connection-based Desktop App** or **Web Browser**.
 *   **Secure Access**: Register with Enrollment ID and join via OTP.
-*   **Anti-Cheating**: Tab-switch detection (Web) to ensure integrity.
-*   **Instant Feedback**: View scores and detailed explanations immediately after submission.
+*   **Waiting Room**: Real-time polling keeps students synchronized until the exam starts.
+*   **Anti-Cheating**: 
+    *   **Randomized Sets**: Different question orders (Set A, B, C...) for every student.
+    *   **Tab Switch Detection**: Web client flags or blocks tab switching.
+*   **Instant Feedback**: View scores, correct answers, and AI-generated explanations immediately after submission.
 
 ---
 
 ## 🛠️ Technology Stack
 
-*   **Backend**: Java 17, Spring Boot 3, Spring Security, H2 Database.
-*   **AI Engine**: **Ollama** (Local LLM), running `gemma:2b` or custom models.
+*   **Backend**: Java 17, Spring Boot 3, Spring Security, H2 Database (In-Memory).
+*   **AI Engine**: **Google Gemini API** (`gemini-2.5-flash`).
 *   **Frontend (Desktop)**: JavaFX 19, CSS3 (Modern Glassmorphism UI).
 *   **Frontend (Web)**: HTML5, CSS3, Vanilla JavaScript (SPA).
-*   **Performance**: `CompletableFuture` for asynchronous, parallel AI processing.
+*   **Logging**: SLF4J with Logback for comprehensive system tracing.
 
 ---
 
@@ -49,10 +52,10 @@ graph TD
     subgraph "Backend Server"
         API[Spring Boot API]
         DB[(H2 Database)]
-        Ollama["Ollama (Local LLM)"]
+        Gemini["Google Gemini API"]
         
         API --> DB
-        API -->|HTTP JSON| Ollama
+        API -->|HTTPS JSON| Gemini
         API --> Static[Static Web Resources]
     end
 ```
@@ -64,12 +67,12 @@ graph TD
 ### Prerequisites
 *   **Java 17** or higher.
 *   **Maven** installed.
-*   **Ollama** installed ([Download Here](https://ollama.com)).
+*   **Google Gemini API Key**.
 
-### 1. Setup AI Model
-Pull the lightweight Gemma model:
-```bash
-ollama run gemma:2b
+### 1. Configure the Backend
+Create a `.env` file in the `backend` directory:
+```properties
+GEMINI_API_KEY=your_actual_api_key_here
 ```
 
 ### 2. Start the Backend Server
@@ -90,7 +93,8 @@ mvn javafx:run
 
 ### 4. Student Web Access
 Open your browser (or phone on same WiFi) and navigate to:
-`http://localhost:8080` or `http://<YOUR_CTX_IP>:8080`
+`http://localhost:8080`
+*Alternatively, use the IP address of the host machine for mobile testing.*
 
 ---
 
@@ -98,12 +102,12 @@ Open your browser (or phone on same WiFi) and navigate to:
 
 1.  **Faculty**:
     *   **Login**: Use faculty credentials.
-    *   **Generate**: Paste syllabus -> "Generate Questions" (watches the loading bar!).
+    *   **Generate**: Paste syllabus -> "Generate Questions".
     *   **Review**: Edit questions if needed -> "Start Session".
     *   **Monitor**: Share ID/OTP and watch the live scoreboard.
 
 2.  **Student**:
-    *   **Join**: Enter ID & OTP.
+    *   **Join**: Enter Session ID & OTP.
     *   **Quiz**: Answer questions (clean, focused UI).
     *   **Result**: See score and explanations instantly.
 

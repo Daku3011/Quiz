@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
+/**
+ * Handles the initial login screen.
+ * Authenticates users against the backend and routes them to the appropriate
+ * dashboard.
+ */
 public class LoginController {
 
     @FXML
@@ -24,6 +29,12 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
+    /**
+     * Attempts to log the user in.
+     * Validates credentials and redirects based on role (ADMIN/FACULTY).
+     * 
+     * @param event The action event triggering this call
+     */
     @FXML
     public void onLogin(ActionEvent event) {
         String username = usernameField.getText();

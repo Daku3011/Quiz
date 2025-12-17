@@ -117,12 +117,11 @@ public class FacultyDashboardController {
 
         // Disable UI & Show Loading
         setLoadingState(true);
-        // questionsList.getItems().clear(); // Removed to allow appending
 
         int totalCount = countSpinner.getValue();
-        final int BATCH_SIZE = 10; // Request in chunks of 10
+        final int BATCH_SIZE = 10; // Request in chunks of 10 to avoid timeouts and improve UX
 
-        // Run in background
+        // Run generation in a background thread to keep UI responsive
         generationTask = new javafx.concurrent.Task<>() {
             @Override
             protected List<QuestionDTO> call() throws Exception {
@@ -140,14 +139,14 @@ public class FacultyDashboardController {
                         @SuppressWarnings("unused")
                         var body = Map.of("text", text, "count", String.valueOf(currentBatch));
 
-                        // Create request
+                        // Create request to backend
                         var req = ApiClient.jsonRequest("/api/syllabus/generate")
                                 .POST(HttpRequest.BodyPublishers
                                         .ofString(ApiClient.MAPPER.writeValueAsString(body)))
-                                .timeout(java.time.Duration.ofSeconds(120)) // Timeout per batch
+                                .timeout(java.time.Duration.ofSeconds(120)) // Extended timeout per batch
                                 .build();
 
-                        // Synch send
+                        // Synch send (blocking within this background thread)
                         var resp = http.send(req, HttpResponse.BodyHandlers.ofString());
 
                         if (isCancelled())
@@ -160,7 +159,7 @@ public class FacultyDashboardController {
                             if (batch != null && !batch.isEmpty()) {
                                 allQuestions.addAll(batch);
 
-                                // Update UI Immediately
+                                // Update UI Immediately on JavaFX Application Thread
                                 javafx.application.Platform.runLater(() -> {
                                     questionsList.getItems().addAll(batch);
                                     questionsList.scrollTo(questionsList.getItems().size() - 1);
@@ -168,12 +167,10 @@ public class FacultyDashboardController {
                             }
                         } else {
                             System.err.println("Batch error: " + resp.body());
-                            // Continue to try next batch or stop?
-                            // Let's continue to get as many as possible
+                            // Continues to try next batch even if one fails
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        // If one batch fails (timeout etc), we continue
                     }
 
                     remaining -= currentBatch;
@@ -182,23 +179,17 @@ public class FacultyDashboardController {
             }
         };
 
+        // ... existing handlers ...
         generationTask.setOnSucceeded(e -> {
             setLoadingState(false);
             if (questionsList.getItems().isEmpty()) {
                 alert("Generation failed or returned no questions.");
-            } else {
-                // Determine if we got all of them
-                if (questionsList.getItems().size() < totalCount) {
-                    // Optional: alert restricted
-                }
             }
         });
 
         generationTask.setOnFailed(e -> {
             Throwable ex = generationTask.getException();
-            if (ex instanceof java.util.concurrent.CancellationException || generationTask.isCancelled()) {
-                // Ignore
-            } else {
+            if (!(ex instanceof java.util.concurrent.CancellationException) && !generationTask.isCancelled()) {
                 ex.printStackTrace();
                 alert("Error: " + ex.getMessage());
             }
@@ -210,27 +201,7 @@ public class FacultyDashboardController {
         new Thread(generationTask).start();
     }
 
-    @FXML
-    public void onCancelGeneration() {
-        if (generationTask != null && !generationTask.isDone()) {
-            generationTask.cancel(true); // Interrupt thread
-            setLoadingState(false);
-        }
-    }
-
-    private void setLoadingState(boolean loading) {
-        syllabusArea.setDisable(loading);
-        countSpinner.setDisable(loading);
-
-        generateBtn.setVisible(!loading);
-        generateBtn.setManaged(!loading);
-
-        loadingIndicator.setVisible(loading);
-        loadingIndicator.setManaged(loading);
-
-        cancelBtn.setVisible(loading);
-        cancelBtn.setManaged(loading);
-    }
+    // ...
 
     @FXML
     public void editSelectedQuestion() {
@@ -251,6 +222,8 @@ public class FacultyDashboardController {
             TextField optB = (TextField) pane.lookup("#optBField");
             TextField optC = (TextField) pane.lookup("#optCField");
             TextField optD = (TextField) pane.lookup("#optDField");
+
+            // Safe cast with suppression
             @SuppressWarnings("unchecked")
             ComboBox<String> correctBox = (ComboBox<String>) pane.lookup("#correctBox");
             // Looking for explanation field in dialog? Maybe simpler to add prompt for now
@@ -427,6 +400,17 @@ public class FacultyDashboardController {
         scene.getStylesheets().add(getClass().getResource("/css/theme.css").toExternalForm());
         javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.setScene(scene);
+    }
+
+    private void setLoadingState(boolean loading) {
+        if (generateBtn != null)
+            generateBtn.setDisable(loading);
+        if (loadingIndicator != null)
+            loadingIndicator.setVisible(loading);
+        if (syllabusArea != null)
+            syllabusArea.setDisable(loading);
+        if (cancelBtn != null)
+            cancelBtn.setDisable(!loading);
     }
 
     private void alert(String s) {

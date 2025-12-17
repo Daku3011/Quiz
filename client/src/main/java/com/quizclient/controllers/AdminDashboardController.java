@@ -17,6 +17,10 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for the Admin Dashboard.
+ * Manages faculty accounts, system archives, and global settings.
+ */
 public class AdminDashboardController {
 
     @FXML
@@ -58,6 +62,9 @@ public class AdminDashboardController {
         onRefreshArchives();
     }
 
+    /**
+     * Refreshes the archives table by fetching data from the backend.
+     */
     @FXML
     public void onRefreshArchives() {
         try {
@@ -83,6 +90,9 @@ public class AdminDashboardController {
     @FXML
     private TextField facPasswordField;
 
+    /**
+     * Creates a new Faculty account using the provided username and password.
+     */
     @FXML
     public void onCreateFaculty() {
         String u = facUsernameField.getText();

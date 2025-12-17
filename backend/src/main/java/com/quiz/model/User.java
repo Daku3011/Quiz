@@ -2,6 +2,10 @@ package com.quiz.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a system user (Abstract base for authentication).
+ * Can be an Admin or Faculty.
+ */
 @Entity
 @Table(name = "users")
 public class User {
@@ -12,6 +16,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
 
+    /** Hashed password for security. */
     @Column(nullable = false)
     private String password; // In production, this should be hashed
 

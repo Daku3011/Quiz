@@ -2,6 +2,10 @@ package com.quiz.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Represents a Faculty member who can create and manage quiz sessions.
+ * Stores login credentials and display profile information.
+ */
 @Entity
 public class Faculty {
 
@@ -14,13 +18,32 @@ public class Faculty {
     private String displayName;
 
     // GETTERS
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
-    public String getPasswordHash() { return passwordHash; }
-    public String getDisplayName() { return displayName; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 
     // SETTERS
-    public void setUsername(String username) { this.username = username; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-    public void setDisplayName(String displayName) { this.displayName = displayName; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 }

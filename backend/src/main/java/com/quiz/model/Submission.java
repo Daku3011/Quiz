@@ -3,6 +3,9 @@ package com.quiz.model;
 import jakarta.persistence.*;
 import java.time.Instant;
 
+/**
+ * Records the final score and details of a student's quiz attempt.
+ */
 @Entity
 public class Submission {
     @Id
@@ -11,7 +14,10 @@ public class Submission {
     private Long sessionId;
     private Long studentId;
     private int score;
+
+    /** The question set (e.g., "A", "B") assigned to the student. */
     private String questionSet; // "A", "B", ...
+
     private Instant submittedAt = Instant.now();
 
     public Long getId() {

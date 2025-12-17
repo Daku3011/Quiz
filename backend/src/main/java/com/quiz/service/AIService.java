@@ -9,40 +9,37 @@ import java.util.Map;
 
 @Service
 public class AIService {
+        private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AIService.class);
+
         // A static list of high-quality engineering questions for mock generation
         private static final List<Question> MOCK_DB = new ArrayList<>();
 
         static {
-                addQ("Which of the following is NOT a feature of Java?",
-                                "Pointers", "Object-Oriented", "Portable", "Dynamic", "A");
-                addQ("In Operating Systems, what is 'Thrashing'?",
-                                "Excessive paging activity", "High CPU utilization", "Deadlock condition",
-                                "Memory leak", "A");
-                addQ("What is the time complexity of Binary Search?",
-                                "O(log n)", "O(n)", "O(n log n)", "O(1)", "A");
-                addQ("Which data structure uses LIFO principle?",
-                                "Stack", "Queue", "Linked List", "Tree", "A");
-                addQ("In DBMS, what does ACID stand for?",
-                                "Atomicity, Consistency, Isolation, Durability",
+                // ... (static block content unchanged) ...
+                addQ("Which of the following is NOT a feature of Java?", "Pointers", "Object-Oriented", "Portable",
+                                "Dynamic", "A");
+                addQ("In Operating Systems, what is 'Thrashing'?", "Excessive paging activity", "High CPU utilization",
+                                "Deadlock condition", "Memory leak", "A");
+                addQ("What is the time complexity of Binary Search?", "O(log n)", "O(n)", "O(n log n)", "O(1)", "A");
+                addQ("Which data structure uses LIFO principle?", "Stack", "Queue", "Linked List", "Tree", "A");
+                addQ("In DBMS, what does ACID stand for?", "Atomicity, Consistency, Isolation, Durability",
                                 "Atomicity, Concurrency, Isolation, Database",
                                 "Availability, Consistency, Isolation, Durability", "Auto, Consistency, Internal, Data",
                                 "A");
-                addQ("Which layer of OSI model is responsible for routing?",
-                                "Network Layer", "Data Link Layer", "Transport Layer", "Session Layer", "A");
+                addQ("Which layer of OSI model is responsible for routing?", "Network Layer", "Data Link Layer",
+                                "Transport Layer", "Session Layer", "A");
                 addQ("What is the purpose of the 'volatile' keyword in Java?",
                                 "Indicates variable may change unexpectedly", "Makes variable constant",
-                                "Optimizes variable access",
-                                "Prevents serialization", "A");
-                addQ("Which sorting algorithm has the best worst-case time complexity?",
-                                "Merge Sort", "Quick Sort", "Bubble Sort", "Insertion Sort", "A");
-                addQ("In OOP, what is Polymorphism?",
-                                "Ability to take multiple forms", "Hiding implementation details",
-                                "Wrapping data and code",
-                                "Creating new classes from existing", "A");
-                addQ("What is a Semaphore in OS?",
-                                "A signaling mechanism", "A type of memory", "A CPU register", "A file system", "A");
+                                "Optimizes variable access", "Prevents serialization", "A");
+                addQ("Which sorting algorithm has the best worst-case time complexity?", "Merge Sort", "Quick Sort",
+                                "Bubble Sort", "Insertion Sort", "A");
+                addQ("In OOP, what is Polymorphism?", "Ability to take multiple forms", "Hiding implementation details",
+                                "Wrapping data and code", "Creating new classes from existing", "A");
+                addQ("What is a Semaphore in OS?", "A signaling mechanism", "A type of memory", "A CPU register",
+                                "A file system", "A");
         }
 
+        // ... (addQ method unchanged) ...
         private static void addQ(String text, String a, String b, String c, String d, String ans) {
                 Question q = new Question();
                 q.setText(text);
@@ -69,14 +66,22 @@ public class AIService {
         // Batch size for parallel requests. Increased to 10 for higher throughput.
         private static final int BATCH_SIZE = 10;
 
+        /**
+         * Generates multiple-choice questions based on the provided syllabus text.
+         * Uses Google Gemini AI for generation, or falls back to a mock database if API
+         * key is missing or calls fail.
+         *
+         * @param syllabusText The text content to generate questions from.
+         * @param count        The number of questions to generate.
+         * @return A list of generated Question objects.
+         */
         public List<Question> generateQuestions(String syllabusText, int count) {
                 if (geminiApiKey == null || geminiApiKey.isBlank()) {
-                        System.out.println("Using Mock DB (No Gemini API Key provided)");
+                        logger.warn("Gemini API Key is missing. Falling back to Mock DB.");
                         return generateMockQuestions(count);
                 }
 
-                System.out.println("DEBUG: Generating " + count + " questions using PARALLEL BATCHES (Size: "
-                                + BATCH_SIZE + ")...");
+                logger.info("Generating {} questions using PARALLEL BATCHES (Size: {})...", count, BATCH_SIZE);
                 List<java.util.concurrent.CompletableFuture<List<Question>>> futures = new ArrayList<>();
 
                 int questionsRemaining = count;
@@ -84,14 +89,13 @@ public class AIService {
                         int currentBatchSize = Math.min(BATCH_SIZE, questionsRemaining);
                         questionsRemaining -= currentBatchSize;
 
-                        // Capture effective final variable for lambda
                         final int batchCount = currentBatchSize;
 
                         futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                                 try {
                                         return generateBatch(syllabusText, batchCount);
                                 } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error("Error generating batch of size {}", batchCount, e);
                                         return new ArrayList<>(); // Return empty on failure to avoid nulls
                                 }
                         }));
@@ -103,16 +107,17 @@ public class AIService {
                                 .collect(java.util.stream.Collectors.toList());
 
                 if (allQuestions.isEmpty()) {
-                        System.out.println("DEBUG: All batch requests failed, returning mocks.");
+                        logger.error("All batch requests failed. Returning mock questions as fallback.");
                         return generateMockQuestions(count);
                 }
 
-                System.out.println("DEBUG: Successfully generated " + allQuestions.size() + " questions.");
+                logger.info("Successfully generated {} questions.", allQuestions.size());
                 return allQuestions;
         }
 
         private List<Question> generateBatch(String syllabusText, int count) throws Exception {
-                // Gemini API prompt
+                // Construct the prompt for Gemini
+                // We request a strict JSON Array format to ensure easy parsing.
                 String prompt = "Generate EXACTLY " + count
                                 + " multiple-choice questions based on the reference text.\n" +
                                 "Return the response as a valid JSON ARRAY of objects. Do NOT return a single object.\n"
@@ -167,36 +172,44 @@ public class AIService {
                                         .path("content").path("parts").get(0)
                                         .path("text").asText();
 
-                        // LOGGING
-                        System.out.println("DEBUG RAW GEMINI BATCH RESPONSE: "
-                                        + responseText.substring(0, Math.min(responseText.length(), 200)) + "...");
+                        // Log truncated response for debugging without spamming logs
+                        if (logger.isDebugEnabled()) {
+                                logger.debug("Raw Gemini Batch Response: {}...",
+                                                responseText.substring(0, Math.min(responseText.length(), 200)));
+                        }
 
+                        // Cleanup markdown code blocks if present
                         responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
+
                         try {
                                 return mapper.readValue(responseText,
                                                 new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                 });
                         } catch (Exception e) {
-                                // Try repair if it failed (maybe cut off)
+                                // JSON REPAIR STRATEGY
+                                // LLMs sometimes truncate JSON or add trailing commas.
+                                // We attempt to fix common issues like missing closing brackets.
                                 try {
                                         int lastClose = responseText.lastIndexOf("}");
                                         if (lastClose != -1) {
                                                 String repaired = responseText.substring(0, lastClose + 1) + "]";
                                                 if (repaired.contains(",]"))
                                                         repaired = repaired.replace(",]", "]");
-                                                System.out.println("DEBUG: Repaired JSON batch.");
+
+                                                logger.warn("JSON Parse failed. Attempting repair...");
                                                 return mapper.readValue(repaired,
                                                                 new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                                 });
                                         }
                                 } catch (Exception ignore) {
+                                        // Repair failed, fall through to main error
                                 }
 
-                                System.err.println("Failed to parse batch JSON: " + e.getMessage());
-                                return new ArrayList<>(); // Fail gracefully for this batch
+                                logger.error("Failed to parse batch JSON: {}", e.getMessage());
+                                return new ArrayList<>(); // Fail gracefully
                         }
                 } else {
-                        System.err.println("Gemini API Error: " + response.statusCode() + " " + response.body());
+                        logger.error("Gemini API Error: Status={}, Body={}", response.statusCode(), response.body());
                         return new ArrayList<>();
                 }
         }

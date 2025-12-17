@@ -7,9 +7,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * Manages student registration.
+ * Allows students to register for a session using an OTP.
+ */
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StudentController.class);
     private final StudentRepository studentRepo;
 
     private final com.quiz.service.SessionService sessionService;
@@ -57,7 +62,7 @@ public class StudentController {
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body("Invalid Session ID format");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Registration error", e);
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
