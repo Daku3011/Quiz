@@ -9,11 +9,6 @@ import java.util.Map;
 
 @Service
 public class AIService {
-        // Placeholder: replace with real LLM call. For now produce simple questions.
-        // To implement real AI:
-        // 1. Add OpenAiService service = new OpenAiService("your-key");
-        // 2. Create ChatCompletionRequest with the syllabus text.
-        // 3. Parse response into Question objects.
         // A static list of high-quality engineering questions for mock generation
         private static final List<Question> MOCK_DB = new ArrayList<>();
 
@@ -59,11 +54,14 @@ public class AIService {
                 MOCK_DB.add(q);
         }
 
-        @org.springframework.beans.factory.annotation.Value("${ollama.api.url}")
-        private String ollamaUrl;
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.key}")
+        private String geminiApiKey;
 
-        @org.springframework.beans.factory.annotation.Value("${ollama.model}")
-        private String ollamaModel;
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.url}")
+        private String geminiApiUrl;
+
+        @org.springframework.beans.factory.annotation.Value("${gemini.model}")
+        private String geminiModel;
 
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -72,8 +70,8 @@ public class AIService {
         private static final int BATCH_SIZE = 10;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
-                if (ollamaUrl == null || ollamaUrl.isBlank()) {
-                        System.out.println("Using Mock DB (No Ollama URL provided)");
+                if (geminiApiKey == null || geminiApiKey.isBlank()) {
+                        System.out.println("Using Mock DB (No Gemini API Key provided)");
                         return generateMockQuestions(count);
                 }
 
@@ -114,9 +112,8 @@ public class AIService {
         }
 
         private List<Question> generateBatch(String syllabusText, int count) throws Exception {
-                // Strict prompt for batch generation
-                String systemPrompt = "You are a precise assistant that generates JSON arrays of questions.";
-                String userPrompt = "Generate EXACTLY " + count
+                // Gemini API prompt
+                String prompt = "Generate EXACTLY " + count
                                 + " multiple-choice questions based on the reference text.\n" +
                                 "Return the response as a valid JSON ARRAY of objects. Do NOT return a single object.\n"
                                 +
@@ -139,18 +136,22 @@ public class AIService {
                                 "4. 'explanation' must be concise (max 30 words).\n" +
                                 "Syllabus: " + syllabusText;
 
+                // Gemini API request format
                 Map<String, Object> bodyMap = Map.of(
-                                "model", ollamaModel,
-                                "messages", List.of(
-                                                Map.of("role", "system", "content", systemPrompt),
-                                                Map.of("role", "user", "content", userPrompt)),
-                                "stream", false,
-                                "options", Map.of("num_predict", 4096, "num_ctx", 4096)); // Higher predict for batch
+                                "contents", List.of(
+                                                Map.of("parts", List.of(
+                                                                Map.of("text", prompt)))),
+                                "generationConfig", Map.of(
+                                                "temperature", 0.7,
+                                                "maxOutputTokens", 8192));
 
                 String requestBody = mapper.writeValueAsString(bodyMap);
 
+                // Add API key as query parameter
+                String urlWithKey = geminiApiUrl + "?key=" + geminiApiKey;
+
                 java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                                .uri(java.net.URI.create(ollamaUrl))
+                                .uri(java.net.URI.create(urlWithKey))
                                 .header("Content-Type", "application/json")
                                 .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
                                 .build();
@@ -160,10 +161,14 @@ public class AIService {
 
                 if (response.statusCode() == 200) {
                         com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
-                        String responseText = root.path("message").path("content").asText();
+
+                        // Extract text from Gemini response format
+                        String responseText = root.path("candidates").get(0)
+                                        .path("content").path("parts").get(0)
+                                        .path("text").asText();
 
                         // LOGGING
-                        System.out.println("DEBUG RAW AI BATCH RESPONSE: "
+                        System.out.println("DEBUG RAW GEMINI BATCH RESPONSE: "
                                         + responseText.substring(0, Math.min(responseText.length(), 200)) + "...");
 
                         responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
@@ -172,28 +177,35 @@ public class AIService {
                                                 new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                 });
                         } catch (Exception e) {
-                                System.err.println("Failed to parse question JSON: " + e.getMessage());
-                                return null;
+                                // Try repair if it failed (maybe cut off)
+                                try {
+                                        int lastClose = responseText.lastIndexOf("}");
+                                        if (lastClose != -1) {
+                                                String repaired = responseText.substring(0, lastClose + 1) + "]";
+                                                if (repaired.contains(",]"))
+                                                        repaired = repaired.replace(",]", "]");
+                                                System.out.println("DEBUG: Repaired JSON batch.");
+                                                return mapper.readValue(repaired,
+                                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                                });
+                                        }
+                                } catch (Exception ignore) {
+                                }
+
+                                System.err.println("Failed to parse batch JSON: " + e.getMessage());
+                                return new ArrayList<>(); // Fail gracefully for this batch
                         }
                 } else {
-                        System.err.println("Ollama API Error: " + response.statusCode() + " " + response.body());
-                        return null;
+                        System.err.println("Gemini API Error: " + response.statusCode() + " " + response.body());
+                        return new ArrayList<>();
                 }
         }
 
         private List<Question> generateMockQuestions(int count) {
-                List<Question> questions = new ArrayList<>();
+                List<Question> result = new ArrayList<>();
                 for (int i = 0; i < count; i++) {
-                        Question original = MOCK_DB.get(i % MOCK_DB.size());
-                        Question q = new Question();
-                        q.setText(original.getText());
-                        q.setOptionA(original.getOptionA());
-                        q.setOptionB(original.getOptionB());
-                        q.setOptionC(original.getOptionC());
-                        q.setOptionD(original.getOptionD());
-                        q.setCorrect(original.getCorrect());
-                        questions.add(q);
+                        result.add(MOCK_DB.get(i % MOCK_DB.size()));
                 }
-                return questions;
+                return result;
         }
 }
