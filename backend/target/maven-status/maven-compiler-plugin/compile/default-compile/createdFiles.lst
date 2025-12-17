@@ -28,6 +28,7 @@ com/quiz/dto/SessionDTOs$StartSessionRequest.class
 com/quiz/model/Session.class
 com/quiz/repository/UserRepository.class
 com/quiz/QuizApplication.class
+com/quiz/service/AIService$2.class
 com/quiz/model/Role.class
 com/quiz/repository/SyllabusRepository.class
 com/quiz/controller/SessionController.class

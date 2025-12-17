@@ -12,25 +12,50 @@ import java.util.Map;
 public class StudentController {
     private final StudentRepository studentRepo;
 
-    public StudentController(StudentRepository studentRepo) {
+    private final com.quiz.service.SessionService sessionService;
+
+    public StudentController(StudentRepository studentRepo, com.quiz.service.SessionService sessionService) {
         this.studentRepo = studentRepo;
+        this.sessionService = sessionService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        System.out.println("Register request: " + body);
-        String name = body.get("name"), enrollment = body.get("enrollment");
-        if (name == null || enrollment == null) {
-            System.out.println("Missing fields");
-            return ResponseEntity.badRequest().body("Missing");
-        }
         try {
+            String name = body.get("name");
+            String enrollment = body.get("enrollment");
+            String sidStr = body.get("sessionId");
+            String otp = body.get("otp");
+
+            if (name == null || enrollment == null || sidStr == null || otp == null) {
+                return ResponseEntity.badRequest().body("Missing fields");
+            }
+
+            Long sessionId = Long.parseLong(sidStr);
+
+            // 1. Validate Session & OTP
+            boolean validOtp = sessionService.validateOtp(sessionId, otp);
+            if (!validOtp) {
+                return ResponseEntity.status(401).body("Invalid Session ID or OTP");
+            }
+
+            // 2. Check for Duplicate Enrollment in this Session
+            if (studentRepo.existsByEnrollmentAndSessionId(enrollment, sessionId)) {
+                return ResponseEntity.status(409)
+                        .body("Student with enrollment " + enrollment + " already registered for this session.");
+            }
+
+            // 3. Register Student
             Student s = new Student();
             s.setName(name);
             s.setEnrollment(enrollment);
+            s.setSessionId(sessionId);
             studentRepo.save(s);
-            System.out.println("Saved student: " + s.getId());
-            return ResponseEntity.ok(Map.of("studentId", s.getId()));
+
+            return ResponseEntity.ok(Map.of("studentId", s.getId(), "message", "Registered successfully"));
+
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid Session ID format");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());

@@ -10,9 +10,9 @@
 
 <body>
     <div class="container">
-        <!-- Registration Section -->
+        <!-- Register & Join Section -->
         <div id="register-section" class="card">
-            <h2>Student Registration</h2>
+            <h2>Join Quiz Session</h2>
             <div class="form-group">
                 <label for="reg-name">Full Name</label>
                 <input type="text" id="reg-name" placeholder="Enter your name">
@@ -21,13 +21,6 @@
                 <label for="reg-enrollment">Enrollment Number</label>
                 <input type="text" id="reg-enrollment" placeholder="Enter enrollment number">
             </div>
-            <button onclick="register()" class="btn primary">Register</button>
-            <p id="reg-status" class="status"></p>
-        </div>
-
-        <!-- Join Session Section -->
-        <div id="join-section" class="card hidden">
-            <h2>Join Quiz Session</h2>
             <div class="form-group">
                 <label for="session-id">Session ID</label>
                 <input type="text" id="session-id" placeholder="Enter Session ID">
@@ -36,8 +29,17 @@
                 <label for="otp">OTP</label>
                 <input type="text" id="otp" placeholder="Enter OTP">
             </div>
-            <button onclick="joinSession()" class="btn success">Join Session</button>
-            <p id="join-status" class="status"></p>
+            <button onclick="registerAndJoin()" class="btn primary">Join Session</button>
+            <p id="reg-status" class="status"></p>
+        </div>
+
+        <!-- Waiting Room Section -->
+        <div id="waiting-section" class="card hidden">
+            <h2>⏳ Waiting Room</h2>
+            <p>You have successfully joined the session.</p>
+            <p class="info-text">Please wait for the faculty to start the exam.</p>
+            <div class="loader"></div>
+            <p id="wait-status" class="status" style="color: #666; margin-top: 10px;">Checking status...</p>
         </div>
 
         <!-- Quiz Section -->

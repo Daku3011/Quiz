@@ -88,6 +88,17 @@ public class ScoreboardController {
     }
 
     @FXML
+    public void onPrint() {
+        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
+        if (job != null && job.showPrintDialog(table.getScene().getWindow())) {
+            boolean success = job.printPage(table);
+            if (success) {
+                job.endJob();
+            }
+        }
+    }
+
+    @FXML
     public void onBack(javafx.event.ActionEvent event) throws IOException {
         javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
                 getClass().getResource("/fxml/faculty_dashboard.fxml"));

@@ -117,8 +117,7 @@ public class FacultyDashboardController {
 
         // Disable UI & Show Loading
         setLoadingState(true);
-        questionsList.getItems().clear(); // Clear previous generation? Or append? Usually clear is expected for
-                                          // "Generate"
+        // questionsList.getItems().clear(); // Removed to allow appending
 
         int totalCount = countSpinner.getValue();
         final int BATCH_SIZE = 10; // Request in chunks of 10

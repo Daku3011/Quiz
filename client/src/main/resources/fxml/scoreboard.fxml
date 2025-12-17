@@ -23,7 +23,8 @@
         <Label text="Session ID:"/>
         <TextField fx:id="sessionIdField" promptText="Enter Session ID" style="-fx-font-weight: bold;"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Refresh" onAction="#onRefresh" styleClass="button"/>
+        <Button text="Refresh" onAction="#onRefresh" style="-fx-font-size: 14px;"/>
+        <Button text="Print" onAction="#onPrint" style="-fx-font-size: 14px;"/>
     </HBox>
 
     <TableView fx:id="table" VBox.vgrow="ALWAYS">

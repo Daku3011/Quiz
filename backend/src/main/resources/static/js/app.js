@@ -8,7 +8,7 @@ let answers = {}; // Map<questionId, selectedOption>
 // DOM Elements
 const sections = {
     register: document.getElementById('register-section'),
-    join: document.getElementById('join-section'),
+    waiting: document.getElementById('waiting-section'),
     quiz: document.getElementById('quiz-section'),
     result: document.getElementById('result-section'),
     cheating: document.getElementById('cheating-section')
@@ -35,12 +35,14 @@ function showSection(name) {
     sections[name].classList.remove('hidden');
 }
 
-async function register() {
+async function registerAndJoin() {
     const name = document.getElementById('reg-name').value;
     const enrollment = document.getElementById('reg-enrollment').value;
+    sessionId = document.getElementById('session-id').value;
+    const otp = document.getElementById('otp').value;
     const status = document.getElementById('reg-status');
 
-    if (!name || !enrollment) {
+    if (!name || !enrollment || !sessionId || !otp) {
         status.textContent = "Please fill all fields.";
         status.style.color = "red";
         return;
@@ -50,47 +52,17 @@ async function register() {
         const res = await fetch(`${API_BASE}/student/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, enrollment })
+            body: JSON.stringify({ name, enrollment, sessionId, otp })
         });
 
         if (res.ok) {
             const data = await res.json();
             studentId = data.studentId;
-            status.textContent = "Registration Successful!";
+            status.textContent = "Joined Successfully!";
             status.style.color = "green";
-            setTimeout(() => showSection('join'), 1000);
-        } else {
-            status.textContent = "Registration Failed.";
-            status.style.color = "red";
-        }
-    } catch (e) {
-        console.error(e);
-        status.textContent = "Error connecting to server.";
-    }
-}
 
-async function joinSession() {
-    sessionId = document.getElementById('session-id').value;
-    const otp = document.getElementById('otp').value;
-    const status = document.getElementById('join-status');
-
-    if (!sessionId || !otp) {
-        status.textContent = "Enter Session ID and OTP.";
-        status.style.color = "red";
-        return;
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/session/join`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId, otp })
-        });
-
-        if (res.ok) {
-            status.textContent = "Joined! Loading questions...";
-            status.style.color = "green";
-            await loadQuestions();
+            // Check Session Status immediately
+            checkSessionStatus();
         } else {
             const txt = await res.text();
             status.textContent = "Join Failed: " + txt;
@@ -99,6 +71,34 @@ async function joinSession() {
     } catch (e) {
         console.error(e);
         status.textContent = "Error connecting to server.";
+    }
+}
+
+async function checkSessionStatus() {
+    try {
+        const res = await fetch(`${API_BASE}/session/${sessionId}/status`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'ACTIVE') {
+                showSection('quiz');
+                await loadQuestions();
+            } else if (data.status === 'WAITING') {
+                showSection('waiting');
+                document.getElementById('wait-status').textContent =
+                    `Exam starts at: ${data.startTime ? new Date(data.startTime).toLocaleString() : 'Soon'}. Waiting for faculty...`;
+                setTimeout(checkSessionStatus, 5000); // Poll every 5s
+            } else {
+                alert("This session has ENDED.");
+                showSection('register');
+            }
+        } else {
+            // If error (e.g. 404), maybe retry or fail
+            document.getElementById('wait-status').textContent = "Error checking status. Retrying...";
+            setTimeout(checkSessionStatus, 5000);
+        }
+    } catch (e) {
+        console.error(e);
+        setTimeout(checkSessionStatus, 5000);
     }
 }
 

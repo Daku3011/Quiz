@@ -143,4 +143,29 @@ public class SessionController {
 
         return ResponseEntity.ok(assignedQuestions);
     }
+
+    @GetMapping("/{id}/status")
+    public ResponseEntity<?> getSessionStatus(@PathVariable("id") Long id) {
+        Session s = sessionService.getSession(id);
+        if (s == null)
+            return ResponseEntity.notFound().build();
+
+        java.time.Instant now = java.time.Instant.now();
+        String status = "WAITING";
+
+        if (s.getStartTime() != null && now.isAfter(s.getStartTime())) {
+            status = "ACTIVE";
+        }
+
+        if (s.getEndTime() != null && now.isAfter(s.getEndTime())) {
+            status = "ENDED";
+        }
+
+        if (!s.isActive()) {
+            status = "ENDED";
+        }
+
+        return ResponseEntity
+                .ok(Map.of("status", status, "startTime", s.getStartTime() != null ? s.getStartTime().toString() : ""));
+    }
 }
