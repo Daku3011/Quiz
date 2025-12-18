@@ -20,25 +20,23 @@ public class QuizController {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QuizController.class);
 
     private final QuestionRepository questionRepo;
+    private final com.quiz.repository.StudentRepository studentRepo;
     private final com.quiz.repository.SubmissionRepository submissionRepo;
     private final com.quiz.repository.SessionRepository sessionRepo;
 
     public QuizController(QuestionRepository questionRepo, com.quiz.repository.SubmissionRepository submissionRepo,
-            com.quiz.repository.SessionRepository sessionRepo) {
+            com.quiz.repository.SessionRepository sessionRepo, com.quiz.repository.StudentRepository studentRepo) {
         this.questionRepo = questionRepo;
         this.submissionRepo = submissionRepo;
         this.sessionRepo = sessionRepo;
+        this.studentRepo = studentRepo;
     }
 
     /**
      * Processes a quiz submission.
-     * Calculates score based on correct answers, prevents duplicate submissions
-     * (logic pending),
-     * and returns the result with explanations.
      */
     @PostMapping("/submit")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, Object> body) {
-        // body: { sessionId, studentId, answers: [{questionId, selectedOption}] }
         List<Map<String, Object>> answers = (List<Map<String, Object>>) body.get("answers");
         if (answers == null)
             return ResponseEntity.badRequest().body("No answers provided");
@@ -46,8 +44,28 @@ public class QuizController {
         Long sid = Long.valueOf(body.get("studentId").toString());
         Long sessId = Long.valueOf(body.get("sessionId").toString());
 
-        if (submissionRepo.existsByStudentIdAndSessionId(sid, sessId)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "You have already submitted this quiz!"));
+        // Auto-recover Student if missing (e.g. server restart)
+        if (!studentRepo.existsById(sid)) {
+            // Check if name/enrollment provided to recover
+            if (body.containsKey("name") && body.containsKey("enrollment")) {
+                com.quiz.model.Student newStudent = new com.quiz.model.Student();
+                newStudent.setName((String) body.get("name"));
+                newStudent.setEnrollment((String) body.get("enrollment"));
+                newStudent.setSessionId(sessId);
+                // We might want to preserve the ID if possible, but auto-gen is safer.
+                // However, we need to return the new ID?
+                // Actually, just save it and use the NEW ID for the submission.
+                newStudent = studentRepo.save(newStudent);
+                sid = newStudent.getId(); // Update local var to use valid ID
+                logger.warn("Recovered missing student: OldID={} -> NewID={}", body.get("studentId"), sid);
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Session expired (Server Restarted). Please refresh and re-join."));
+            }
+        } else {
+            if (submissionRepo.existsByStudentIdAndSessionId(sid, sessId)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "You have already submitted this quiz!"));
+            }
         }
 
         AtomicInteger score = new AtomicInteger(0);
@@ -70,7 +88,14 @@ public class QuizController {
             com.quiz.model.Submission sub = new com.quiz.model.Submission();
             sub.setSessionId(sessionId);
             sub.setStudentId(studentId);
-            sub.setScore(score.get());
+
+            boolean cheated = body.containsKey("cheated") && Boolean.parseBoolean(body.get("cheated").toString());
+            if (cheated) {
+                sub.setScore(0);
+                sub.setCheated(true);
+            } else {
+                sub.setScore(score.get());
+            }
 
             // Calculate Set
             sessionRepo.findById(sessionId).ifPresent(session -> {

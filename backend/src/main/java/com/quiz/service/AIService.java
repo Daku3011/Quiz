@@ -61,7 +61,15 @@ public class AIService {
         private String geminiModel;
 
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
-        private final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        private final com.fasterxml.jackson.databind.ObjectMapper mapper = com.fasterxml.jackson.databind.json.JsonMapper
+                        .builder()
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                        .build();
 
         // Batch size for parallel requests. Increased to 10 for higher throughput.
         private static final int BATCH_SIZE = 10;
@@ -181,29 +189,24 @@ public class AIService {
                                                                         Math.min(responseText.length(), 200)));
                                 }
 
-                                responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
+                                String cleanedJson = extractJsonArray(responseText);
 
                                 try {
-                                        return mapper.readValue(responseText,
+                                        return mapper.readValue(cleanedJson,
                                                         new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                         });
                                 } catch (Exception e) {
-                                        // Repair logic
-                                        try {
-                                                int lastClose = responseText.lastIndexOf("}");
-                                                if (lastClose != -1) {
-                                                        String repaired = responseText.substring(0, lastClose + 1)
-                                                                        + "]";
-                                                        if (repaired.contains(",]"))
-                                                                repaired = repaired.replace(",]", "]");
-                                                        logger.warn("JSON Parse failed. Attempting repair...");
-                                                        return mapper.readValue(repaired,
+                                        logger.error("Failed to parse batch JSON: {}", e.getMessage());
+                                        // Try one more repair if it failed: adding closing bracket if missing
+                                        if (e.getMessage().contains("Unexpected end-of-input")) {
+                                                try {
+                                                        return mapper.readValue(cleanedJson + "]",
                                                                         new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                                         });
+                                                } catch (Exception ex) {
+                                                        logger.error("Second attempt failed: {}", ex.getMessage());
                                                 }
-                                        } catch (Exception ignore) {
                                         }
-                                        logger.error("Failed to parse batch JSON: {}", e.getMessage());
                                         return new ArrayList<>();
                                 }
                         } else if (response.statusCode() == 429) {
@@ -224,6 +227,20 @@ public class AIService {
                 }
                 logger.error("Max retries exceeded for Gemini API.");
                 return new ArrayList<>();
+        }
+
+        private String extractJsonArray(String input) {
+                if (input == null)
+                        return "[]";
+                int start = input.indexOf('[');
+                int end = input.lastIndexOf(']');
+                if (start != -1 && end != -1 && end > start) {
+                        return input.substring(start, end + 1);
+                }
+                // Fallback: return input if brackets not found (might be raw json without
+                // markdown)
+                // or just cleanup markdown if no brackets found (unlikely for array)
+                return input.replace("```json", "").replace("```", "").trim();
         }
 
         private List<Question> generateMockQuestions(int count) {

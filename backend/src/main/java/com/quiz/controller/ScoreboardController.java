@@ -40,7 +40,8 @@ public class ScoreboardController {
                                 "enrollment", enrollment,
                                 "score", s.getScore(),
                                 "questionSet", s.getQuestionSet() != null ? s.getQuestionSet() : "-",
-                                "submittedAt", s.getSubmittedAt().toString());
+                                "submittedAt", s.getSubmittedAt().toString(),
+                                "cheated", s.isCheated());
                     }).collect(Collectors.toList()));
                 })
                 .orElse(ResponseEntity.notFound().build());

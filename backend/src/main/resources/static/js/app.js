@@ -4,6 +4,7 @@ let sessionId = null;
 let questions = [];
 let currentIndex = 0;
 let answers = {}; // Map<questionId, selectedOption>
+let hasCheated = false;
 
 // DOM Elements
 const sections = {
@@ -15,19 +16,54 @@ const sections = {
 };
 
 // Anti-Cheating: Detect Tab Switch
+// Anti-Cheating: Detect Tab Switch & Focus Loss & Fullscreen Exit
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && !sections.quiz.classList.contains('hidden')) {
         handleCheating();
     }
 });
 
+window.addEventListener('blur', () => {
+    if (!sections.quiz.classList.contains('hidden')) {
+        // Focus lost (e.g. clicked on overlay, notification, or alt-tab)
+        handleCheating();
+    }
+});
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !sections.quiz.classList.contains('hidden')) {
+        // User exited fullscreen
+        handleCheating();
+    }
+});
+
+async function requestFullScreen() {
+    try {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+        }
+    } catch (e) {
+        console.warn("Fullscreen request denied or failed", e);
+    }
+}
+
 function handleCheating() {
+    hasCheated = true;
+
+    // Persist cheating state immediately
+    const saved = sessionStorage.getItem('quizState');
+    if (saved) {
+        const state = JSON.parse(saved);
+        state.cheated = true;
+        sessionStorage.setItem('quizState', JSON.stringify(state));
+    }
+
     // Submit with 0 score or just disqualify
     // For now, disqualify locally
     showSection('cheating');
 
     // Optional: Send a "disqualified" flag to backend if needed
-    // submitQuiz(true); 
+    submitQuiz(true);
 }
 
 function showSection(name) {
@@ -63,7 +99,7 @@ async function registerAndJoin() {
 
             // Persist state
             sessionStorage.setItem('quizState', JSON.stringify({
-                sessionId, studentId, otp, name, enrollment
+                sessionId, studentId, otp, name, enrollment, cheated: false
             }));
 
             // Check Session Status immediately
@@ -81,13 +117,23 @@ async function registerAndJoin() {
 
 // Restore state on reload
 // Restore state on reload
+// Restore state on reload
 window.onload = function () {
     const saved = sessionStorage.getItem('quizState');
     if (saved) {
         const state = JSON.parse(saved);
+
+        if (state.cheated) {
+            hasCheated = true;
+            sessionId = state.sessionId;
+            studentId = state.studentId;
+            showSection('cheating');
+            return;
+        }
+
         if (state.completed) {
             // Block reentry locally
-            document.body.innerHTML = '<div style="text-align:center; margin-top:50px;"><h2>You have completed this quiz.</h2><p>Multiple submissions are not allowed.</p></div>';
+            document.body.innerHTML = '<div style="text-align:center; margin-top:50px;"><h2>You have completed this quiz.</h2><p>Multiple submissions are not allowed.</p><button onclick="logoutAndHome()" class="btn secondary" style="margin-top:20px;">Exit / New Quiz</button></div>';
             return;
         }
 
@@ -103,6 +149,11 @@ window.onload = function () {
         checkSessionStatus();
     }
 };
+
+function logoutAndHome() {
+    sessionStorage.clear();
+    window.location.reload();
+}
 
 async function checkSessionStatus() {
     try {
@@ -139,6 +190,7 @@ async function loadQuestions() {
             questions = await res.json();
             if (questions.length > 0) {
                 currentIndex = 0;
+                await requestFullScreen(); // Enforce Fullscreen
                 showSection('quiz');
                 renderQuestion();
             } else {
@@ -156,7 +208,23 @@ async function loadQuestions() {
 function renderQuestion() {
     const q = questions[currentIndex];
     document.getElementById('q-number').textContent = `Question ${currentIndex + 1} / ${questions.length}`;
-    document.getElementById('q-text').textContent = q.text;
+
+    // Format text: parsing markdown-style code blocks
+    let formattedText = q.text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    // Simple inline code replacement
+    formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    document.getElementById('q-text').innerHTML = formattedText; // Use innerHTML to render formatted code
+
+    // Handle Image
+    const imgEl = document.getElementById('q-image');
+    if (q.image) {
+        imgEl.src = q.image;
+        imgEl.classList.remove('hidden');
+        imgEl.style.display = 'block';
+    } else {
+        imgEl.style.display = 'none';
+    }
 
     document.getElementById('label-a').textContent = "A) " + (q.optionA || "");
     document.getElementById('label-b').textContent = "B) " + (q.optionB || "");
@@ -193,12 +261,24 @@ function prevQuestion() {
     }
 }
 
-async function submitQuiz() {
-    if (!confirm("Are you sure you want to submit?")) return;
+async function submitQuiz(autoSubmit = false) {
+    if (!autoSubmit && !confirm("Are you sure you want to submit?")) return;
+
+    const saved = sessionStorage.getItem('quizState');
+    let name = "Unknown";
+    let enrollment = "Unknown";
+    if (saved) {
+        const state = JSON.parse(saved);
+        name = state.name;
+        enrollment = state.enrollment;
+    }
 
     const payload = {
         sessionId: sessionId,
         studentId: studentId,
+        name: name,
+        enrollment: enrollment,
+        cheated: hasCheated,
         answers: Object.entries(answers).map(([qid, opt]) => ({
             questionId: parseInt(qid),
             selectedOption: opt

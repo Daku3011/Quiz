@@ -40,8 +40,13 @@
             <p class="info-text">Please wait for the faculty to start the exam.</p>
             <div class="loader"></div>
             <p id="wait-status" class="status" style="color: #666; margin-top: 10px;">Checking status...</p>
-            <button onclick="checkSessionStatus()" class="btn secondary" style="margin-top: 15px;">Refresh
-                Status</button>
+            Status</button>
+            <div
+                style="background: #ffecb5; color: #664d03; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em; border: 1px solid #ffcc00;">
+                <strong>⚠️ Strict Anti-Cheating:</strong> The quiz requires <strong>Fullscreen</strong> mode.
+                Switching tabs, exiting fullscreen, or Interacting with notifications/AI overlays (losing focus)
+                will be flagged as <strong>Cheating</strong> immediately.
+            </div>
         </div>
 
         <!-- Quiz Section -->
@@ -51,6 +56,7 @@
             </div>
             <div class="question-box">
                 <p id="q-text">Question text goes here...</p>
+                <img id="q-image" src="" alt="Question Image" class="question-image">
             </div>
             <div class="options-box">
                 <div class="option">
@@ -82,7 +88,7 @@
             <h2>Quiz Completed!</h2>
             <p id="score-display">Your Score: -</p>
             <div id="results-details" style="margin-top: 20px; text-align: left;"></div>
-
+            <button onclick="logoutAndHome()" class="btn secondary" style="margin-top: 20px;">Exit / New Quiz</button>
         </div>
 
         <!-- Cheating Detected Section -->
@@ -90,7 +96,7 @@
             <h2 style="color: red;">⚠️ Cheating Detected!</h2>
             <p>You switched tabs or minimized the browser during the quiz.</p>
             <p><strong>Your exam has been disqualified.</strong></p>
-            <button onclick="location.reload()" class="btn danger">Return to Home</button>
+            <button onclick="logoutAndHome()" class="btn danger">Return to Home</button>
         </div>
     </div>
 

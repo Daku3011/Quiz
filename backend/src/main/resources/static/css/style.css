@@ -125,6 +125,41 @@ input[type="text"] {
 }
 
 .quiz-controls {
-    display: flex;
     justify-content: space-between;
+}
+
+/* Code Snippet Styles */
+pre {
+    background: #282c34;
+    color: #abb2bf;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    margin: 10px 0;
+    white-space: pre-wrap;
+}
+
+code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #c7254e;
+}
+
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+/* Image Styles */
+.question-image {
+    max-width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    display: none; /* Hidden by default */
 }

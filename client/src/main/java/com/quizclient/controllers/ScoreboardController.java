@@ -32,6 +32,27 @@ public class ScoreboardController {
     @FXML
     public void initialize() {
         // table uses map entries
+        nameCol.setCellFactory(column -> new TableCell<Map<String, Object>, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    Map<String, Object> row = getTableView().getItems().get(getIndex());
+                    boolean cheated = row.containsKey("cheated")
+                            && Boolean.parseBoolean(String.valueOf(row.get("cheated")));
+                    if (cheated) {
+                        setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("");
+                    }
+                }
+            }
+        });
+
         nameCol.setCellValueFactory(
                 c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().get("studentName"))));
         enrollCol.setCellValueFactory(

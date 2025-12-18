@@ -67,4 +67,14 @@ public class Submission {
     public void setQuestionSet(String questionSet) {
         this.questionSet = questionSet;
     }
+
+    private boolean cheated;
+
+    public boolean isCheated() {
+        return cheated;
+    }
+
+    public void setCheated(boolean cheated) {
+        this.cheated = cheated;
+    }
 }
