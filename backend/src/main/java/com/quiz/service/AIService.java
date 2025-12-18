@@ -155,63 +155,75 @@ public class AIService {
                 // Add API key as query parameter
                 String urlWithKey = geminiApiUrl + "?key=" + geminiApiKey;
 
-                java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                                .uri(java.net.URI.create(urlWithKey))
-                                .header("Content-Type", "application/json")
-                                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
-                                .build();
+                int maxRetries = 3;
+                int attempt = 0;
 
-                java.net.http.HttpResponse<String> response = httpClient.send(request,
-                                java.net.http.HttpResponse.BodyHandlers.ofString());
+                while (attempt < maxRetries) {
+                        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                                        .uri(java.net.URI.create(urlWithKey))
+                                        .header("Content-Type", "application/json")
+                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                        .build();
 
-                if (response.statusCode() == 200) {
-                        com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+                        java.net.http.HttpResponse<String> response = httpClient.send(request,
+                                        java.net.http.HttpResponse.BodyHandlers.ofString());
 
-                        // Extract text from Gemini response format
-                        String responseText = root.path("candidates").get(0)
-                                        .path("content").path("parts").get(0)
-                                        .path("text").asText();
+                        if (response.statusCode() == 200) {
+                                // ... existing success logic ...
+                                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+                                String responseText = root.path("candidates").get(0)
+                                                .path("content").path("parts").get(0)
+                                                .path("text").asText();
 
-                        // Log truncated response for debugging without spamming logs
-                        if (logger.isDebugEnabled()) {
-                                logger.debug("Raw Gemini Batch Response: {}...",
-                                                responseText.substring(0, Math.min(responseText.length(), 200)));
-                        }
-
-                        // Cleanup markdown code blocks if present
-                        responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
-
-                        try {
-                                return mapper.readValue(responseText,
-                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                });
-                        } catch (Exception e) {
-                                // JSON REPAIR STRATEGY
-                                // LLMs sometimes truncate JSON or add trailing commas.
-                                // We attempt to fix common issues like missing closing brackets.
-                                try {
-                                        int lastClose = responseText.lastIndexOf("}");
-                                        if (lastClose != -1) {
-                                                String repaired = responseText.substring(0, lastClose + 1) + "]";
-                                                if (repaired.contains(",]"))
-                                                        repaired = repaired.replace(",]", "]");
-
-                                                logger.warn("JSON Parse failed. Attempting repair...");
-                                                return mapper.readValue(repaired,
-                                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                                });
-                                        }
-                                } catch (Exception ignore) {
-                                        // Repair failed, fall through to main error
+                                if (logger.isDebugEnabled()) {
+                                        logger.debug("Raw Gemini Batch Response: {}...",
+                                                        responseText.substring(0,
+                                                                        Math.min(responseText.length(), 200)));
                                 }
 
-                                logger.error("Failed to parse batch JSON: {}", e.getMessage());
-                                return new ArrayList<>(); // Fail gracefully
+                                responseText = responseText.replaceAll("```json", "").replaceAll("```", "").trim();
+
+                                try {
+                                        return mapper.readValue(responseText,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                        });
+                                } catch (Exception e) {
+                                        // Repair logic
+                                        try {
+                                                int lastClose = responseText.lastIndexOf("}");
+                                                if (lastClose != -1) {
+                                                        String repaired = responseText.substring(0, lastClose + 1)
+                                                                        + "]";
+                                                        if (repaired.contains(",]"))
+                                                                repaired = repaired.replace(",]", "]");
+                                                        logger.warn("JSON Parse failed. Attempting repair...");
+                                                        return mapper.readValue(repaired,
+                                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                                        });
+                                                }
+                                        } catch (Exception ignore) {
+                                        }
+                                        logger.error("Failed to parse batch JSON: {}", e.getMessage());
+                                        return new ArrayList<>();
+                                }
+                        } else if (response.statusCode() == 429) {
+                                attempt++;
+                                logger.warn("Gemini 429 Rate Limit Hit. Sleeping 25s before retry {}/{}...", attempt,
+                                                maxRetries);
+                                try {
+                                        Thread.sleep(25000); // Wait 25s based on typical error message advice
+                                } catch (InterruptedException ie) {
+                                        Thread.currentThread().interrupt();
+                                        throw new Exception("Interrupted during rate limit backoff");
+                                }
+                        } else {
+                                logger.error("Gemini API Error: Status={}, Body={}", response.statusCode(),
+                                                response.body());
+                                return new ArrayList<>(); // Non-retriable error
                         }
-                } else {
-                        logger.error("Gemini API Error: Status={}, Body={}", response.statusCode(), response.body());
-                        return new ArrayList<>();
                 }
+                logger.error("Max retries exceeded for Gemini API.");
+                return new ArrayList<>();
         }
 
         private List<Question> generateMockQuestions(int count) {

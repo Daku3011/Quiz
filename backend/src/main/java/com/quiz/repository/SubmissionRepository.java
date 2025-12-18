@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     List<Submission> findBySessionId(Long sessionId);
+
+    boolean existsByStudentIdAndSessionId(Long studentId, Long sessionId);
 }

@@ -54,4 +54,16 @@ public class SessionService {
     public Session getSession(Long sessionId) {
         return sessionRepo.findById(sessionId).orElse(null);
     }
+
+    public List<Session> getActiveSessions() {
+        return sessionRepo.findByActiveTrue();
+    }
+
+    public void stopSession(Long sessionId) {
+        sessionRepo.findById(sessionId).ifPresent(s -> {
+            s.setActive(false);
+            s.setEndTime(java.time.Instant.now());
+            sessionRepo.save(s);
+        });
+    }
 }

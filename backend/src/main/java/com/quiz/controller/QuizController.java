@@ -43,6 +43,13 @@ public class QuizController {
         if (answers == null)
             return ResponseEntity.badRequest().body("No answers provided");
 
+        Long sid = Long.valueOf(body.get("studentId").toString());
+        Long sessId = Long.valueOf(body.get("sessionId").toString());
+
+        if (submissionRepo.existsByStudentIdAndSessionId(sid, sessId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "You have already submitted this quiz!"));
+        }
+
         AtomicInteger score = new AtomicInteger(0);
         answers.forEach(ans -> {
             Long qId = ((Number) ans.get("questionId")).longValue();

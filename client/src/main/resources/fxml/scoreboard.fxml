@@ -18,7 +18,6 @@
     <Label text="Live Scoreboard" styleClass="title"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="← Back" onAction="#onBack" styleClass="button, secondary"/>
         <Region prefWidth="10"/>
         <Label text="Session ID:"/>
         <TextField fx:id="sessionIdField" promptText="Enter Session ID" style="-fx-font-weight: bold;"/>

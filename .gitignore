@@ -1,8 +1,14 @@
+# Build Artifacts
+**/target/
 *.class
-.vscode/
-.env
 *.jar
-backend.log
-client/target/quiz-client-0.0.1.jar
-backend/target/maven-archiver/pom.properties
-client/target/maven-archiver/pom.properties
+*.log
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# Enviroment
+.env
+backend/src/main/resources/application.properties

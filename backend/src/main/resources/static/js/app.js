@@ -61,6 +61,11 @@ async function registerAndJoin() {
             status.textContent = "Joined Successfully!";
             status.style.color = "green";
 
+            // Persist state
+            sessionStorage.setItem('quizState', JSON.stringify({
+                sessionId, studentId, otp, name, enrollment
+            }));
+
             // Check Session Status immediately
             checkSessionStatus();
         } else {
@@ -73,6 +78,31 @@ async function registerAndJoin() {
         status.textContent = "Error connecting to server.";
     }
 }
+
+// Restore state on reload
+// Restore state on reload
+window.onload = function () {
+    const saved = sessionStorage.getItem('quizState');
+    if (saved) {
+        const state = JSON.parse(saved);
+        if (state.completed) {
+            // Block reentry locally
+            document.body.innerHTML = '<div style="text-align:center; margin-top:50px;"><h2>You have completed this quiz.</h2><p>Multiple submissions are not allowed.</p></div>';
+            return;
+        }
+
+        sessionId = state.sessionId;
+        studentId = state.studentId;
+        // Restore input values if needed, or just jump to status check
+        document.getElementById('session-id').value = sessionId;
+        document.getElementById('otp').value = state.otp;
+        document.getElementById('reg-name').value = state.name;
+        document.getElementById('reg-enrollment').value = state.enrollment;
+
+        console.log("Restoring session...", state);
+        checkSessionStatus();
+    }
+};
 
 async function checkSessionStatus() {
     try {
@@ -186,6 +216,14 @@ async function submitQuiz() {
             const data = await res.json();
             document.getElementById('score-display').textContent = `Your Score: ${data.score}`;
 
+            // Mark completed
+            const saved = sessionStorage.getItem('quizState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                state.completed = true;
+                sessionStorage.setItem('quizState', JSON.stringify(state));
+            }
+
             const details = document.getElementById('results-details');
             details.innerHTML = '<h3>Detailed Results</h3>';
 
@@ -216,6 +254,9 @@ async function submitQuiz() {
             }
 
             showSection('result');
+            // Remove navigation warning
+            window.onbeforeunload = null;
+
         } else {
             alert("Submission failed.");
         }

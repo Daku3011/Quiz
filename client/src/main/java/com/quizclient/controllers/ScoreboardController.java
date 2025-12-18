@@ -96,21 +96,35 @@ public class ScoreboardController {
      */
     @FXML
     public void onPrint() {
-        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
-        if (job != null && job.showPrintDialog(table.getScene().getWindow())) {
-            boolean success = job.printPage(table);
-            if (success) {
-                job.endJob();
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Save Scoreboard");
+        fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        fileChooser.setInitialFileName(
+                "scoreboard_" + (sessionIdField.getText().isEmpty() ? "session" : sessionIdField.getText()) + ".csv");
+
+        java.io.File file = fileChooser.showSaveDialog(table.getScene().getWindow());
+        if (file != null) {
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(file)) {
+                // Header
+                writer.println("Student Name,Enrollment,Set,Score,Submitted At");
+
+                // Rows
+                for (Map<String, Object> row : table.getItems()) {
+                    String name = String.valueOf(row.get("studentName")).replace(",", " ");
+                    String enroll = String.valueOf(row.get("enrollment")).replace(",", " ");
+                    String set = String.valueOf(row.get("questionSet"));
+                    String score = String.valueOf(row.get("score"));
+                    String time = String.valueOf(row.get("submittedAt"));
+
+                    writer.printf("%s,%s,%s,%s,%s%n", name, enroll, set, score, time);
+                }
+
+                new Alert(Alert.AlertType.INFORMATION, "Export successful! Saved to " + file.getAbsolutePath())
+                        .showAndWait();
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Export failed: " + e.getMessage()).showAndWait();
             }
         }
-    }
-
-    @FXML
-    public void onBack(javafx.event.ActionEvent event) throws IOException {
-        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                getClass().getResource("/fxml/faculty_dashboard.fxml"));
-        javafx.scene.Parent root = loader.load();
-        javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new javafx.scene.Scene(root));
     }
 }

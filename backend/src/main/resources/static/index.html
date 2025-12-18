@@ -40,6 +40,8 @@
             <p class="info-text">Please wait for the faculty to start the exam.</p>
             <div class="loader"></div>
             <p id="wait-status" class="status" style="color: #666; margin-top: 10px;">Checking status...</p>
+            <button onclick="checkSessionStatus()" class="btn secondary" style="margin-top: 15px;">Refresh
+                Status</button>
         </div>
 
         <!-- Quiz Section -->
@@ -80,7 +82,7 @@
             <h2>Quiz Completed!</h2>
             <p id="score-display">Your Score: -</p>
             <div id="results-details" style="margin-top: 20px; text-align: left;"></div>
-            <button onclick="location.reload()" class="btn secondary">Back to Home</button>
+
         </div>
 
         <!-- Cheating Detected Section -->

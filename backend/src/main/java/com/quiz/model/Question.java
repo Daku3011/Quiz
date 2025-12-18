@@ -14,9 +14,13 @@ public class Question {
     private Long id;
     @Lob
     private String text;
+    @Column(length = 2048)
     private String optionA;
+    @Column(length = 2048)
     private String optionB;
+    @Column(length = 2048)
     private String optionC;
+    @Column(length = 2048)
     private String optionD;
     private String correct; // A/B/C/D
 

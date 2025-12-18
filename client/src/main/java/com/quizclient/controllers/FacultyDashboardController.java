@@ -37,6 +37,18 @@ public class FacultyDashboardController {
         countSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 60));
         setsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1));
 
+        // Time setup
+        startDatePicker.setValue(java.time.LocalDate.now());
+        startHourSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, java.time.LocalTime.now().getHour()));
+        startMinuteSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, java.time.LocalTime.now().getMinute()));
+
+        // Bind time controls to checkbox
+        if (timeControlsBox != null && scheduleTimeCheck != null) {
+            timeControlsBox.disableProperty().bind(scheduleTimeCheck.selectedProperty().not());
+        }
+
         questionsList.setCellFactory(lv -> new ListCell<>() {
             private final HBox content;
             private final Label label;
@@ -201,7 +213,12 @@ public class FacultyDashboardController {
         new Thread(generationTask).start();
     }
 
-    // ...
+    @FXML
+    public void onCancelGeneration() {
+        if (generationTask != null && generationTask.isRunning()) {
+            generationTask.cancel();
+        }
+    }
 
     @FXML
     public void editSelectedQuestion() {
@@ -267,7 +284,15 @@ public class FacultyDashboardController {
     private String currentSessionId;
 
     @FXML
-    private TextField startTimeField;
+    private DatePicker startDatePicker;
+    @FXML
+    private Spinner<Integer> startHourSpinner;
+    @FXML
+    private Spinner<Integer> startMinuteSpinner;
+    @FXML
+    private CheckBox scheduleTimeCheck;
+    @FXML
+    private javafx.scene.layout.HBox timeControlsBox;
     @FXML
     private TextField durationField;
 
@@ -290,9 +315,18 @@ public class FacultyDashboardController {
             body.put("title", "Quiz by " + System.getProperty("facultyName", "Faculty"));
             body.put("questions", qlist);
 
-            String st = startTimeField.getText();
-            if (st != null && !st.isBlank())
-                body.put("startTime", st);
+            if (scheduleTimeCheck.isSelected()) {
+                if (startDatePicker.getValue() == null) {
+                    alert("Please select a date");
+                    return;
+                }
+                java.time.LocalDateTime ldt = java.time.LocalDateTime.of(
+                        startDatePicker.getValue(),
+                        java.time.LocalTime.of(startHourSpinner.getValue(), startMinuteSpinner.getValue()));
+                body.put("startTime", ldt.toString());
+            } else {
+                // Not scheduled = Start Immediately
+            }
 
             String dur = durationField.getText();
             if (dur != null && !dur.isBlank()) {
@@ -357,7 +391,6 @@ public class FacultyDashboardController {
 
     @FXML
     public void onBrowse(ActionEvent event) {
-        // ... existing browse code ...
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Syllabus File");
         chooser.getExtensionFilters().add(
@@ -393,6 +426,22 @@ public class FacultyDashboardController {
     }
 
     @FXML
+    public void onManageSessions() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/fxml/active_sessions.fxml"));
+            javafx.scene.Parent root = loader.load();
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Manage Active Quizzes");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert("Error: " + e.getMessage());
+        }
+    }
+
+    @FXML
     public void onLogout(ActionEvent event) throws java.io.IOException {
         javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/login.fxml"));
         javafx.scene.Parent root = loader.load();
@@ -402,11 +451,17 @@ public class FacultyDashboardController {
         stage.setScene(scene);
     }
 
+    @FXML
+    public javafx.scene.layout.VBox loadingOverlay;
+
     private void setLoadingState(boolean loading) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(loading);
+        }
+
+        // Disable main inputs while loading
         if (generateBtn != null)
             generateBtn.setDisable(loading);
-        if (loadingIndicator != null)
-            loadingIndicator.setVisible(loading);
         if (syllabusArea != null)
             syllabusArea.setDisable(loading);
         if (cancelBtn != null)

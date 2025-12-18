@@ -64,9 +64,18 @@ public class SessionController {
 
         // Handle Start/End Time
         try {
-            java.time.Instant start = body.getStartTime() != null
-                    ? java.time.Instant.parse(body.getStartTime())
-                    : java.time.Instant.now();
+            String t = body.getStartTime();
+            java.time.Instant start;
+            if (t == null) {
+                start = java.time.Instant.now();
+            } else {
+                try {
+                    start = java.time.Instant.parse(t);
+                } catch (java.time.format.DateTimeParseException e) {
+                    // Fallback for LocalDateTime (e.g. "2023-12-15T10:00")
+                    start = java.time.LocalDateTime.parse(t).atZone(java.time.ZoneId.systemDefault()).toInstant();
+                }
+            }
             s.setStartTime(start);
 
             if (body.getDurationMinutes() != null && body.getDurationMinutes() > 0) {
@@ -184,5 +193,17 @@ public class SessionController {
 
         return ResponseEntity
                 .ok(Map.of("status", status, "startTime", s.getStartTime() != null ? s.getStartTime().toString() : ""));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveSessions() {
+        return ResponseEntity.ok(sessionService.getActiveSessions());
+    }
+
+    @PostMapping("/{id}/stop")
+    public ResponseEntity<?> stopSession(@PathVariable("id") Long id) {
+        sessionService.stopSession(id);
+        logger.info("Session stopped manually: ID={}", id);
+        return ResponseEntity.ok(Map.of("status", "stopped"));
     }
 }
