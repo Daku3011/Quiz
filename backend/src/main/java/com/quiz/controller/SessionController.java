@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import com.quiz.repository.SessionRepository;
 
+// This is one of the busiest controllers. It manages the lifecycle of a quiz session—
+// from starting it and generating an OTP to letting students join and then stopping it.
 @RestController
 @RequestMapping("/api/session")
 public class SessionController {
@@ -33,10 +35,8 @@ public class SessionController {
         this.sessionRepo = sessionRepo;
     }
 
-    /**
-     * Starts a new quiz session with the provided configuration.
-     * Logs the event and triggers OTP generation.
-     */
+    // When a faculty member clicks "Start Quiz", this method sets everything up.
+    // It saves the questions, creates the session, and generates a fresh OTP.
     @PostMapping("/start")
     public ResponseEntity<?> startSession(@RequestBody com.quiz.dto.SessionDTOs.StartSessionRequest body) {
         logger.info("Request to start session: Title='{}'", body.getTitle());
@@ -94,10 +94,9 @@ public class SessionController {
         return ResponseEntity.ok(Map.of("sessionId", s.getId(), "otp", otp));
     }
 
-    /**
-     * Validates a student's attempt to join a session.
-     * Checks OTP and Time boundaries.
-     */
+    // This is what students hit when they try to join a session.
+    // We check the OTP and make sure the exam is actually running (not too early,
+    // not too late).
     @PostMapping("/join")
     public ResponseEntity<?> joinSession(@RequestBody com.quiz.dto.SessionDTOs.JoinSessionRequest body) {
         Long sessionId = body.getSessionId();
@@ -146,7 +145,9 @@ public class SessionController {
         if (sets < 1)
             sets = 1;
 
-        // Partition Logic
+        // This is the logic for splitting questions into different sets.
+        // It helps prevent cheating by giving different students different questions
+        // (or a different order).
         List<Question> assignedQuestions;
         if (studentId != null && sets > 1) {
             long setIndex = studentId % sets; // 0 to sets-1

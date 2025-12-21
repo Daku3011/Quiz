@@ -6,7 +6,7 @@ let currentIndex = 0;
 let answers = {}; // Map<questionId, selectedOption>
 let hasCheated = false;
 
-// DOM Elements
+// We keep track of the different "screens" or sections of the app here.
 const sections = {
     register: document.getElementById('register-section'),
     waiting: document.getElementById('waiting-section'),
@@ -15,8 +15,8 @@ const sections = {
     cheating: document.getElementById('cheating-section')
 };
 
-// Anti-Cheating: Detect Tab Switch
-// Anti-Cheating: Detect Tab Switch & Focus Loss & Fullscreen Exit
+// These listeners are our "anti-cheating" system. 
+// We detect if the student switches tabs, loses focus, or exits fullscreen mode.
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && !sections.quiz.classList.contains('hidden')) {
         handleCheating();
@@ -115,9 +115,8 @@ async function registerAndJoin() {
     }
 }
 
-// Restore state on reload
-// Restore state on reload
-// Restore state on reload
+// This part is crucial! If the student refreshes the page, we try to restore 
+// their previous session so they don't have to start all over again.
 window.onload = function () {
     const saved = sessionStorage.getItem('quizState');
     if (saved) {

@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.io.IOException;
 
-/**
- * Displays live or final scores for a specific session.
- * Includes auto-refresh polling and print functionality.
- */
+// This controller manages the scoreboard view. 
+// It automatically refreshes every few seconds so the faculty can see scores roll in real-time.
 public class ScoreboardController {
     @FXML
     public TextField sessionIdField;
@@ -112,9 +110,8 @@ public class ScoreboardController {
         }
     }
 
-    /**
-     * Opens a native print dialog to print the scoreboard table.
-     */
+    // This lets the faculty export the current scores to a CSV file (perfect for
+    // Excel).
     @FXML
     public void onPrint() {
         javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();

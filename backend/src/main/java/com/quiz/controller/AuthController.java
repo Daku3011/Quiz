@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Manages user authentication (Login).
- */
+// This is the main gatekeeper for the app. 
+// It handles the login logic for both Admins and Faculty members.
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,12 +23,9 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Authenticates a user (Admin/Faculty).
-     * 
-     * @param credentials map with "username" and "password"
-     * @return User role and status if successful, or 401 error.
-     */
+    // The login method checks the provided username and password against the
+    // database.
+    // If everything matches, it sends back the user's role and some basic info.
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");

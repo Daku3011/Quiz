@@ -33,11 +33,12 @@
                             <Label text="Generate Questions" styleClass="subtitle"/>
                         </HBox>
                         
-                        <Label text="Paste syllabus text below or upload a file to generate questions using AI." wrapText="true" style="-fx-text-fill: #636e72;"/>
+                        <Label text="Paste syllabus text below or upload a PDF file(Any Size) to generate questions using AI." wrapText="true" style="-fx-text-fill: #636e72;"/>
                         
                         <HBox spacing="15" alignment="CENTER_LEFT">
                             <Button text="Upload File" onAction="#onBrowse" styleClass="button, secondary"/>
-                            <Label text="or paste text below" style="-fx-text-fill: #b2bec3;"/>
+                            <Button text="Edit" onAction="#onEditSyllabus" styleClass="button, secondary"/>
+                            <Label text="or paste text below (Any Size)" style="-fx-text-fill: #b2bec3;"/>
                         </HBox>
                         
                         <TextArea fx:id="syllabusArea" promptText="Paste syllabus content here..." prefRowCount="6" wrapText="true" styleClass="text-area"/>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #1e272e; -fx-padding: 20;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quizclient.controllers.SyllabusEditorController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <children>
+                <Label text="Syllabus Editor" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <!-- <Label text="Editing content in full view" textFill="#808e9b" /> -->
+            </children>
+        </HBox>
+        <TextArea fx:id="editorArea" VBox.vgrow="ALWAYS" wrapText="true" 
+                  style="-fx-control-inner-background: #2f3542; -fx-text-fill: white; -fx-font-family: 'Monospaced'; -fx-font-size: 14px; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #57606f;"/>
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <children>
+                <Button mnemonicParsing="false" onAction="#onCancel" prefWidth="100.0" text="Cancel" 
+                        style="-fx-background-color: #57606f; -fx-text-fill: white; -fx-padding: 8 20; -fx-cursor: hand;"/>
+                <Button mnemonicParsing="false" onAction="#onSave" prefWidth="100.0" text="Save" 
+                        style="-fx-background-color: #2575fc; -fx-text-fill: white; -fx-padding: 8 20; -fx-font-weight: bold; -fx-cursor: hand;"/>
+            </children>
+        </HBox>
+    </children>
+</VBox>

@@ -16,6 +16,8 @@ import java.io.File;
 import java.net.http.*;
 import java.util.*;
 
+// This is where the faculty spends most of their time. 
+// It handles everything from uploading a syllabus and generating questions with AI to starting a quiz session.
 public class FacultyDashboardController {
     @FXML
     public TextArea syllabusArea;
@@ -48,6 +50,13 @@ public class FacultyDashboardController {
         if (timeControlsBox != null && scheduleTimeCheck != null) {
             timeControlsBox.disableProperty().bind(scheduleTimeCheck.selectedProperty().not());
         }
+
+        // Syllabus Area Double Click
+        syllabusArea.setOnMouseClicked((MouseEvent e) -> {
+            if (e.getClickCount() == 2) {
+                onEditSyllabus();
+            }
+        });
 
         questionsList.setCellFactory(lv -> new ListCell<>() {
             private final HBox content;
@@ -127,13 +136,13 @@ public class FacultyDashboardController {
             return;
         }
 
-        // Disable UI & Show Loading
         setLoadingState(true);
 
+        // We run the generation in a background thread so the app doesn't freeze while
+        // waiting for the AI.
         int totalCount = countSpinner.getValue();
         final int BATCH_SIZE = 10; // Request in chunks of 10 to avoid timeouts and improve UX
 
-        // Run generation in a background thread to keep UI responsive
         generationTask = new javafx.concurrent.Task<>() {
             @Override
             protected List<QuestionDTO> call() throws Exception {
@@ -213,6 +222,8 @@ public class FacultyDashboardController {
         new Thread(generationTask).start();
     }
 
+    // If the faculty member wants to stop the generation mid-way, they can click
+    // "Cancel".
     @FXML
     public void onCancelGeneration() {
         if (generationTask != null && generationTask.isRunning()) {
@@ -296,6 +307,8 @@ public class FacultyDashboardController {
     @FXML
     private TextField durationField;
 
+    // This is the "big red button" that officially starts the quiz session and
+    // generates the OTP.
     @FXML
     public void onStartSession() {
         List<Map<String, String>> qlist = new ArrayList<>();
@@ -422,6 +435,32 @@ public class FacultyDashboardController {
                 e.printStackTrace();
                 alert("Failed to read file: " + e.getMessage());
             }
+        }
+    }
+
+    // This opens up the dedicated text editor for the syllabus text.
+    @FXML
+    public void onEditSyllabus() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/fxml/syllabus_editor.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            SyllabusEditorController controller = loader.getController();
+            controller.setText(syllabusArea.getText());
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Syllabus Editor");
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.showAndWait();
+
+            if (controller.isSaved()) {
+                syllabusArea.setText(controller.getText());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert("Error opening editor: " + e.getMessage());
         }
     }
 

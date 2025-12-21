@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * Manages student registration.
- * Allows students to register for a session using an OTP.
- */
+// This controller takes care of the initial student registration.
+// It's the first step for a student to get into a quiz session.
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
@@ -38,13 +36,13 @@ public class StudentController {
 
             Long sessionId = Long.parseLong(sidStr);
 
-            // 1. Validate Session & OTP
+            // First, we make sure the session is actually valid and the OTP matches.
             boolean validOtp = sessionService.validateOtp(sessionId, otp);
             if (!validOtp) {
                 return ResponseEntity.status(401).body("Invalid Session ID or OTP");
             }
 
-            // 2. Check for Duplicate Enrollment in this Session
+            // We don't want the same enrollment number joining twice in the same session!
             if (studentRepo.existsByEnrollmentAndSessionId(enrollment, sessionId)) {
                 return ResponseEntity.status(409)
                         .body("Student with enrollment " + enrollment + " already registered for this session.");

@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Handles quiz submissions from students.
- * Caclulates scores, assigns question sets, and returns detailed results.
- */
+// This is where the magic happens for the students. 
+// It takes their submissions, calculates their scores, and makes sure they get the right set of questions.
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -32,9 +30,7 @@ public class QuizController {
         this.studentRepo = studentRepo;
     }
 
-    /**
-     * Processes a quiz submission.
-     */
+    // This is the main endpoint students hit when they finish their quiz.
     @PostMapping("/submit")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, Object> body) {
         List<Map<String, Object>> answers = (List<Map<String, Object>>) body.get("answers");
@@ -44,7 +40,10 @@ public class QuizController {
         Long sid = Long.valueOf(body.get("studentId").toString());
         Long sessId = Long.valueOf(body.get("sessionId").toString());
 
-        // Auto-recover Student if missing (e.g. server restart)
+        // Sometimes the server restarts or something goes wrong, and we lose the
+        // student's session.
+        // This block tries to "auto-recover" the student info from the request so they
+        // don't lose their work.
         if (!studentRepo.existsById(sid)) {
             // Check if name/enrollment provided to recover
             if (body.containsKey("name") && body.containsKey("enrollment")) {
@@ -80,7 +79,7 @@ public class QuizController {
             });
         });
 
-        // Save submission
+        // Now we save the submission details so the faculty can see them later.
         try {
             Long sessionId = Long.valueOf(body.get("sessionId").toString());
             Long studentId = Long.valueOf(body.get("studentId").toString());
@@ -97,7 +96,7 @@ public class QuizController {
                 sub.setScore(score.get());
             }
 
-            // Calculate Set
+            // We figure out which "set" the student was taking based on their ID.
             sessionRepo.findById(sessionId).ifPresent(session -> {
                 int sets = session.getNumberOfSets();
                 if (sets < 1)

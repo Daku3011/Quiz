@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Handles administrative tasks such as creating faculty accounts and viewing
- * all submissions.
- */
+// This controller is the "admin panel" for the backend.
+// It handles things like onboarding new faculty members and keeping an eye on all quiz submissions.
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -34,12 +32,7 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Creates a new Faculty account.
-     * 
-     * @param body map containing "username" and "password"
-     * @return Success message or error if username exists.
-     */
+    // This endpoint lets an admin create a new account for a faculty member.
     @PostMapping("/faculty")
     public ResponseEntity<?> createFaculty(@RequestBody Map<String, String> body) {
         String username = body.get("username");
@@ -60,11 +53,8 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "Faculty created successfully", "id", user.getId()));
     }
 
-    /**
-     * Retrieves all student submissions across all sessions.
-     * 
-     * @return List of submission details including student name and score.
-     */
+    // Here we grab every single quiz submission from the database so the admin can
+    // see how everyone is doing.
     @GetMapping("/submissions")
     public ResponseEntity<?> getAllSubmissions() {
         List<Submission> allSubmissions = submissionRepo.findAll();

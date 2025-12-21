@@ -7,11 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+// This service is the "brain" of our question generation. 
+// it talks to the Google Gemini AI to turn syllabus text into actual quiz questions.
 @Service
 public class AIService {
         private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AIService.class);
 
-        // A static list of high-quality engineering questions for mock generation
+        // We keep a small "mock database" here just in case the AI is unavailable.
+        // It's full of general engineering questions to keep things running during
+        // development.
         private static final List<Question> MOCK_DB = new ArrayList<>();
 
         static {
@@ -74,39 +78,47 @@ public class AIService {
         // Batch size for parallel requests. Increased to 10 for higher throughput.
         private static final int BATCH_SIZE = 10;
 
-        /**
-         * Generates multiple-choice questions based on the provided syllabus text.
-         * Uses Google Gemini AI for generation, or falls back to a mock database if API
-         * key is missing or calls fail.
-         *
-         * @param syllabusText The text content to generate questions from.
-         * @param count        The number of questions to generate.
-         * @return A list of generated Question objects.
-         */
+        // This is the main entry point to generate questions.
+        // If we have an AI key, we'll use Gemini in parallel batches to speed things
+        // up.
+        // If not, we fall back to our mock questions so the app doesn't break.
+        // Chunk size for large files (approx 15k chars to stay safely within token
+        // limits detailed context)
+        private static final int CHUNK_SIZE = 15000;
+
         public List<Question> generateQuestions(String syllabusText, int count) {
                 if (geminiApiKey == null || geminiApiKey.isBlank()) {
                         logger.warn("Gemini API Key is missing. Falling back to Mock DB.");
                         return generateMockQuestions(count);
                 }
 
-                logger.info("Generating {} questions using PARALLEL BATCHES (Size: {})...", count, BATCH_SIZE);
+                List<String> chunks = splitString(syllabusText, CHUNK_SIZE);
+                int totalChunks = chunks.size();
+
+                logger.info("Split input text into {} chunks for processing.", totalChunks);
+
                 List<java.util.concurrent.CompletableFuture<List<Question>>> futures = new ArrayList<>();
 
-                int questionsRemaining = count;
-                while (questionsRemaining > 0) {
-                        int currentBatchSize = Math.min(BATCH_SIZE, questionsRemaining);
-                        questionsRemaining -= currentBatchSize;
+                int baseQ = count / totalChunks;
+                int remainder = count % totalChunks;
 
-                        final int batchCount = currentBatchSize;
+                for (int i = 0; i < totalChunks; i++) {
+                        // Distribute questions evenly
+                        int qForThisChunk = baseQ + (i < remainder ? 1 : 0);
 
-                        futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                                try {
-                                        return generateBatch(syllabusText, batchCount);
-                                } catch (Exception e) {
-                                        logger.error("Error generating batch of size {}", batchCount, e);
-                                        return new ArrayList<>(); // Return empty on failure to avoid nulls
-                                }
-                        }));
+                        if (qForThisChunk > 0) {
+                                String chunkText = chunks.get(i);
+                                final int currentBatchCount = qForThisChunk;
+
+                                futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                                        try {
+                                                return generateBatch(chunkText, currentBatchCount);
+                                        } catch (Exception e) {
+                                                logger.error("Error generating batch for chunk", e);
+                                                return new ArrayList<>();
+                                        }
+                                }));
+                        }
                 }
 
                 List<Question> allQuestions = futures.stream()
@@ -119,10 +131,22 @@ public class AIService {
                         return generateMockQuestions(count);
                 }
 
-                logger.info("Successfully generated {} questions.", allQuestions.size());
+                logger.info("Successfully generated {} questions from {} chunks.", allQuestions.size(), totalChunks);
                 return allQuestions;
         }
 
+        private List<String> splitString(String text, int maxSize) {
+                List<String> res = new ArrayList<>();
+                int len = text.length();
+                for (int i = 0; i < len; i += maxSize) {
+                        res.add(text.substring(i, Math.min(len, i + maxSize)));
+                }
+                return res;
+        }
+
+        // Here we handle the actual communication with Gemini for a single batch.
+        // We prompt it to give us strict JSON back so we can easily turn it into
+        // Question objects.
         private List<Question> generateBatch(String syllabusText, int count) throws Exception {
                 // Construct the prompt for Gemini
                 // We request a strict JSON Array format to ensure easy parsing.
@@ -237,9 +261,8 @@ public class AIService {
                 if (start != -1 && end != -1 && end > start) {
                         return input.substring(start, end + 1);
                 }
-                // Fallback: return input if brackets not found (might be raw json without
-                // markdown)
-                // or just cleanup markdown if no brackets found (unlikely for array)
+                // Fallback: return input if brackets not found (might be raw json without markdown)
+                // or just cleanup markdown if no brackets found (unlikely for array) 
                 return input.replace("```json", "").replace("```", "").trim();
         }
 

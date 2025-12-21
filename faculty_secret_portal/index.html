@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Command Center</title>
+    
+    <!-- Google Fonts for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">F</div>
+                <h2>Faculty<span class="highlight">OS</span></h2>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="create-quiz" onclick="switchTab('create-quiz')">
+                    <span class="icon">📝</span> Create Quiz
+                </button>
+                <button class="nav-btn" data-tab="active-sessions" onclick="switchTab('active-sessions')">
+                    <span class="icon">📡</span> Active Sessions
+                </button>
+                <button class="nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
+                    <span class="icon">📊</span> Scoreboard
+                </button>
+            </nav>
+
+            <div class="user-profile">
+                <div class="avatar">F</div>
+                <div class="info">
+                    <span class="name">Faculty User</span>
+                    <span class="role">Administrator</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Create Quiz Tab -->
+            <section id="create-quiz" class="tab-content active">
+                <header class="section-header">
+                    <h1>Create New Quiz</h1>
+                    <p>Generate questions from syllabus content using AI.</p>
+                </header>
+
+                <div class="grid-layout">
+                    <!-- Left Column: Syllabus & Configuration -->
+                    <div class="col-left">
+                        <div class="card glass-panel">
+                            <div class="card-header">
+                                <h3>1. Syllabus Content</h3>
+                                <div class="actions">
+                                    <button class="btn-text" onclick="clearSyllabus()">Clear</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="syllabus-text" placeholder="Paste your syllabus text here or upload a file..." spellcheck="false"></textarea>
+                                <div class="file-upload-area" id="drop-zone">
+                                    <input type="file" id="file-upload" hidden accept=".txt,.pdf">
+                                    <label for="file-upload" class="upload-label">
+                                        <span class="link">Click to upload</span> or drag and drop PDF/TXT
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card glass-panel">
+                            <div class="card-header">
+                                <h3>2. Configuration</h3>
+                            </div>
+                            <div class="card-body form-grid">
+                                <div class="form-group">
+                                    <label>Total Questions</label>
+                                    <input type="number" id="q-count" value="60" min="1" max="200">
+                                </div>
+                                <div class="form-group">
+                                    <label>Number of Sets</label>
+                                    <input type="number" id="q-sets" value="1" min="1" max="10">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="checkbox-wrapper">
+                                        <input type="checkbox" id="schedule-check" onchange="toggleSchedule()">
+                                        <span class="checkmark"></span>
+                                        Schedule for Later
+                                    </label>
+                                </div>
+                                <div class="form-group schedule-input hidden" id="schedule-inputs">
+                                    <label>Start Time</label>
+                                    <input type="datetime-local" id="start-time">
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration (minutes)</label>
+                                    <input type="number" id="duration" value="60">
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn-primary full-width" id="generate-btn" onclick="generateQuestions()">
+                                    <span class="btn-icon">✨</span> Generate Questions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Question Preview -->
+                    <div class="col-right">
+                        <div class="card glass-panel full-height">
+                            <div class="card-header">
+                                <h3>3. Review Questions <span class="badge" id="q-badge">0</span></h3>
+                                <div class="actions">
+                                    <button class="btn-secondary" onclick="addManually()">+ Add Manual</button>
+                                </div>
+                            </div>
+                            <div class="card-body scrollable-list" id="questions-list">
+                                <div class="empty-state">
+                                    <div class="icon">📄</div>
+                                    <p>No questions generated yet.</p>
+                                </div>
+                            </div>
+                            <div class="card-footer action-bar">
+                                <button class="btn-danger-outline" onclick="clearAllQuestions()">Clear All</button>
+                                <button class="btn-success" id="start-session-btn" onclick="startSession()" disabled>
+                                    🚀 Start Session
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Sessions Tab -->
+            <section id="active-sessions" class="tab-content">
+                <header class="section-header">
+                    <h1>Active Sessions</h1>
+                    <p>Manage currently running quizzes.</p>
+                </header>
+                
+                <!-- Latest Session Info -->
+                <div class="card glass-panel highlight-card hidden" id="current-session-card">
+                    <div class="session-hero">
+                        <div class="status-indicator live">LIVE</div>
+                        <div class="details">
+                            <h2>Session Active</h2>
+                            <div class="codes">
+                                <div class="code-block">
+                                    <span class="label">Session ID</span>
+                                    <span class="value" id="disp-sess-id">--</span>
+                                </div>
+                                <div class="code-block">
+                                    <span class="label">OTP</span>
+                                    <span class="value" id="disp-otp">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn-secondary" onclick="copySessionInfo()">Copy Info</button>
+                            <button class="btn-danger" onclick="stopCurrentSession()">Stop Session</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass-panel">
+                    <div class="card-header">
+                        <h3>Session History</h3>
+                        <button class="btn-icon" onclick="loadSessions()">🔄</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>OTP</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessions-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scoreboard Tab -->
+            <section id="scoreboard" class="tab-content">
+                <header class="section-header">
+                    <h1>Live Scoreboard</h1>
+                    <div class="header-controls">
+                        <input type="text" placeholder="Enter Session ID" id="scoreboard-sess-id" class="search-input">
+                        <button class="btn-primary" onclick="loadScoreboard()">Load</button>
+                    </div>
+                </header>
+
+                <div class="card glass-panel">
+                    <div class="card-body">
+                        <table class="data-table scoreboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student Name</th>
+                                    <th>Enrollment</th>
+                                    <th>Score</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scoreboard-body">
+                                <tr>
+                                    <td colspan="6" class="text-center">Enter a Session ID to view results.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal for Question Editing -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>Edit Question</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-index">
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea id="edit-text" rows="3"></textarea>
+                </div>
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label>Option A</label>
+                        <input type="text" id="edit-opt-a">
+                    </div>
+                    <div class="form-group">
+                        <label>Option B</label>
+                        <input type="text" id="edit-opt-b">
+                    </div>
+                    <div class="form-group">
+                        <label>Option C</label>
+                        <input type="text" id="edit-opt-c">
+                    </div>
+                    <div class="form-group">
+                        <label>Option D</label>
+                        <input type="text" id="edit-opt-d">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correct Answer</label>
+                    <select id="edit-correct">
+                        <option value="A">Option A</option>
+                        <option value="B">Option B</option>
+                        <option value="C">Option C</option>
+                        <option value="D">Option D</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveQuestionEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

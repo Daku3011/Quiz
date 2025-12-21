@@ -1,4 +1,6 @@
 #!/bin/bash
+# Get the absolute path of the script directory
+PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Run Script for Smart Quiz System
 # Starts Backend in background, then launches Client
@@ -6,13 +8,18 @@
 echo "========================================"
 echo "   🚀 Smart Quiz System - Launcher"
 echo "========================================"
+echo "Project Root: $PROJECT_ROOT"
 
 # Function to kill backend on exit
 cleanup() {
     echo ""
-    echo "🛑 Stopping Backend Server..."
+    echo "🛑 Stopping Services..."
     if [ ! -z "$BACKEND_PID" ]; then
-        kill $BACKEND_PID
+        kill $BACKEND_PID 2>/dev/null
+    fi
+    if [ ! -z "$FACULTY_WEB_PID" ]; then
+        echo "🛑 Stopping Faculty Portal..."
+        kill $FACULTY_WEB_PID 2>/dev/null
     fi
     echo "👋 Goodbye!"
     exit
@@ -23,10 +30,9 @@ trap cleanup SIGINT SIGTERM
 
 # 1. Start Backend
 echo "⏳ Starting Backend Server..."
-cd backend
-mvn spring-boot:run -Dspring-boot.run.profiles=dev > ../backend.log 2>&1 &
+cd "$PROJECT_ROOT/backend"
+mvn spring-boot:run -Dspring-boot.run.profiles=dev > "$PROJECT_ROOT/backend.log" 2>&1 &
 BACKEND_PID=$!
-cd ..
 
 echo "   Backend running with PID $BACKEND_PID. Logs: backend.log"
 
@@ -34,7 +40,7 @@ echo "   Backend running with PID $BACKEND_PID. Logs: backend.log"
 echo "   Waiting for server to be ready on port 8080..."
 MAX_RETRIES=30
 COUNT=0
-URL="http://localhost:8080/" # Health check execution (index.html)
+URL="http://localhost:8080/" 
 
 while ! curl --output /dev/null --silent --fail "$URL"; do
     printf "."
@@ -50,11 +56,29 @@ done
 echo ""
 echo "✅ Backend is UP!"
 
-# 3. Start Client
-echo "🖥️  Starting Faculty/Student Client..."
-cd client
-mvn javafx:run
-cd ..
+# 3. Start Secret Faculty Portal (Port 9876)
+echo "🕵️  Starting Secret Faculty Portal..."
 
-# 4. Cleanup when client closes
+# Kill anything already on port 9876
+EXISTING_PID=$(lsof -t -i:9876)
+if [ ! -z "$EXISTING_PID" ]; then
+    echo "   ⚠️ Found existing process on port 9876 (PID $EXISTING_PID). Killing it..."
+    kill -9 $EXISTING_PID 2>/dev/null
+fi
+
+if command -v python3 &> /dev/null; then
+    # Run in subshell to ensure directory change applies only to the server process
+    (cd "$PROJECT_ROOT/faculty_secret_portal" && python3 -m http.server 9876) > /dev/null 2>&1 &
+    FACULTY_WEB_PID=$!
+    echo "   Faculty Portal running at http://localhost:9876 (PID $FACULTY_WEB_PID)"
+else
+    echo "   ⚠️  Python3 not found. Faculty Web Portal skipped."
+fi
+
+# 4. Start Client
+echo "🖥️  Starting Faculty/Student Client..."
+cd "$PROJECT_ROOT/client"
+mvn javafx:run
+
+# 5. Cleanup when client closes
 cleanup

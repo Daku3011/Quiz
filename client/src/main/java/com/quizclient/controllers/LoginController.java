@@ -17,11 +17,8 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-/**
- * Handles the initial login screen.
- * Authenticates users against the backend and routes them to the appropriate
- * dashboard.
- */
+// This controller manages our login screen. 
+// It checks credentials with the backend and makes sure the right person sees the right dashboard (Admin vs Faculty).
 public class LoginController {
 
     @FXML
@@ -29,12 +26,8 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
-    /**
-     * Attempts to log the user in.
-     * Validates credentials and redirects based on role (ADMIN/FACULTY).
-     * 
-     * @param event The action event triggering this call
-     */
+    // When the user clicks "Login", we grab their info and ask the backend if
+    // they're allowed in.
     @FXML
     public void onLogin(ActionEvent event) {
         String username = usernameField.getText();
@@ -82,6 +75,7 @@ public class LoginController {
         navigate(event, "/fxml/student_register.fxml");
     }
 
+    // A quick helper to switch between different FXML screens smoothly.
     private void navigate(ActionEvent event, String fxmlPath) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent root = loader.load();

@@ -35,6 +35,7 @@ public class QuizController {
     private int index = 0;
     private final HttpClient http = ApiClient.HTTP;
 
+    // This handles the logic for a student trying to join a specific quiz session.
     @FXML
     public void onJoin() {
         // Reset error states
@@ -68,22 +69,8 @@ public class QuizController {
         statusLabel.getStyleClass().add("info");
         statusLabel.setText("Joining session...");
 
-        // Use a separate thread or task if possible, but for now we are on JavaFX
-        // thread.
-        // Since HttpClient is synchronous here (send), it will freeze UI.
-        // Ideally we should use sendAsync, but that requires refactoring to
-        // callbacks/Platform.runLater.
-        // Given the scope, I'll keep it synchronous but at least set the disable state.
-        // Note: In JavaFX, UI updates happen after method return unless we use a
-        // background thread.
-        // So setting text/disable might not show up if we block immediately.
-        // However, fixing the threading model is a larger task.
-        // I will stick to the logic, but be aware of the limitation.
-        // Actually, if I want the "Joining..." text to appear, I really should use
-        // async.
-        // Let's try to use sendAsync for better UX if it's easy.
-
-        // Refactoring to async:
+        // We're doing this asynchronously so the UI doesn't freeze while we wait for
+        // the backend.
         var body = Map.of("sessionId", sessionId.trim(), "otp", otp == null ? "" : otp.trim());
         try {
             var req = ApiClient.jsonRequest("/api/session/join")
@@ -176,6 +163,8 @@ public class QuizController {
         }
     }
 
+    // This helper method updates the UI with the text and options for the current
+    // question.
     private void showQuestion() {
         QuestionDTO q = questions.get(index);
         qNumber.setText("Question " + (index + 1) + " / " + questions.size());
@@ -230,8 +219,52 @@ public class QuizController {
             questions.get(index).setSelected("D");
     }
 
+    private boolean cheated = false;
+    private boolean isSubmitted = false;
+
+    @FXML
+    public void initialize() {
+        // We need to wait for the scene/stage to be available
+        sessionField.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.windowProperty().addListener((obs2, oldWindow, newWindow) -> {
+                    if (newWindow instanceof javafx.stage.Stage stage) {
+                        stage.focusedProperty().addListener((obs3, wasFocused, isFocused) -> {
+                            if (!isFocused && !isSubmitted && quizSection.isVisible()) {
+                                // Lost focus while quiz is active and not submitted
+                                cheated = true;
+                                javafx.application.Platform.runLater(() -> {
+                                    new Alert(Alert.AlertType.WARNING,
+                                            "Cheating detected! You left the quiz window. This incident has been recorded.",
+                                            ButtonType.OK).show();
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // When the student is done, this gathers all their answers and sends them to
+    // the backend for scoring.
     @FXML
     public void onSubmit() {
+        if (isSubmitted)
+            return;
+
+        // Show confirmation first
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to submit?", ButtonType.YES,
+                ButtonType.NO);
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                performSubmit();
+            }
+        });
+    }
+
+    private void performSubmit() {
+        isSubmitted = true; // Disable cheating detection immediately
         saveSelected();
         // build answers list
         String sessionId = sessionField.getText();
@@ -247,7 +280,10 @@ public class QuizController {
                     continue;
                 ans.add(Map.of("questionId", q.getId(), "selectedOption", q.getSelected()));
             }
-            var body = Map.of("sessionId", sessionId, "studentId", studentId, "answers", ans);
+
+            // Send cheated flag
+            var body = Map.of("sessionId", sessionId, "studentId", studentId, "answers", ans, "cheated", cheated);
+
             var req = ApiClient.jsonRequest("/api/quiz/submit")
                     .POST(HttpRequest.BodyPublishers.ofString(ApiClient.MAPPER.writeValueAsString(body)))
                     .build();
@@ -257,7 +293,11 @@ public class QuizController {
                 int score = j.has("score") ? j.get("score").asInt() : -1;
                 new Alert(Alert.AlertType.INFORMATION, "Quiz submitted. Your score: " + score, ButtonType.OK)
                         .showAndWait();
+                // Close window or navigate back?
+                // For now, simple disable
+                quizSection.setDisable(true);
             } else {
+                isSubmitted = false; // Re-enable if failed? Maybe not if confirmed.
                 new Alert(Alert.AlertType.ERROR, "Submit failed: " + resp.body(), ButtonType.OK).showAndWait();
             }
         } catch (Exception e) {

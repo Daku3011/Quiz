@@ -12,10 +12,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Configures application security using Spring Security.
- * Defines public endpoints, CORS policies, and password encoding.
- */
+// This is where we handle the security "rules" for our app.
+// We decide who can access what, handle CORS for the frontend, and set up password encryption.
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -23,15 +21,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for now as client doesn't handle it
+                // We're disabling CSRF because our local client doesn't use it yet.
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Allow H2 console
-                                                                                                  // frames
+                // We need to disable frame options so the H2 console can show up in the
+                // browser.
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
+                        // We're letting everyone access these specific paths (like static files and
+                        // auth APIs)
+                        // without needing to be logged in.
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/api/auth/**", "/api/session/**",
                                 "/api/syllabus/**", "/api/quiz/**",
                                 "/api/student/**", "/api/admin/**", "/h2-console/**")
                         .permitAll()
+                        // Anything else will require a valid login.
                         .anyRequest().authenticated());
         return http.build();
     }
@@ -39,7 +43,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Allow all origins for development
+        // Since we're in development, we'll allow requests from any origin.
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

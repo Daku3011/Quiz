@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// This controller handles the scoreboard data for a specific session.
+// It's used by faculty to see everyone's progress in real-time.
 @RestController
 @RequestMapping("/api/session")
 public class ScoreboardController {
@@ -24,6 +26,8 @@ public class ScoreboardController {
         this.studentRepo = studentRepo;
     }
 
+    // This method pulls together all the scores and student names for a given
+    // session ID.
     @GetMapping("/{id}/scoreboard")
     public ResponseEntity<?> getScoreboard(@PathVariable("id") Long id) {
         return sessionRepo.findById(id)
