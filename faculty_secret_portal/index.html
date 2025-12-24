@@ -1,26 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Command Center</title>
-    
+
     <!-- Google Fonts for Premium Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Immediate Auth Check to prevent content flash
+        (function () {
+            const user = localStorage.getItem('faculty_user');
+            if (!user) {
+                window.location.replace('login.html');
+            } else {
+                // Optional: Validate token structure if needed
+                try {
+                    const u = JSON.parse(user);
+                    if (!u.username || !u.role) {
+                        localStorage.removeItem('faculty_user');
+                        window.location.replace('login.html');
+                    }
+                } catch (e) {
+                    localStorage.removeItem('faculty_user');
+                    window.location.replace('login.html');
+                }
+            }
+        })();
+    </script>
 </head>
-<body>
+
+<body style="opacity: 0; transition: opacity 0.3s ease;">
+    <script>
+        // Show body if we get here (auth passed)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.style.opacity = '1';
+        });
+    </script>
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="brand">
-                <div class="logo-icon">F</div>
-                <h2>Faculty<span class="highlight">OS</span></h2>
+                <!-- <div class="logo-icon">F</div> -->
+                <h2>Welcome <span class="highlight">Faculty</span></h2>
             </div>
-            
+
             <nav class="nav-menu">
                 <button class="nav-btn active" data-tab="create-quiz" onclick="switchTab('create-quiz')">
                     <span class="icon">📝</span> Create Quiz
@@ -39,12 +70,15 @@
                     <span class="name">Faculty User</span>
                     <span class="role">Administrator</span>
                 </div>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <span class="icon">🚪</span>
+                </button>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="main-content">
-            
+
             <!-- Create Quiz Tab -->
             <section id="create-quiz" class="tab-content active">
                 <header class="section-header">
@@ -63,7 +97,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <textarea id="syllabus-text" placeholder="Paste your syllabus text here or upload a file..." spellcheck="false"></textarea>
+                                <textarea id="syllabus-text"
+                                    placeholder="Paste your syllabus text here or upload a file..."
+                                    spellcheck="false"></textarea>
                                 <div class="file-upload-area" id="drop-zone">
                                     <input type="file" id="file-upload" hidden accept=".txt,.pdf">
                                     <label for="file-upload" class="upload-label">
@@ -142,7 +178,7 @@
                     <h1>Active Sessions</h1>
                     <p>Manage currently running quizzes.</p>
                 </header>
-                
+
                 <!-- Latest Session Info -->
                 <div class="card glass-panel highlight-card hidden" id="current-session-card">
                     <div class="session-hero">
@@ -277,4 +313,5 @@
 
     <script src="js/app.js"></script>
 </body>
+
 </html>

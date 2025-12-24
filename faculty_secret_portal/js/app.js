@@ -1,9 +1,73 @@
 const API_BASE = 'http://localhost:8080';
+console.log('Faculty App.js loaded');
 
 // State
 let questions = [];
 let currentSessionId = null;
 let currentOtp = null;
+let currentUser = null;
+
+// Auth Logic
+function checkAuth() {
+    const user = localStorage.getItem('faculty_user');
+    if (!user) {
+        // If not on login page, redirect
+        if (!window.location.href.includes('login.html')) {
+            window.location.href = 'login.html';
+        }
+    } else {
+        currentUser = JSON.parse(user);
+        // If on login page, redirect to index
+        if (window.location.href.includes('login.html')) {
+            window.location.href = 'index.html';
+        }
+        updateProfileUI();
+    }
+}
+
+async function login(username, password) {
+    try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (data.status === 'success' && (data.role === 'ADMIN' || data.role === 'FACULTY')) {
+                localStorage.setItem('faculty_user', JSON.stringify({
+                    username: data.username,
+                    role: data.role
+                }));
+                return true;
+            }
+        }
+        return false;
+    } catch (e) {
+        console.error("Login Check Failed", e);
+        throw e;
+    }
+}
+window.login = login;
+
+function logout() {
+    if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem('faculty_user');
+        window.location.href = 'login.html';
+    }
+}
+
+function updateProfileUI() {
+    const items = document.querySelectorAll('.user-profile .name');
+    const roles = document.querySelectorAll('.user-profile .role');
+
+    if (items.length > 0 && currentUser) {
+        items.forEach(el => el.textContent = currentUser.username);
+        roles.forEach(el => el.textContent = currentUser.role);
+    }
+}
+
 
 // Tab Switching
 function switchTab(tabId) {
@@ -16,20 +80,22 @@ function switchTab(tabId) {
 
 // File Upload (Text Only)
 const fileInput = document.getElementById('file-upload');
-fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    if (file.type === 'text/plain') {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('syllabus-text').value = e.target.result;
-        };
-        reader.readAsText(file);
-    } else {
-        alert("For Web Portal, please copy-paste PDF text or use a .txt file. PDF parsing is limited to Desktop App.");
-    }
-});
+        if (file.type === 'text/plain') {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('syllabus-text').value = e.target.result;
+            };
+            reader.readAsText(file);
+        } else {
+            alert("For Web Portal, please copy-paste PDF text or use a .txt file. PDF parsing is limited to Desktop App.");
+        }
+    });
+}
 
 // Clear Syllabus
 function clearSyllabus() {
@@ -376,6 +442,11 @@ function renderScoreboard(data) {
 
 // Initial Setup
 document.addEventListener('DOMContentLoaded', () => {
+    // Auth Check
+    checkAuth();
+
+    if (window.location.href.includes('login.html')) return; // Stop here if login page
+
     // Set default datetime to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());

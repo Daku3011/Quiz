@@ -55,14 +55,23 @@ public class AIService {
                 MOCK_DB.add(q);
         }
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.api.key}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.key:#{null}}")
         private String geminiApiKey;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.api.url}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.url:#{null}}")
         private String geminiApiUrl;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.model}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.model:#{null}}")
         private String geminiModel;
+
+        @org.springframework.beans.factory.annotation.Value("${glm.api.key:#{null}}")
+        private String glmApiKey;
+
+        @org.springframework.beans.factory.annotation.Value("${glm.api.url:#{null}}")
+        private String glmApiUrl;
+
+        @org.springframework.beans.factory.annotation.Value("${glm.model:#{null}}")
+        private String glmModel;
 
         private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
         private final com.fasterxml.jackson.databind.ObjectMapper mapper = com.fasterxml.jackson.databind.json.JsonMapper
@@ -87,11 +96,22 @@ public class AIService {
         private static final int CHUNK_SIZE = 15000;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
-                if (geminiApiKey == null || geminiApiKey.isBlank()) {
-                        logger.warn("Gemini API Key is missing. Falling back to Mock DB.");
-                        return generateMockQuestions(count);
+                // Priority: Gemini > GLM > Mock
+                if (geminiApiKey != null && !geminiApiKey.isBlank()) {
+                        logger.info("Using Gemini AI for question generation.");
+                        return generateQuestionsInternal(syllabusText, count, false);
                 }
 
+                if (glmApiKey != null && !glmApiKey.isBlank()) {
+                        logger.info("Using GLM AI for question generation.");
+                        return generateQuestionsInternal(syllabusText, count, true);
+                }
+
+                logger.warn("No AI API Keys found. Falling back to Mock DB.");
+                return generateMockQuestions(count);
+        }
+
+        private List<Question> generateQuestionsInternal(String syllabusText, int count, boolean useGlm) {
                 List<String> chunks = splitString(syllabusText, CHUNK_SIZE);
                 int totalChunks = chunks.size();
 
@@ -112,7 +132,11 @@ public class AIService {
 
                                 futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                                         try {
-                                                return generateBatch(chunkText, currentBatchCount);
+                                                if (useGlm) {
+                                                        return generateBatchGLM(chunkText, currentBatchCount);
+                                                } else {
+                                                        return generateBatch(chunkText, currentBatchCount);
+                                                }
                                         } catch (Exception e) {
                                                 logger.error("Error generating batch for chunk", e);
                                                 return new ArrayList<>();
@@ -144,13 +168,9 @@ public class AIService {
                 return res;
         }
 
-        // Here we handle the actual communication with Gemini for a single batch.
-        // We prompt it to give us strict JSON back so we can easily turn it into
-        // Question objects.
-        private List<Question> generateBatch(String syllabusText, int count) throws Exception {
-                // Construct the prompt for Gemini
-                // We request a strict JSON Array format to ensure easy parsing.
-                String prompt = "Generate EXACTLY " + count
+        // Helper method to construct the prompt string.
+        private String constructPrompt(String syllabusText, int count) {
+                return "Generate EXACTLY " + count
                                 + " multiple-choice questions based on the reference text.\n" +
                                 "Return the response as a valid JSON ARRAY of objects. Do NOT return a single object.\n"
                                 +
@@ -172,6 +192,92 @@ public class AIService {
                                 "3. Do NOT copy sentences from syllabus verbatim; rephrase them as questions.\n" +
                                 "4. 'explanation' must be concise (max 30 words).\n" +
                                 "Syllabus: " + syllabusText;
+        }
+
+        private List<Question> generateBatchGLM(String syllabusText, int count) throws Exception {
+                String prompt = constructPrompt(syllabusText, count);
+
+                // GLM (OpenAI-compatible) API request format
+                Map<String, Object> bodyMap = Map.of(
+                                "model", glmModel,
+                                "messages", List.of(
+                                                Map.of("role", "user", "content", prompt)),
+                                "temperature", 0.7);
+
+                String requestBody = mapper.writeValueAsString(bodyMap);
+
+                int maxRetries = 3;
+                int attempt = 0;
+
+                while (attempt < maxRetries) {
+                        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                                        .uri(java.net.URI.create(glmApiUrl))
+                                        .header("Content-Type", "application/json")
+                                        .header("Authorization", "Bearer " + glmApiKey)
+                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                        .build();
+
+                        java.net.http.HttpResponse<String> response = httpClient.send(request,
+                                        java.net.http.HttpResponse.BodyHandlers.ofString());
+
+                        if (response.statusCode() == 200) {
+                                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+
+                                // GLM/OpenAI response structure: choices[0].message.content
+                                String responseText = root.path("choices").get(0)
+                                                .path("message").path("content").asText();
+
+                                if (logger.isDebugEnabled()) {
+                                        logger.debug("Raw GLM Batch Response: {}...",
+                                                        responseText.substring(0,
+                                                                        Math.min(responseText.length(), 200)));
+                                }
+
+                                String cleanedJson = extractJsonArray(responseText);
+
+                                try {
+                                        return mapper.readValue(cleanedJson,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                        });
+                                } catch (Exception e) {
+                                        logger.error("Failed to parse GLM batch JSON: {}", e.getMessage());
+                                        // Basic repair attempt
+                                        if (e.getMessage().contains("Unexpected end-of-input")) {
+                                                try {
+                                                        return mapper.readValue(cleanedJson + "]",
+                                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                                        });
+                                                } catch (Exception ex) {
+                                                        logger.error("Second attempt failed: {}", ex.getMessage());
+                                                }
+                                        }
+                                        return new ArrayList<>();
+                                }
+                        } else if (response.statusCode() == 429) {
+                                attempt++;
+                                logger.warn("GLM 429 Rate Limit Hit. Sleeping 5s before retry {}/{}...", attempt,
+                                                maxRetries);
+                                try {
+                                        Thread.sleep(5000);
+                                } catch (InterruptedException ie) {
+                                        Thread.currentThread().interrupt();
+                                        throw new Exception("Interrupted during rate limit backoff");
+                                }
+                        } else {
+                                logger.error("GLM API Error: Status={}, Body={}", response.statusCode(),
+                                                response.body());
+                                return new ArrayList<>();
+                        }
+                }
+                return new ArrayList<>();
+        }
+
+        // Here we handle the actual communication with Gemini for a single batch.
+        // We prompt it to give us strict JSON back so we can easily turn it into
+        // Question objects.
+        private List<Question> generateBatch(String syllabusText, int count) throws Exception {
+                // Construct the prompt for Gemini
+                String prompt = constructPrompt(syllabusText, count);
 
                 // Gemini API request format
                 Map<String, Object> bodyMap = Map.of(
@@ -261,8 +367,9 @@ public class AIService {
                 if (start != -1 && end != -1 && end > start) {
                         return input.substring(start, end + 1);
                 }
-                // Fallback: return input if brackets not found (might be raw json without markdown)
-                // or just cleanup markdown if no brackets found (unlikely for array) 
+                // Fallback: return input if brackets not found (might be raw json without
+                // markdown)
+                // or just cleanup markdown if no brackets found (unlikely for array)
                 return input.replace("```json", "").replace("```", "").trim();
         }
 

@@ -16,20 +16,37 @@ cleanup() {
     echo "🛑 Stopping Services..."
     if [ ! -z "$BACKEND_PID" ]; then
         kill $BACKEND_PID 2>/dev/null
+        # Wait a moment
+        sleep 1
+        kill -9 $BACKEND_PID 2>/dev/null
     fi
     if [ ! -z "$FACULTY_WEB_PID" ]; then
         echo "🛑 Stopping Faculty Portal..."
         kill $FACULTY_WEB_PID 2>/dev/null
+        kill -9 $FACULTY_WEB_PID 2>/dev/null
     fi
+    
+    # Extra safety: kill anything on our ports
+    fuser -k 9876/tcp >/dev/null 2>&1
+    fuser -k 8080/tcp >/dev/null 2>&1
+    
     echo "👋 Goodbye!"
     exit
 }
 
-# Trap interrupts
-trap cleanup SIGINT SIGTERM
+# Trap interrupts AND normal exit (EXIT covers both signal and normal end)
+trap cleanup EXIT INT TERM
 
 # 1. Start Backend
 echo "⏳ Starting Backend Server..."
+
+# Cleanup Port 8080
+EXISTING_BACKEND=$(lsof -t -i:8080)
+if [ ! -z "$EXISTING_BACKEND" ]; then
+    echo "   ⚠️ Found existing process on port 8080 (PID $EXISTING_BACKEND). Killing it..."
+    kill -9 $EXISTING_BACKEND 2>/dev/null
+fi
+
 cd "$PROJECT_ROOT/backend"
 mvn spring-boot:run -Dspring-boot.run.profiles=dev > "$PROJECT_ROOT/backend.log" 2>&1 &
 BACKEND_PID=$!

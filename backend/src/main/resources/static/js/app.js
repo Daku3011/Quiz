@@ -4,7 +4,9 @@ let sessionId = null;
 let questions = [];
 let currentIndex = 0;
 let answers = {}; // Map<questionId, selectedOption>
+
 let hasCheated = false;
+let isSubmitting = false;
 
 // We keep track of the different "screens" or sections of the app here.
 const sections = {
@@ -18,12 +20,14 @@ const sections = {
 // These listeners are our "anti-cheating" system. 
 // We detect if the student switches tabs, loses focus, or exits fullscreen mode.
 document.addEventListener('visibilitychange', () => {
+    if (isSubmitting) return;
     if (document.hidden && !sections.quiz.classList.contains('hidden')) {
         handleCheating();
     }
 });
 
 window.addEventListener('blur', () => {
+    if (isSubmitting) return;
     if (!sections.quiz.classList.contains('hidden')) {
         // Focus lost (e.g. clicked on overlay, notification, or alt-tab)
         handleCheating();
@@ -31,6 +35,7 @@ window.addEventListener('blur', () => {
 });
 
 document.addEventListener('fullscreenchange', () => {
+    if (isSubmitting) return;
     if (!document.fullscreenElement && !sections.quiz.classList.contains('hidden')) {
         // User exited fullscreen
         handleCheating();
@@ -78,9 +83,20 @@ async function registerAndJoin() {
     const otp = document.getElementById('otp').value;
     const status = document.getElementById('reg-status');
 
+
+
     if (!name || !enrollment || !sessionId || !otp) {
         status.textContent = "Please fill all fields.";
         status.style.color = "red";
+        return;
+    }
+
+    // Device Check
+    const completedSessions = JSON.parse(localStorage.getItem('completed_sessions') || '[]');
+    if (completedSessions.includes(sessionId)) {
+        status.textContent = "You have already completed this session on this device.";
+        status.style.color = "red";
+        alert("Restriction: You have already submitted this quiz on this device.");
         return;
     }
 
@@ -261,7 +277,15 @@ function prevQuestion() {
 }
 
 async function submitQuiz(autoSubmit = false) {
-    if (!autoSubmit && !confirm("Are you sure you want to submit?")) return;
+    if (!autoSubmit) {
+        isSubmitting = true; // Disable cheating checks temporarily
+        if (!confirm("Are you sure you want to submit?")) {
+            isSubmitting = false; // Re-enable if cancelled
+            return;
+        }
+    } else {
+        isSubmitting = true;
+    }
 
     const saved = sessionStorage.getItem('quizState');
     let name = "Unknown";
@@ -295,12 +319,19 @@ async function submitQuiz(autoSubmit = false) {
             const data = await res.json();
             document.getElementById('score-display').textContent = `Your Score: ${data.score}`;
 
-            // Mark completed
+            // Mark completed locally
             const saved = sessionStorage.getItem('quizState');
             if (saved) {
                 const state = JSON.parse(saved);
                 state.completed = true;
                 sessionStorage.setItem('quizState', JSON.stringify(state));
+            }
+
+            // Persist completion to device (localStorage)
+            const completedSessions = JSON.parse(localStorage.getItem('completed_sessions') || '[]');
+            if (!completedSessions.includes(sessionId)) {
+                completedSessions.push(sessionId);
+                localStorage.setItem('completed_sessions', JSON.stringify(completedSessions));
             }
 
             const details = document.getElementById('results-details');
