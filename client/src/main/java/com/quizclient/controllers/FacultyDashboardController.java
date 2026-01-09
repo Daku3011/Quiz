@@ -27,6 +27,8 @@ public class FacultyDashboardController {
     public ListView<QuestionDTO> questionsList;
     @FXML
     public Label sessionInfo;
+    @FXML
+    public Label fileDetailsLabel;
 
     private final HttpClient http = ApiClient.HTTP;
 
@@ -412,6 +414,13 @@ public class FacultyDashboardController {
         File file = chooser.showOpenDialog(null);
 
         if (file != null) {
+            // Update Label Details
+            long sizeKb = file.length() / 1024;
+            String type = file.getName().substring(file.getName().lastIndexOf(".") + 1).toUpperCase();
+            if (fileDetailsLabel != null) {
+                fileDetailsLabel.setText(String.format("Selected: %s | %s | %d KB", file.getName(), type, sizeKb));
+            }
+
             try {
                 String content = "";
                 if (file.getName().toLowerCase().endsWith(".pdf")) {

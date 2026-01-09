@@ -14,10 +14,16 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="css/style.css">
+    <!-- PDF.js for parsing PDFs in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Set worker src
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
     <script>
         // Immediate Auth Check to prevent content flash
         (function () {
-            const user = localStorage.getItem('faculty_user');
+            const user = sessionStorage.getItem('faculty_user');
             if (!user) {
                 window.location.replace('login.html');
             } else {
@@ -25,11 +31,11 @@
                 try {
                     const u = JSON.parse(user);
                     if (!u.username || !u.role) {
-                        localStorage.removeItem('faculty_user');
+                        sessionStorage.removeItem('faculty_user');
                         window.location.replace('login.html');
                     }
                 } catch (e) {
-                    localStorage.removeItem('faculty_user');
+                    sessionStorage.removeItem('faculty_user');
                     window.location.replace('login.html');
                 }
             }
@@ -105,6 +111,13 @@
                                     <label for="file-upload" class="upload-label">
                                         <span class="link">Click to upload</span> or drag and drop PDF/TXT
                                     </label>
+                                    <div class="file-limits"
+                                        style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; text-align: center;">
+                                        Supported: .txt, .pdf (Max 10MB)
+                                    </div>
+                                    <div id="file-details" class="file-info hidden"
+                                        style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted); background: rgba(0,0,0,0.05); padding: 5px; border-radius: 6px;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -311,7 +324,7 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=2"></script>
 </body>
 
 </html>

@@ -9,7 +9,7 @@ let currentUser = null;
 
 // Auth Logic
 function checkAuth() {
-    const user = localStorage.getItem('faculty_user');
+    const user = sessionStorage.getItem('faculty_user');
     if (!user) {
         // If not on login page, redirect
         if (!window.location.href.includes('login.html')) {
@@ -36,7 +36,7 @@ async function login(username, password) {
         if (res.ok) {
             const data = await res.json();
             if (data.status === 'success' && (data.role === 'ADMIN' || data.role === 'FACULTY')) {
-                localStorage.setItem('faculty_user', JSON.stringify({
+                sessionStorage.setItem('faculty_user', JSON.stringify({
                     username: data.username,
                     role: data.role
                 }));
@@ -53,7 +53,7 @@ window.login = login;
 
 function logout() {
     if (confirm("Are you sure you want to logout?")) {
-        localStorage.removeItem('faculty_user');
+        sessionStorage.removeItem('faculty_user');
         window.location.href = 'login.html';
     }
 }
@@ -85,14 +85,49 @@ if (fileInput) {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.type === 'text/plain') {
+        // Display File Details
+        const detailsDiv = document.getElementById('file-details');
+        if (detailsDiv) {
+            const size = (file.size / 1024).toFixed(2);
+            detailsDiv.innerHTML = `<strong>Selected:</strong> ${file.name} <br>
+                                  <small>Type: ${file.type || 'Unknown'} | Size: ${size} KB</small>`;
+            detailsDiv.classList.remove('hidden');
+        }
+
+        if (file.type === 'application/pdf') {
+            const fileReader = new FileReader();
+            fileReader.onload = async function () {
+                const typedarray = new Uint8Array(this.result);
+                try {
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let fullText = '';
+
+                    // Show loading
+                    document.getElementById('file-details').innerHTML += '<br><span>⏳ Parsing PDF...</span>';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n\n';
+                    }
+
+                    document.getElementById('syllabus-text').value = fullText;
+                    document.getElementById('file-details').innerHTML += ' <span style="color:var(--success-color)">✅ Done!</span>';
+                } catch (error) {
+                    console.error(error);
+                    alert("Error parsing PDF: " + error.message);
+                }
+            };
+            fileReader.readAsArrayBuffer(file);
+        } else if (file.type === 'text/plain') {
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById('syllabus-text').value = e.target.result;
             };
             reader.readAsText(file);
         } else {
-            alert("For Web Portal, please copy-paste PDF text or use a .txt file. PDF parsing is limited to Desktop App.");
+            alert("Supported formats: .txt and .pdf only.");
         }
     });
 }
@@ -101,6 +136,11 @@ if (fileInput) {
 function clearSyllabus() {
     document.getElementById('syllabus-text').value = '';
     fileInput.value = '';
+    const details = document.getElementById('file-details');
+    if (details) {
+        details.innerHTML = '';
+        details.classList.add('hidden');
+    }
 }
 
 // Generate Questions

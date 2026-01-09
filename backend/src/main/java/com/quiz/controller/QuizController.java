@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 // This is where the magic happens for the students. 
 // It takes their submissions, calculates their scores, and makes sure they get the right set of questions.
+import java.util.Collections;
+
 @RestController
 @RequestMapping("/api/quiz")
 public class QuizController {
@@ -33,6 +35,7 @@ public class QuizController {
     // This is the main endpoint students hit when they finish their quiz.
     @PostMapping("/submit")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> answers = (List<Map<String, Object>>) body.get("answers");
         if (answers == null)
             return ResponseEntity.badRequest().body("No answers provided");

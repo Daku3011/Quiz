@@ -74,7 +74,6 @@ echo ""
 echo "✅ Backend is UP!"
 
 # 3. Start Secret Faculty Portal (Port 9876)
-echo "🕵️  Starting Secret Faculty Portal..."
 
 # Kill anything already on port 9876
 EXISTING_PID=$(lsof -t -i:9876)
