@@ -30,6 +30,9 @@ public class FacultyDashboardController {
     @FXML
     public Label fileDetailsLabel;
 
+    private String selectedFileBase64;
+    private String selectedMimeType;
+
     private final HttpClient http = ApiClient.HTTP;
 
     @FXML
@@ -159,13 +162,20 @@ public class FacultyDashboardController {
                     int currentBatch = Math.min(BATCH_SIZE, remaining);
 
                     try {
-                        @SuppressWarnings("unused")
-                        var body = Map.of("text", text, "count", String.valueOf(currentBatch));
-
                         // Create request to backend
+                        Map<String, String> bodyMap = new HashMap<>();
+                        bodyMap.put("text", text);
+                        bodyMap.put("count", String.valueOf(currentBatch));
+
+                        // If we have a selected file, send it too
+                        if (selectedFileBase64 != null) {
+                            bodyMap.put("fileData", selectedFileBase64);
+                            bodyMap.put("mimeType", selectedMimeType);
+                        }
+
                         var req = ApiClient.jsonRequest("/api/syllabus/generate")
                                 .POST(HttpRequest.BodyPublishers
-                                        .ofString(ApiClient.MAPPER.writeValueAsString(body)))
+                                        .ofString(ApiClient.MAPPER.writeValueAsString(bodyMap)))
                                 .timeout(java.time.Duration.ofSeconds(120)) // Extended timeout per batch
                                 .build();
 
@@ -422,24 +432,33 @@ public class FacultyDashboardController {
             }
 
             try {
-                String content = "";
+                // Read file to Base64 for sending to backend
+                byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
+                this.selectedFileBase64 = java.util.Base64.getEncoder().encodeToString(fileBytes);
+
                 if (file.getName().toLowerCase().endsWith(".pdf")) {
+                    this.selectedMimeType = "application/pdf";
+                    // Still try to show text preview if possible
                     try (org.apache.pdfbox.pdmodel.PDDocument document = org.apache.pdfbox.pdmodel.PDDocument
                             .load(file)) {
                         org.apache.pdfbox.text.PDFTextStripper stripper = new org.apache.pdfbox.text.PDFTextStripper();
-                        content = stripper.getText(document);
+                        syllabusArea.setText(stripper.getText(document));
+                    } catch (Exception e) {
+                        syllabusArea
+                                .setText("[PDF Selected. Text extraction failed, but image analysis will be used.]");
                     }
                 } else {
+                    this.selectedMimeType = "text/plain";
                     // Assume text
                     try {
-                        content = java.nio.file.Files.readString(file.toPath());
+                        String content = java.nio.file.Files.readString(file.toPath());
+                        syllabusArea.setText(content);
                     } catch (java.nio.charset.MalformedInputException e) {
-                        // Fallback to ISO-8859-1 if UTF-8 fails
-                        content = java.nio.file.Files.readString(file.toPath(),
-                                java.nio.charset.StandardCharsets.ISO_8859_1);
+                        // Fallback
+                        syllabusArea.setText(java.nio.file.Files.readString(file.toPath(),
+                                java.nio.charset.StandardCharsets.ISO_8859_1));
                     }
                 }
-                syllabusArea.setText(content);
             } catch (Exception e) {
                 e.printStackTrace();
                 alert("Failed to read file: " + e.getMessage());

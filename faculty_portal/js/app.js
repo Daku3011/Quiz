@@ -1,4 +1,6 @@
-const API_BASE = 'http://localhost:8080';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:8080' 
+    : `http://${window.location.hostname}:8080`;
 console.log('Faculty App.js loaded');
 
 // State
@@ -141,12 +143,99 @@ function clearSyllabus() {
         details.innerHTML = '';
         details.classList.add('hidden');
     }
+    const weightsContainer = document.getElementById('weights-container');
+    if (weightsContainer) {
+        weightsContainer.classList.add('hidden');
+        document.getElementById('weights-list').innerHTML = '';
+    }
+}
+
+// Analyze Syllabus for Chapters and Weights
+async function analyzeSyllabus() {
+    const text = document.getElementById('syllabus-text').value;
+    if (!text.trim()) {
+        alert("Please enter or upload syllabus text first.");
+        return;
+    }
+
+    const btn = document.getElementById('analyze-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="btn-icon">⏳</span> Analyzing...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/syllabus/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // data = { credits: "...", hours: "...", chapters: [{name: "...", weight: 20}, ...] }
+            renderWeights(data.chapters || []);
+            document.getElementById('weights-container').classList.remove('hidden');
+            
+            // Optionally update UI with credits/hours
+            if (data.credits || data.hours) {
+                const detailsDiv = document.getElementById('file-details');
+                detailsDiv.classList.remove('hidden');
+                detailsDiv.innerHTML += `<br><strong>Extracted:</strong> ${data.credits ? data.credits + ' Credits' : ''} ${data.hours ? '| ' + data.hours + ' Hours' : ''}`;
+            }
+        } else {
+            alert("Analysis failed: " + await response.text());
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error connecting to backend for analysis.");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+function renderWeights(chapters) {
+    const list = document.getElementById('weights-list');
+    list.innerHTML = chapters.map((ch, idx) => {
+        const shortName = ch.name.length > 50 ? ch.name.substring(0, 47) + '...' : ch.name;
+        return `
+            <div class="form-group">
+                <label style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ch.name}">${shortName}</label>
+                <input type="number" class="chapter-weight-input" data-name="${ch.name}" value="${ch.weight}" min="0" max="100" onchange="updateTotalWeight()">
+            </div>
+        `;
+    }).join('');
+    updateTotalWeight();
+}
+
+function updateTotalWeight() {
+    const inputs = document.querySelectorAll('.chapter-weight-input');
+    let total = 0;
+    inputs.forEach(input => total += parseInt(input.value) || 0);
+    const totalEl = document.getElementById('total-weight');
+    if (totalEl) {
+        totalEl.textContent = total;
+        totalEl.style.color = (total === 100) ? 'var(--success-color)' : 'var(--danger-color)';
+    }
+}
+
+function getWeights() {
+    const inputs = document.querySelectorAll('.chapter-weight-input');
+    const weights = [];
+    inputs.forEach(input => {
+        weights.push({
+            name: input.dataset.name,
+            weight: parseInt(input.value) || 0
+        });
+    });
+    return weights;
 }
 
 // Generate Questions
 async function generateQuestions() {
     const text = document.getElementById('syllabus-text').value;
     const count = document.getElementById('q-count').value;
+    const weights = getWeights();
 
     if (!text.trim()) {
         alert("Please enter syllabus text first.");
@@ -162,7 +251,7 @@ async function generateQuestions() {
         const response = await fetch(`${API_BASE}/api/syllabus/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: text, count: count })
+            body: JSON.stringify({ text: text, count: count, weights: weights })
         });
 
         if (response.ok) {

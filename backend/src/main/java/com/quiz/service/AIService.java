@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 // This service is the "brain" of our question generation. 
-// it talks to the Google Gemini AI to turn syllabus text into actual quiz questions.
+// it talks to the Google so for pdf upload we have already formated pdf from which model has to fetch Teaching and Examination Scheme: for total cradite then from that you will have total hours and last is course outcome table from that 3 thing generate the qurstion based on them  AI to turn syllabus text into actual quiz questions.
 @Service
 public class AIService {
         private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AIService.class);
@@ -96,22 +96,164 @@ public class AIService {
         private static final int CHUNK_SIZE = 15000;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
+                return generateQuestions(syllabusText, null, null, count, null);
+        }
+
+        public List<Question> generateQuestions(String syllabusText, String fileData, String mimeType, int count) {
+                return generateQuestions(syllabusText, fileData, mimeType, count, null);
+        }
+
+        public List<Question> generateQuestions(String syllabusText, String fileData, String mimeType, int count,
+                        List<Map<String, Object>> weights) {
                 // Priority: Gemini > GLM > Mock
                 if (geminiApiKey != null && !geminiApiKey.isBlank()) {
-                        logger.info("Using Gemini AI for question generation.");
-                        return generateQuestionsInternal(syllabusText, count, false);
+                        logger.info("Using Gemini AI for question generation. Model: {}", geminiModel);
+
+                        // Check if model supports multimodal (Gemma does not support inlineData in this
+                        // API version)
+                        boolean isGemma = geminiModel != null && geminiModel.toLowerCase().contains("gemma");
+
+                        if (!isGemma && fileData != null && !fileData.isBlank()) {
+                                return generateMultimodalGemini(syllabusText, fileData, mimeType, count, weights);
+                        }
+
+                        if (isGemma && fileData != null && !fileData.isBlank()) {
+                                logger.warn("Multimodal input provided but model is '{}'. Ignoring file/image data and using text-only.",
+                                                geminiModel);
+                        }
+
+                        return generateQuestionsInternal(syllabusText, count, false, weights);
                 }
 
-                if (glmApiKey != null && !glmApiKey.isBlank()) {
+                if (glmApiKey != null && !glmApiKey.isBlank() && (fileData == null || fileData.isBlank())) {
                         logger.info("Using GLM AI for question generation.");
-                        return generateQuestionsInternal(syllabusText, count, true);
+                        return generateQuestionsInternal(syllabusText, count, true, weights);
                 }
 
-                logger.warn("No AI API Keys found. Falling back to Mock DB.");
+                logger.warn("No suitable AI API Keys found or Multimodal requested without Gemini. Falling back to Mock DB.");
                 return generateMockQuestions(count);
         }
 
-        private List<Question> generateQuestionsInternal(String syllabusText, int count, boolean useGlm) {
+        public Map<String, Object> analyzeSyllabus(String syllabusText) {
+                if (geminiApiKey == null || geminiApiKey.isBlank()) {
+                        return Map.of("error", "AI API Key not configured");
+                }
+
+                try {
+                        String prompt = "You are an expert curriculum analyst. Analyze the following syllabus/course document and: \n"
+                                        +
+                                        "1. Identify the 'Teaching and Examination Scheme' (Total Credits, Total Hours).\n"
+                                        +
+                                        "2. Extract a list of all Chapters/Units (Keep titles BRIEF and CONCISE, max 10 words).\n"
+                                        +
+                                        "3. Assign a suggested weight (percentage) to each chapter based on its technical depth and expected hours.\n\n"
+                                        +
+                                        "Return the result as a STRICT JSON OBJECT with this format:\n" +
+                                        "{\n" +
+                                        "  \"credits\": \"...\",\n" +
+                                        "  \"hours\": \"...\",\n" +
+                                        "  \"chapters\": [\n" +
+                                        "    {\"name\": \"Chapter 1: ...\", \"weight\": 20},\n" +
+                                        "    ...\n" +
+                                        "  ]\n" +
+                                        "}\n" +
+                                        "Ensure weights sum to 100. If total hours are not clearly stated, estimate based on credits.\n\n"
+                                        +
+                                        "Syllabus Content:\n" + syllabusText;
+
+                        Map<String, Object> bodyMap = Map.of(
+                                        "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
+                                        "generationConfig", Map.of("temperature", 0.5, "maxOutputTokens", 2048));
+
+                        String requestBody = mapper.writeValueAsString(bodyMap);
+                        String urlWithKey = geminiApiUrl + "?key=" + geminiApiKey;
+
+                        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                                        .uri(java.net.URI.create(urlWithKey))
+                                        .header("Content-Type", "application/json")
+                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                        .build();
+
+                        java.net.http.HttpResponse<String> response = httpClient.send(request,
+                                        java.net.http.HttpResponse.BodyHandlers.ofString());
+
+                        if (response.statusCode() == 200) {
+                                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+                                String responseText = root.path("candidates").get(0).path("content").path("parts")
+                                                .get(0).path("text").asText();
+                                String cleanedJson = responseText.replace("```json", "").replace("```", "").trim();
+                                return mapper.readValue(cleanedJson,
+                                                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                                                });
+                        }
+                } catch (Exception e) {
+                        logger.error("Failed to analyze syllabus", e);
+                }
+                return Map.of("error", "Analysis failed");
+        }
+
+        private List<Question> generateMultimodalGemini(String text, String fileData, String mimeType, int count,
+                        List<Map<String, Object>> weights) {
+                try {
+                        logger.info("Sending Multimodal Request to Gemini (Size: {} bytes, Type: {})",
+                                        fileData.length(), mimeType);
+
+                        String prompt = constructPrompt(text != null ? text : "Refer to the attached document.", count,
+                                        weights);
+
+                        // Gemini API request format with Inline Data
+                        Map<String, Object> bodyMap = Map.of(
+                                        "contents", List.of(
+                                                        Map.of("parts", List.of(
+                                                                        Map.of("text", prompt),
+                                                                        Map.of("inlineData", Map.of(
+                                                                                        "mimeType", mimeType,
+                                                                                        "data", fileData))))),
+                                        "generationConfig", Map.of(
+                                                        "temperature", 0.7,
+                                                        "maxOutputTokens", 8192));
+
+                        String requestBody = mapper.writeValueAsString(bodyMap);
+                        String urlWithKey = geminiApiUrl + "?key=" + geminiApiKey;
+
+                        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                                        .uri(java.net.URI.create(urlWithKey))
+                                        .header("Content-Type", "application/json")
+                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                        .build();
+
+                        java.net.http.HttpResponse<String> response = httpClient.send(request,
+                                        java.net.http.HttpResponse.BodyHandlers.ofString());
+
+                        if (response.statusCode() == 200) {
+                                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
+                                com.fasterxml.jackson.databind.JsonNode candidate = root.path("candidates").get(0);
+
+                                if (candidate.isMissingNode() || candidate.path("content").isMissingNode()) {
+                                        logger.error("Gemini returned no candidates: {}", response.body());
+                                        return new ArrayList<>();
+                                }
+
+                                String responseText = candidate.path("content").path("parts").get(0).path("text")
+                                                .asText();
+                                String cleanedJson = extractJsonArray(responseText);
+
+                                return mapper.readValue(cleanedJson,
+                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                });
+                        } else {
+                                logger.error("Gemini Multimodal Error: Status={}, Body={}", response.statusCode(),
+                                                response.body());
+                        }
+
+                } catch (Exception e) {
+                        logger.error("Failed to generate multimodal questions", e);
+                }
+                return new ArrayList<>();
+        }
+
+        private List<Question> generateQuestionsInternal(String syllabusText, int count, boolean useGlm,
+                        List<Map<String, Object>> weights) {
                 List<String> chunks = splitString(syllabusText, CHUNK_SIZE);
                 int totalChunks = chunks.size();
 
@@ -133,9 +275,9 @@ public class AIService {
                                 futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                                         try {
                                                 if (useGlm) {
-                                                        return generateBatchGLM(chunkText, currentBatchCount);
+                                                        return generateBatchGLM(chunkText, currentBatchCount, weights);
                                                 } else {
-                                                        return generateBatch(chunkText, currentBatchCount);
+                                                        return generateBatch(chunkText, currentBatchCount, weights);
                                                 }
                                         } catch (Exception e) {
                                                 logger.error("Error generating batch for chunk", e);
@@ -169,33 +311,55 @@ public class AIService {
         }
 
         // Helper method to construct the prompt string.
-        private String constructPrompt(String syllabusText, int count) {
-                return "Generate EXACTLY " + count
-                                + " multiple-choice questions based on the reference text.\n" +
-                                "Return the response as a valid JSON ARRAY of objects. Do NOT return a single object.\n"
+        private String constructPrompt(String syllabusText, int count, List<Map<String, Object>> weights) {
+                StringBuilder weightConstraint = new StringBuilder();
+                if (weights != null && !weights.isEmpty()) {
+                        weightConstraint.append("\nDISTRIBUTE QUESTIONS ACCORDING TO THESE CHAPTER WEIGHTS:\n");
+                        for (Map<String, Object> w : weights) {
+                                weightConstraint.append("- ").append(w.get("name")).append(": ")
+                                                .append(w.get("weight")).append("% of questions.\n");
+                        }
+                }
+
+                return "You are an expert engineering instructor. Your task is to generate EXACTLY " + count
+                                + " multiple-choice questions based on the technical content of the following syllabus/reference text.\n\n"
                                 +
-                                "JSON Format:\n"
+                                "PRIMARY GOAL: Generate high-quality technical questions about the TOPICS and CONCEPTS mentioned in the text (e.g., algorithms, code, engineering principles).\n\n"
                                 +
-                                "[\n"
+                                "CORE INSTRUCTIONS:\n" +
+                                "1. Locate the 'Teaching and Examination Scheme' only to understand the 'Total Credits' and 'Total Hours' for context.\n"
                                 +
+                                "2. Use the 'Course Outcome' (CO) table to align the difficulty of the questions.\n" +
+                                "3. CRITICAL: DO NOT generate questions ABOUT the syllabus, credits, hours, or course outcomes (e.g., NO 'What is the syllabus?', NO 'How many hours are there?').\n"
+                                +
+                                "4. ALL questions must be technical and about the ACTUAL SUBJECT MATTER (e.g., 'In Java, what is JVM?').\n"
+                                +
+                                "5. If this chunk of text contains mostly metadata/tables and very little technical content, try to find the nearest chapter title or topic and generate questions about THAT topic instead of the metadata.\n\n"
+                                +
+                                "CONSTRAINTS:\n" +
+                                weightConstraint.toString() +
+                                "- The questions MUST be strictly mapped to the identified Course Outcomes (CO1, CO2, etc.) in their technical depth.\n"
+                                +
+                                "- Return the response as a valid JSON ARRAY of objects.\n\n" +
+                                "JSON Format:\n" +
+                                "[\n" +
                                 "  {\"text\": \"...\", \"optionA\": \"...\", \"optionB\": \"...\", \"optionC\": \"...\", \"optionD\": \"...\", \"correct\": \"A\", \"explanation\": \"...\"},\n"
                                 +
-                                "  ... (make sure there are " + count + " objects)\n"
-                                +
-                                "]\n"
-                                +
-                                "Required Keys: text, optionA, optionB, optionC, optionD, correct (A/B/C/D), explanation.\n"
-                                +
+                                "  ... (total " + count + " objects)\n" +
+                                "]\n\n" +
                                 "CRITICAL REQUIREMENTS:\n" +
-                                "1. Mix of difficulty: 30% Hard, 40% Medium, 30% Conceptual.\n" +
-                                "2. INCLUDE CODE SNIPPETS in the 'text' field where applicable.\n" +
-                                "3. Do NOT copy sentences from syllabus verbatim; rephrase them as questions.\n" +
-                                "4. 'explanation' must be concise (max 30 words).\n" +
-                                "Syllabus: " + syllabusText;
+                                "1. Output MUST be purely valid JSON. No markdown formatting, no conversational text.\n"
+                                +
+                                "2. Escape all quotes and backslashes.\n" +
+                                "3. Mix of difficulty: 30% Hard, 40% Medium, 30% Conceptual.\n" +
+                                "4. INCLUDE CODE SNIPPETS in the 'text' field where applicable.\n" +
+                                "5. 'explanation' must be concise (max 30 words).\n\n" +
+                                "Reference Text:\n" + syllabusText;
         }
 
-        private List<Question> generateBatchGLM(String syllabusText, int count) throws Exception {
-                String prompt = constructPrompt(syllabusText, count);
+        private List<Question> generateBatchGLM(String syllabusText, int count, List<Map<String, Object>> weights)
+                        throws Exception {
+                String prompt = constructPrompt(syllabusText, count, weights);
 
                 // GLM (OpenAI-compatible) API request format
                 Map<String, Object> bodyMap = Map.of(
@@ -275,9 +439,10 @@ public class AIService {
         // Here we handle the actual communication with Gemini for a single batch.
         // We prompt it to give us strict JSON back so we can easily turn it into
         // Question objects.
-        private List<Question> generateBatch(String syllabusText, int count) throws Exception {
+        private List<Question> generateBatch(String syllabusText, int count, List<Map<String, Object>> weights)
+                        throws Exception {
                 // Construct the prompt for Gemini
-                String prompt = constructPrompt(syllabusText, count);
+                String prompt = constructPrompt(syllabusText, count, weights);
 
                 // Gemini API request format
                 Map<String, Object> bodyMap = Map.of(
@@ -327,6 +492,30 @@ public class AIService {
                                                         });
                                 } catch (Exception e) {
                                         logger.error("Failed to parse batch JSON: {}", e.getMessage());
+
+                                        // Fallback: Regex-based extraction for partial recovery
+                                        List<Question> recovered = new ArrayList<>();
+                                        java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\{[\\s\\S]*?\\}");
+                                        java.util.regex.Matcher m = p.matcher(cleanedJson);
+                                        while (m.find()) {
+                                                String objStr = m.group();
+                                                try {
+                                                        Question q = mapper.readValue(objStr, Question.class);
+                                                        // Basic validation
+                                                        if (q.getText() != null && !q.getText().isBlank()) {
+                                                                recovered.add(q);
+                                                        }
+                                                } catch (Exception ex) {
+                                                        // Ignore individual malformed objects
+                                                }
+                                        }
+
+                                        if (!recovered.isEmpty()) {
+                                                logger.info("Recovered {} questions via regex fallback.",
+                                                                recovered.size());
+                                                return recovered;
+                                        }
+
                                         // Try one more repair if it failed: adding closing bracket if missing
                                         if (e.getMessage().contains("Unexpected end-of-input")) {
                                                 try {
