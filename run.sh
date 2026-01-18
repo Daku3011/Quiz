@@ -84,7 +84,7 @@ fi
 
 if command -v python3 &> /dev/null; then
     # Run in subshell to ensure directory change applies only to the server process
-    (cd "$PROJECT_ROOT/faculty_secret_portal" && python3 -m http.server 9876) > /dev/null 2>&1 &
+    (cd "$PROJECT_ROOT/faculty_portal" && python3 -m http.server 9876) > /dev/null 2>&1 &
     FACULTY_WEB_PID=$!
     echo "   Faculty Portal running at http://localhost:9876 (PID $FACULTY_WEB_PID)"
 else
