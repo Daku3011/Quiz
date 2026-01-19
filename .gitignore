@@ -12,3 +12,5 @@
 # Enviroment
 .env
 backend/src/main/resources/application.properties
+show_access_urls.sh
+access_guide.md
