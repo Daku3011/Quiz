@@ -34,7 +34,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/api/auth/**", "/api/session/**",
+                        .requestMatchers("/", "/index.html", "/favicon.svg", "/images/**", "/css/**", "/js/**",
+                                "/api/auth/**", "/api/session/**",
                                 "/api/syllabus/**", "/api/quiz/**",
                                 "/api/student/**", "/api/admin/**", "/h2-console/**") // TODO: Tighten this up later
                         .permitAll()
