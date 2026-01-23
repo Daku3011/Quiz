@@ -14,8 +14,10 @@ public class Session {
     private Long id;
     private String title;
 
-    /** One-time password for students to join */
-    private String otp;
+    /** Linked security details for the session OTP */
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "otp_id", referencedColumnName = "id")
+    private Otp otpDetails;
 
     private boolean active = true;
 
@@ -29,14 +31,6 @@ public class Session {
 
     /** Number of question sets (e.g., 4 for Sets A, B, C, D) to deter cheating. */
     private int numberOfSets = 1; // Default 1 set
-
-    public int getNumberOfSets() {
-        return numberOfSets;
-    }
-
-    public void setNumberOfSets(int numberOfSets) {
-        this.numberOfSets = numberOfSets;
-    }
 
     public Long getId() {
         return id;
@@ -54,12 +48,20 @@ public class Session {
         this.title = title;
     }
 
-    public String getOtp() {
-        return otp;
+    public int getNumberOfSets() {
+        return numberOfSets;
     }
 
-    public void setOtp(String otp) {
-        this.otp = otp;
+    public void setNumberOfSets(int numberOfSets) {
+        this.numberOfSets = numberOfSets;
+    }
+
+    public Otp getOtpDetails() {
+        return otpDetails;
+    }
+
+    public void setOtpDetails(Otp otpDetails) {
+        this.otpDetails = otpDetails;
     }
 
     public boolean isActive() {

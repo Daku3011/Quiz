@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.http.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class QuizController {
     @FXML
@@ -109,6 +110,9 @@ public class QuizController {
         }
     }
 
+    @FXML
+    public ListView<String> chapterList;
+
     private void fetchQuestions(String sessionId) {
         statusLabel.setText("Loading questions...");
         try {
@@ -127,6 +131,41 @@ public class QuizController {
                                     joinBtn.setDisable(false);
                                     return;
                                 }
+
+                                // Populate Sidebar
+                                Map<String, Long> chapterCounts = questions.stream()
+                                        .collect(Collectors.groupingBy(
+                                                q -> (q.getChapter() == null || q.getChapter().isBlank())
+                                                        ? "Uncategorized"
+                                                        : q.getChapter(),
+                                                LinkedHashMap::new, Collectors.counting()));
+
+                                chapterList.getItems().clear();
+                                for (Map.Entry<String, Long> entry : chapterCounts.entrySet()) {
+                                    chapterList.getItems().add(entry.getKey() + " (" + entry.getValue() + ")");
+                                }
+
+                                // Sidebar Listener
+                                chapterList.getSelectionModel().selectedItemProperty()
+                                        .addListener((obs, oldVal, newVal) -> {
+                                            if (newVal != null) {
+                                                // Extract chapter name (remove count)
+                                                String selectedChapter = newVal.substring(0, newVal.lastIndexOf(" ("));
+
+                                                // Find first question with this chapter
+                                                for (int i = 0; i < questions.size(); i++) {
+                                                    String c = questions.get(i).getChapter();
+                                                    if (c == null || c.isBlank())
+                                                        c = "Uncategorized";
+                                                    if (c.equals(selectedChapter)) {
+                                                        index = i;
+                                                        showQuestion();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        });
+
                                 index = 0;
                                 joinSection.setVisible(false);
                                 joinSection.setManaged(false);
@@ -134,6 +173,7 @@ public class QuizController {
                                 quizSection.setManaged(true);
                                 showQuestion();
                             } catch (Exception e) {
+                                e.printStackTrace();
                                 statusLabel.getStyleClass().removeAll("info");
                                 statusLabel.getStyleClass().add("error");
                                 statusLabel.setText("Error parsing questions.");

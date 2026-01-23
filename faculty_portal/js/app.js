@@ -257,6 +257,7 @@ async function generateQuestions() {
         if (response.ok) {
             const newQuestions = await response.json();
             questions = [...questions, ...newQuestions];
+            populateFilters();
             renderQuestions();
             alert(`Generated ${newQuestions.length} questions successfully!`);
         } else {
@@ -273,30 +274,43 @@ async function generateQuestions() {
 }
 
 // Render Questions List
-function renderQuestions() {
+function renderQuestions(listToRender = null) {
     const list = document.getElementById('questions-list');
     const badge = document.getElementById('q-badge');
     const startBtn = document.getElementById('start-session-btn');
 
-    badge.textContent = questions.length;
+    // Use passed list or default to all questions
+    const data = listToRender || questions;
+
+    badge.textContent = data.length;
+    // Only disable start button if GLOBAL list is empty, not just filtered view
     startBtn.disabled = questions.length === 0;
 
-    if (questions.length === 0) {
+    if (data.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
                 <div class="icon">📄</div>
-                <p>No questions generated yet.</p>
+                <p>No questions found.</p>
             </div>`;
         return;
     }
 
-    list.innerHTML = questions.map((q, idx) => `
+    list.innerHTML = data.map((q, idx) => {
+        // We need to find the original index for editing/deleting if we are in a filtered view
+        // But for simplicity, let's pass the object logic. 
+        // Actually, existing edit/delete uses index. We need to handle that.
+        // Simple fix: Store original index in data if filtered? 
+        // OR: Just find index in global 'questions' array by object reference.
+        const realIndex = questions.indexOf(q);
+        
+        return `
         <div class="question-item">
             <div class="q-header">
-                <span class="q-num">#${idx + 1}</span>
+                <span class="q-num">#${idx + 1} <small class="text-muted">(${q.courseOutcome || '-'})</small></span>
+                <span class="badge" style="background: #eee; color: #333; margin-left: auto; margin-right: 10px;">${q.chapter || ' General'}</span>
                 <div class="q-actions">
-                    <button class="icon-btn" onclick="editQuestion(${idx})">✏️</button>
-                    <button class="icon-btn" onclick="deleteQuestion(${idx})">🗑️</button>
+                    <button class="icon-btn" onclick="editQuestion(${realIndex})">✏️</button>
+                    <button class="icon-btn" onclick="deleteQuestion(${realIndex})">🗑️</button>
                     <span class="badge" style="background:var(--success-color)">${q.correct}</span>
                 </div>
             </div>
@@ -308,13 +322,53 @@ function renderQuestions() {
                 D: ${q.optionD}
             </div>
         </div>
-    `).join('');
+    `}).join('');
+}
+
+function populateFilters() {
+    const chapterSet = new Set();
+    const coSet = new Set();
+
+    questions.forEach(q => {
+        if (q.chapter) chapterSet.add(q.chapter);
+        if (q.courseOutcome) coSet.add(q.courseOutcome);
+    });
+
+    const chSelect = document.getElementById('filter-chapter');
+    const coSelect = document.getElementById('filter-co');
+
+    // Save current selection to restore if possible
+    const currentCh = chSelect.value;
+    const currentCo = coSelect.value;
+
+    chSelect.innerHTML = '<option value="">All Chapters</option>' + 
+        Array.from(chapterSet).sort().map(c => `<option value="${c}">${c}</option>`).join('');
+    
+    coSelect.innerHTML = '<option value="">All COs</option>' + 
+        Array.from(coSet).sort().map(c => `<option value="${c}">${c}</option>`).join('');
+
+    if (chapterSet.has(currentCh)) chSelect.value = currentCh;
+    if (coSet.has(currentCo)) coSelect.value = currentCo;
+}
+
+function applyFilters() {
+    const ch = document.getElementById('filter-chapter').value;
+    const co = document.getElementById('filter-co').value;
+
+    const filtered = questions.filter(q => {
+        const matchCh = ch === "" || q.chapter === ch;
+        const matchCo = co === "" || q.courseOutcome === co;
+        return matchCh && matchCo;
+    });
+
+    renderQuestions(filtered);
 }
 
 // Clear All
 function clearAllQuestions() {
     if (confirm('Delete all questions?')) {
         questions = [];
+        populateFilters();
         renderQuestions();
     }
 }
@@ -322,7 +376,8 @@ function clearAllQuestions() {
 // Delete Single
 function deleteQuestion(idx) {
     questions.splice(idx, 1);
-    renderQuestions();
+    populateFilters();
+    applyFilters(); // Re-render with current filters
 }
 
 // Edit Question
@@ -370,6 +425,7 @@ function addManually() {
         explanation: ""
     });
     renderQuestions();
+    populateFilters();
     // Scroll to bottom
     setTimeout(() => {
         const list = document.getElementById('questions-list');
@@ -436,6 +492,9 @@ async function startSession() {
             document.getElementById('disp-otp').textContent = currentOtp;
             document.getElementById('current-session-card').classList.remove('hidden');
 
+            // Persist session state
+            localStorage.setItem('activeSession', JSON.stringify({ sessionId: currentSessionId, otp: currentOtp }));
+
             alert(`Session Started! ID: ${currentSessionId}, OTP: ${currentOtp}`);
             switchTab('active-sessions');
 
@@ -489,9 +548,11 @@ async function stopSessionApi(id) {
         if (res.ok) {
             alert("Session Stopped.");
             loadSessions();
+            loadSessions();
             if (currentSessionId == id) {
                 document.getElementById('current-session-card').classList.add('hidden');
                 currentSessionId = null;
+                localStorage.removeItem('activeSession');
             }
         } else {
             alert("Failed to stop session.");
@@ -580,4 +641,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('start-time').value = now.toISOString().slice(0, 16);
+
+    // Restore active session if exists
+    const storedSession = localStorage.getItem('activeSession');
+    if (storedSession) {
+        try {
+            const sess = JSON.parse(storedSession);
+            currentSessionId = sess.sessionId;
+            currentOtp = sess.otp;
+
+            document.getElementById('disp-sess-id').textContent = currentSessionId;
+            document.getElementById('disp-otp').textContent = currentOtp;
+            document.getElementById('current-session-card').classList.remove('hidden');
+            
+            // Optional: Switch to active sessions tab if restoring
+            switchTab('active-sessions');
+            loadSessions();
+        } catch (e) {
+            console.error("Failed to restore session", e);
+            localStorage.removeItem('activeSession');
+        }
+    }
 });

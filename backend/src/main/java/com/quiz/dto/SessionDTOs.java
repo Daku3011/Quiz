@@ -62,6 +62,7 @@ public class SessionDTOs {
         private String optionD;
         private String correct;
         private String explanation;
+        private String chapter;
 
         public String getText() {
             return text;
@@ -117,6 +118,14 @@ public class SessionDTOs {
 
         public void setExplanation(String explanation) {
             this.explanation = explanation;
+        }
+
+        public String getChapter() {
+            return chapter;
+        }
+
+        public void setChapter(String chapter) {
+            this.chapter = chapter;
         }
     }
 

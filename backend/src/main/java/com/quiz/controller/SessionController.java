@@ -54,13 +54,15 @@ public class SessionController {
             q.setOptionD(m.getOptionD() == null ? "D" : m.getOptionD());
             q.setCorrect(m.getCorrect() == null ? "A" : m.getCorrect());
             q.setExplanation(m.getExplanation());
+            q.setChapter(m.getChapter());
             return q;
         }).collect(Collectors.toList());
 
         List<Question> saved = questionRepo.saveAll(questions);
 
-        String otp = otpService.generateOTP();
-        Session s = sessionService.createSession(title, otp, saved);
+        // Generate secure OTP
+        com.quiz.service.OTPService.OtpResult otpResult = otpService.generateSecureOtp();
+        Session s = sessionService.createSession(title, otpResult.otpEntity, saved);
 
         // Handle Start/End Time
         try {
@@ -90,8 +92,8 @@ public class SessionController {
             logger.error("Error setting session times", e);
         }
 
-        otpService.sendOtpTo("faculty-console", otp);
-        return ResponseEntity.ok(Map.of("sessionId", s.getId(), "otp", otp));
+        otpService.sendOtpTo("faculty-console", otpResult.plainCode);
+        return ResponseEntity.ok(Map.of("sessionId", s.getId(), "otp", otpResult.plainCode));
     }
 
     // This is what students hit when they try to join a session.

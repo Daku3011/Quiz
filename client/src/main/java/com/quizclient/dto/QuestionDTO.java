@@ -87,6 +87,16 @@ public class QuestionDTO {
         this.explanation = explanation;
     }
 
+    private String chapter;
+
+    public String getChapter() {
+        return chapter;
+    }
+
+    public void setChapter(String chapter) {
+        this.chapter = chapter;
+    }
+
     @Override
     public String toString() {
         return (text == null ? "" : text);

@@ -18,35 +18,60 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
+            org.springframework.security.core.userdetails.UserDetailsService userDetailsService) {
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.userDetailsService = userDetailsService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // We're disabling CSRF because our local client doesn't use it yet.
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // We need to disable frame options so the H2 console can show up in the
-                // browser.
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        // We're letting everyone access these specific paths (like static files and
-                        // auth APIs)
-                        // without needing to be logged in.
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/api/auth/**", "/api/session/**",
                                 "/api/syllabus/**", "/api/quiz/**",
-                                "/api/student/**", "/api/admin/**", "/h2-console/**")
+                                "/api/student/**", "/api/admin/**", "/h2-console/**") // TODO: Tighten this up later
                         .permitAll()
-                        // Anything else will require a valid login.
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
+    public org.springframework.security.authentication.AuthenticationProvider authenticationProvider() {
+        org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public org.springframework.security.authentication.AuthenticationManager authenticationManager(
+            org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @org.springframework.beans.factory.annotation.Value("${allowed.origins:*}")
+    private String allowedOrigins;
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Since we're in development, we'll allow requests from any origin.
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

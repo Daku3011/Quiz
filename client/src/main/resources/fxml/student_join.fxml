@@ -30,32 +30,43 @@
         </VBox>
 
         <!-- Quiz Section -->
-        <VBox fx:id="quizSection" spacing="20" maxWidth="800" styleClass="card" VBox.vgrow="ALWAYS" visible="false" managed="false">
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label fx:id="qNumber" text="Question 1" styleClass="subtitle" style="-fx-text-fill: #2575fc; -fx-font-weight: bold;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Quiz in Progress" style="-fx-text-fill: #b2bec3; -fx-font-size: 12px;"/>
-            </HBox>
-            
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS" minHeight="100">
-                <Label fx:id="qText" wrapText="true" style="-fx-font-size: 16px; -fx-padding: 10; -fx-text-fill: #2d3436;" />
-            </ScrollPane>
-            
-            <VBox spacing="12" style="-fx-padding: 10 0;">
-                <RadioButton fx:id="rA" text="Option A" toggleGroup="$choices" styleClass="radio-button"/>
-                <RadioButton fx:id="rB" text="Option B" toggleGroup="$choices" styleClass="radio-button"/>
-                <RadioButton fx:id="rC" text="Option C" toggleGroup="$choices" styleClass="radio-button"/>
-                <RadioButton fx:id="rD" text="Option D" toggleGroup="$choices" styleClass="radio-button"/>
-            </VBox>
+        <VBox fx:id="quizSection" spacing="20" maxWidth="1000" styleClass="card" VBox.vgrow="ALWAYS" visible="false" managed="false">
+             <SplitPane dividerPositions="0.25" VBox.vgrow="ALWAYS">
+                 <!-- Sidebar -->
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Label text="Chapters" style="-fx-font-weight: bold;"/>
+                    <ListView fx:id="chapterList" VBox.vgrow="ALWAYS"/>
+                </VBox>
 
-            <Separator/>
+                <!-- Question Area -->
+                <VBox spacing="20" style="-fx-padding: 20;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="qNumber" text="Question 1" styleClass="subtitle" style="-fx-text-fill: #2575fc; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="Quiz in Progress" style="-fx-text-fill: #b2bec3; -fx-font-size: 12px;"/>
+                    </HBox>
+                    
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS" minHeight="100">
+                        <Label fx:id="qText" wrapText="true" style="-fx-font-size: 16px; -fx-padding: 10; -fx-text-fill: #2d3436;" />
+                    </ScrollPane>
+                    
+                    <VBox spacing="12" style="-fx-padding: 10 0;">
+                        <RadioButton fx:id="rA" text="Option A" toggleGroup="$choices" styleClass="radio-button"/>
+                        <RadioButton fx:id="rB" text="Option B" toggleGroup="$choices" styleClass="radio-button"/>
+                        <RadioButton fx:id="rC" text="Option C" toggleGroup="$choices" styleClass="radio-button"/>
+                        <RadioButton fx:id="rD" text="Option D" toggleGroup="$choices" styleClass="radio-button"/>
+                    </VBox>
 
-            <HBox spacing="15" alignment="CENTER_RIGHT">
-                <Button fx:id="prevBtn" text="Previous" onAction="#onPrev" styleClass="button, secondary"/>
-                <Button fx:id="nextBtn" text="Next" onAction="#onNext" styleClass="button"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="submitBtn" text="Submit Quiz" onAction="#onSubmit" styleClass="button, danger"/>
-            </HBox>
+                    <Separator/>
+
+                    <HBox spacing="15" alignment="CENTER_RIGHT">
+                        <Button fx:id="prevBtn" text="Previous" onAction="#onPrev" styleClass="button, secondary"/>
+                        <Button fx:id="nextBtn" text="Next" onAction="#onNext" styleClass="button"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="submitBtn" text="Submit Quiz" onAction="#onSubmit" styleClass="button, danger"/>
+                    </HBox>
+                </VBox>
+            </SplitPane>
         </VBox>
 
     </VBox>

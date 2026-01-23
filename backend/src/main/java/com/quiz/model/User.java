@@ -8,7 +8,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements org.springframework.security.core.userdetails.UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,6 +41,7 @@ public class User {
         this.id = id;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -49,6 +50,7 @@ public class User {
         this.username = username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
@@ -63,5 +65,30 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
+        return java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

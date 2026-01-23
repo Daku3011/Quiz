@@ -23,13 +23,17 @@ public class AdminController {
     private final UserRepository userRepo;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
+    private final com.quiz.util.PasswordValidator passwordValidator;
+
     public AdminController(SubmissionRepository submissionRepo, StudentRepository studentRepo,
             com.quiz.repository.UserRepository userRepo,
-            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
+            com.quiz.util.PasswordValidator passwordValidator) {
         this.submissionRepo = submissionRepo;
         this.studentRepo = studentRepo;
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.passwordValidator = passwordValidator;
     }
 
     // This endpoint lets an admin create a new account for a faculty member.
@@ -40,6 +44,10 @@ public class AdminController {
 
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
             return ResponseEntity.badRequest().body("Username and password required");
+        }
+
+        if (!passwordValidator.isValid(password)) {
+            return ResponseEntity.badRequest().body(passwordValidator.getPasswordRequirements());
         }
 
         if (userRepo.findByUsername(username).isPresent()) {

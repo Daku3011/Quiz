@@ -268,6 +268,15 @@
                     </button>
                   </div>
                 </div>
+                <!-- Filters -->
+                <div class="filter-bar" style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px;">
+                    <select id="filter-chapter" class="form-select" onchange="applyFilters()" style="flex:1;">
+                        <option value="">All Chapters</option>
+                    </select>
+                    <select id="filter-co" class="form-select" onchange="applyFilters()" style="flex:0.5;">
+                        <option value="">All COs</option>
+                    </select>
+                </div>
                 <div class="card-body scrollable-list" id="questions-list">
                   <div class="empty-state">
                     <div class="icon">📄</div>

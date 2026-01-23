@@ -1,106 +1,464 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Quiz Master - A modern, minimal quiz platform for students and faculty"
+    />
+    <meta name="theme-color" content="#2563EB" />
+    <title>Student Quiz</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Student Client</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
-<body>
-    <div class="container">
-        <!-- Register & Join Section -->
-        <div id="register-section" class="card">
-            <h2>Join Quiz Session</h2>
-            <div class="form-group">
-                <label for="reg-name">Full Name</label>
-                <input type="text" id="reg-name" placeholder="Enter your name">
-            </div>
-            <div class="form-group">
-                <label for="reg-enrollment">Enrollment Number</label>
-                <input type="text" id="reg-enrollment" placeholder="Enter enrollment number">
-            </div>
-            <div class="form-group">
-                <label for="session-id">Session ID</label>
-                <input type="text" id="session-id" placeholder="Enter Session ID">
-            </div>
-            <div class="form-group">
-                <label for="otp">OTP</label>
-                <input type="text" id="otp" placeholder="Enter OTP">
-            </div>
-            <button onclick="registerAndJoin()" class="btn primary">Join Session</button>
-            <p id="reg-status" class="status"></p>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- CSS Files -->
+    <!-- <link rel="stylesheet" href="css/reset.css"> -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <!-- <link rel="stylesheet" href="css/components.css"> -->
+    <!-- <link rel="stylesheet" href="css/layout.css"> -->
+    <!-- <link rel="stylesheet" href="css/responsive.css"> -->
+    <!-- <link rel="stylesheet" href="css/theme.css"> -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <!-- Skip to main content link for accessibility -->
+    <!-- <a href="#main-content" class="skip-to-main">Skip to main content</a> -->
+
+    <main id="main-content" class="container">
+      <!-- 2.1 Login Page Section -->
+      <div
+        id="login-section"
+        class="card login-card"
+        role="region"
+        aria-label="Login"
+      >
+        <div class="login-header">
+          <h1 class="logo">Student Quiz</h1>
+        </div>
+        <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+          <div class="form-group">
+            <label for="login-email">Enrollment ID</label>
+            <input
+              type="text"
+              id="login-email"
+              class="form-control"
+              placeholder="Enter your enrollment ID"
+              aria-label="Enrollment ID"
+              required
+            />
+            <span
+              class="error-message"
+              id="login-email-error"
+              role="alert"
+            ></span>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input
+              type="password"
+              id="login-password"
+              class="form-control"
+              placeholder="Enter your password"
+              aria-label="Password"
+              required
+            />
+            <span
+              class="error-message"
+              id="login-password-error"
+              role="alert"
+            ></span>
+          </div>
+          <div class="form-group checkbox-group">
+            <input
+              type="checkbox"
+              id="login-remember"
+              class="checkbox"
+              aria-label="Remember me"
+            />
+            <label for="login-remember" class="checkbox-label"
+              >Remember me</label
+            >
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary btn-block"
+            id="login-btn"
+          >
+            <span id="login-btn-text">Login</span>
+            <span
+              id="login-spinner"
+              class="spinner-inline hidden"
+              aria-hidden="true"
+            ></span>
+          </button>
+          <span class="error-message" id="login-error" role="alert"></span>
+        </form>
+        <div class="login-footer">
+          <a
+            href="#"
+            class="forgot-password-link"
+            onclick="handleForgotPassword(event)"
+            >Forgot password?</a
+          >
+        </div>
+      </div>
+
+      <!-- 2.2 Join Session Page Section -->
+      <div
+        id="join-session-section"
+        class="card join-session-card hidden"
+        role="region"
+        aria-label="Join Quiz Session"
+      >
+        <div class="join-session-header">
+          <button
+            class="btn-back"
+            onclick="goBackToLogin()"
+            aria-label="Go back to login"
+          >
+            ← Back
+          </button>
+          <h2>Join Quiz Session</h2>
+        </div>
+        <p class="join-session-instructions">
+          Enter your details below to join the quiz session.
+        </p>
+        <form
+          id="join-session-form"
+          onsubmit="handleJoinSession(event)"
+          novalidate
+        >
+          <div class="form-group">
+            <label for="join-name">Full Name</label>
+            <input
+              type="text"
+              id="join-name"
+              class="form-control"
+              placeholder="Enter your full name"
+              aria-label="Full Name"
+              required
+              autofocus
+            />
+            <span
+              class="error-message"
+              id="join-name-error"
+              role="alert"
+            ></span>
+          </div>
+          <div class="form-group">
+            <label for="join-enrollment">Enrollment ID</label>
+            <input
+              type="text"
+              id="join-enrollment"
+              class="form-control"
+              placeholder="Enter your enrollment ID"
+              aria-label="Enrollment ID"
+              required
+            />
+            <span
+              class="error-message"
+              id="join-enrollment-error"
+              role="alert"
+            ></span>
+          </div>
+          <div class="form-group">
+            <label for="join-session-id">Session ID</label>
+            <input
+              type="text"
+              id="join-session-id"
+              class="form-control"
+              placeholder="Enter session ID"
+              aria-label="Session ID"
+              required
+            />
+            <span
+              class="error-message"
+              id="join-session-id-error"
+              role="alert"
+            ></span>
+          </div>
+          <div class="form-group">
+            <label for="join-otp">OTP (One-Time Password)</label>
+            <input
+              type="text"
+              id="join-otp"
+              class="form-control"
+              placeholder="Enter OTP"
+              aria-label="One-Time Password"
+              required
+            />
+            <span class="error-message" id="join-otp-error" role="alert"></span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="join-btn">
+            <span id="join-btn-text">Join Session</span>
+            <span
+              id="join-spinner"
+              class="spinner-inline hidden"
+              aria-hidden="true"
+            ></span>
+          </button>
+          <span class="error-message" id="join-error" role="alert"></span>
+        </form>
+      </div>
+
+      <!-- 2.3 Waiting Room Section -->
+      <div
+        id="waiting-section"
+        class="card waiting-room-card hidden"
+        role="region"
+        aria-label="Waiting Room"
+      >
+        <div class="waiting-room-header">
+          <h2 id="waiting-session-title">Waiting Room</h2>
+          <p id="waiting-instructor" class="waiting-instructor">
+            Instructor: -
+          </p>
         </div>
 
-        <!-- Waiting Room Section -->
-        <div id="waiting-section" class="card hidden">
-            <h2>⏳ Waiting Room</h2>
-            <p>You have successfully joined the session.</p>
-            <p class="info-text">Please wait for the faculty to start the exam.</p>
-            <div class="loader"></div>
-            <p id="wait-status" class="status" style="color: #666; margin-top: 10px;">Checking status...</p>
-            Status</button>
+        <div class="waiting-room-content">
+          <div class="timer-container">
+            <p class="timer-label">Exam starts in</p>
             <div
-                style="background: #ffecb5; color: #664d03; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em; border: 1px solid #ffcc00;">
-                <strong>⚠️ Strict Anti-Cheating:</strong> The quiz requires <strong>Fullscreen</strong> mode.
-                Switching tabs, exiting fullscreen, or Interacting with notifications/AI overlays (losing focus)
-                will be flagged as <strong>Cheating</strong> immediately.
+              class="timer-display"
+              id="countdown-timer"
+              aria-label="Countdown timer"
+            >
+              00:00
             </div>
+            <p id="waiting-status" class="waiting-status" role="status">
+              Waiting for exam to start...
+            </p>
+          </div>
+
+          <div class="waiting-room-info">
+            <p class="info-item">
+              <span class="info-label">Students Joined:</span>
+              <span id="students-joined" class="info-value">0</span>
+            </p>
+          </div>
         </div>
 
-        <!-- Quiz Section -->
-        <div id="quiz-section" class="card hidden">
-            <div class="quiz-header">
-                <h3 id="q-number">Question 1</h3>
-            </div>
-            <div class="question-box">
-                <p id="q-text">Question text goes here...</p>
-                <img id="q-image" src="" alt="Question Image" class="question-image">
-            </div>
-            <div class="options-box">
-                <div class="option">
-                    <input type="radio" name="choice" id="opt-a" value="A">
-                    <label for="opt-a" id="label-a">Option A</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="choice" id="opt-b" value="B">
-                    <label for="opt-b" id="label-b">Option B</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="choice" id="opt-c" value="C">
-                    <label for="opt-c" id="label-c">Option C</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="choice" id="opt-d" value="D">
-                    <label for="opt-d" id="label-d">Option D</label>
-                </div>
-            </div>
-            <div class="quiz-controls">
-                <button onclick="prevQuestion()" id="btn-prev" class="btn secondary" disabled>Previous</button>
-                <button onclick="nextQuestion()" id="btn-next" class="btn primary">Next</button>
-                <button onclick="submitQuiz()" id="btn-submit" class="btn danger hidden">Submit Quiz</button>
-            </div>
+        <div class="anti-cheating-banner" role="alert">
+          <span class="banner-icon">⚠️</span>
+          <div class="banner-content">
+            <strong>Anti-Cheating Notice:</strong>
+            <p>
+              Fullscreen mode is required. Switching tabs or exiting fullscreen
+              will be detected and flagged as cheating.
+            </p>
+          </div>
         </div>
 
-        <!-- Result Section -->
-        <div id="result-section" class="card hidden">
-            <h2>Quiz Completed!</h2>
-            <p id="score-display">Your Score: -</p>
-            <div id="results-details" style="margin-top: 20px; text-align: left;"></div>
-            <button onclick="logoutAndHome()" class="btn secondary" style="margin-top: 20px;">Exit / New Quiz</button>
+        <button
+          onclick="leaveSession()"
+          class="btn btn-secondary btn-block"
+          aria-label="Leave session"
+        >
+          Leave Session
+        </button>
+      </div>
+
+      <!-- 2.4 Quiz Interface Section -->
+      <div
+        id="quiz-section"
+        class="card quiz-card hidden"
+        role="region"
+        aria-label="Quiz"
+      >
+        <div class="quiz-header">
+          <div class="quiz-header-left">
+            <span
+              class="question-counter"
+              id="q-number"
+              aria-label="Question number"
+              >Question 1/60</span
+            >
+          </div>
+          <div class="quiz-header-right">
+            <span class="timer" id="timer" aria-label="Time remaining"
+              >Time: 00:00</span
+            >
+          </div>
         </div>
 
-        <!-- Cheating Detected Section -->
-        <div id="cheating-section" class="card hidden" style="border-color: red; background-color: #fff0f0;">
-            <h2 style="color: red;">⚠️ Cheating Detected!</h2>
-            <p>You switched tabs or minimized the browser during the quiz.</p>
-            <p><strong>Your exam has been disqualified.</strong></p>
-            <button onclick="logoutAndHome()" class="btn danger">Return to Home</button>
+        <div class="progress-bar-container">
+          <div
+            class="progress-bar"
+            id="progress-bar"
+            role="progressbar"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          ></div>
+          <span class="progress-text" id="progress-text">0% Complete</span>
         </div>
-    </div>
 
+        <div class="question-container">
+          <div class="question-box">
+            <p id="q-text" class="question-text">Question text goes here...</p>
+            <img
+              id="q-image"
+              src=""
+              alt="Question Image"
+              class="question-image"
+            />
+          </div>
+
+          <div class="options-box" role="group" aria-label="Answer options">
+            <div class="option">
+              <input
+                type="radio"
+                name="choice"
+                id="opt-a"
+                value="A"
+                aria-label="Option A"
+              />
+              <label for="opt-a" id="label-a" class="option-label"
+                >A) Option A</label
+              >
+            </div>
+            <div class="option">
+              <input
+                type="radio"
+                name="choice"
+                id="opt-b"
+                value="B"
+                aria-label="Option B"
+              />
+              <label for="opt-b" id="label-b" class="option-label"
+                >B) Option B</label
+              >
+            </div>
+            <div class="option">
+              <input
+                type="radio"
+                name="choice"
+                id="opt-c"
+                value="C"
+                aria-label="Option C"
+              />
+              <label for="opt-c" id="label-c" class="option-label"
+                >C) Option C</label
+              >
+            </div>
+            <div class="option">
+              <input
+                type="radio"
+                name="choice"
+                id="opt-d"
+                value="D"
+                aria-label="Option D"
+              />
+              <label for="opt-d" id="label-d" class="option-label"
+                >D) Option D</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-controls">
+          <button
+            onclick="prevQuestion()"
+            id="btn-prev"
+            class="btn btn-secondary"
+            disabled
+            aria-label="Previous Question"
+          >
+            Previous
+          </button>
+          <button
+            onclick="nextQuestion()"
+            id="btn-next"
+            class="btn btn-primary"
+            aria-label="Next Question"
+          >
+            Next
+          </button>
+          <button
+            onclick="submitQuiz()"
+            id="btn-submit"
+            class="btn btn-danger hidden"
+            aria-label="Submit Quiz"
+          >
+            Submit Quiz
+          </button>
+        </div>
+      </div>
+
+      <!-- 2.5 Results Page Section -->
+      <div
+        id="result-section"
+        class="card results-card hidden"
+        role="region"
+        aria-label="Quiz Results"
+      >
+        <div class="results-header">
+          <h2>Quiz Completed!</h2>
+        </div>
+
+        <div class="score-display-container">
+          <div class="score-box">
+            <div class="score-number" id="score-display">45/60</div>
+            <div class="score-percentage" id="score-percentage">75%</div>
+          </div>
+          <div
+            class="performance-badge"
+            id="performance-badge"
+            class="badge-excellent"
+          >
+            ⭐ Excellent!
+          </div>
+        </div>
+
+        <div class="results-details" id="results-details">
+          <h3>Detailed Results</h3>
+        </div>
+
+        <div class="results-actions">
+          <button
+            onclick="downloadPDF()"
+            class="btn btn-secondary"
+            aria-label="Download results as PDF"
+          >
+            Download PDF
+          </button>
+          <button
+            onclick="exitQuiz()"
+            class="btn btn-primary"
+            aria-label="Exit quiz"
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+
+      <!-- Cheating Detected Section -->
+      <div id="cheating-section" class="card cheating-card hidden" role="alert">
+        <h2 style="color: #ef4444">⚠️ Cheating Detected!</h2>
+        <p>You switched tabs or minimized the browser during the quiz.</p>
+        <p><strong>Your exam has been disqualified.</strong></p>
+        <button onclick="exitQuiz()" class="btn btn-danger">
+          Return to Home
+        </button>
+      </div>
+    </main>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/components.js"></script>
     <script src="js/app.js"></script>
-</body>
-
+  </body>
 </html>

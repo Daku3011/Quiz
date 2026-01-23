@@ -83,6 +83,8 @@ public class Question {
     @Lob
     private String explanation;
 
+    private String chapter;
+
     public String getExplanation() {
         return explanation;
     }
@@ -91,8 +93,27 @@ public class Question {
         this.explanation = explanation;
     }
 
+    public String getChapter() {
+        return chapter;
+    }
+
+    public void setChapter(String chapter) {
+        this.chapter = chapter;
+    }
+
+    private String courseOutcome; // e.g., CO1, CO2, etc.
+
+    public String getCourseOutcome() {
+        return courseOutcome;
+    }
+
+    public void setCourseOutcome(String courseOutcome) {
+        this.courseOutcome = courseOutcome;
+    }
+
     @Override
     public String toString() {
-        return text + "\nA) " + optionA + " B) " + optionB + " C) " + optionC + " D) " + optionD;
+        return text + " [Chapter: " + chapter + "]\nA) " + optionA + " B) " + optionB + " C) " + optionC + " D) "
+                + optionD;
     }
 }

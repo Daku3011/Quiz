@@ -64,4 +64,15 @@ public class StudentController {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        // Mock login for demo purposes since Student model doesn't have auth yet
+        String email = body.get("email");
+        if (email != null && !email.isBlank()) {
+            // Return a dummy studentId or just success
+            return ResponseEntity.ok(Map.of("studentId", 0L, "message", "Login successful"));
+        }
+        return ResponseEntity.badRequest().body("Invalid credentials");
+    }
 }

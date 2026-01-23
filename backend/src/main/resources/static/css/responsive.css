@@ -1,0 +1,630 @@
+/**
+ * Responsive Design & Media Queries
+ * Mobile-first approach with breakpoints for tablet and desktop
+ */
+
+/* ===== BREAKPOINTS ===== */
+/* Mobile: 320px - 640px */
+/* Tablet: 641px - 1024px */
+/* Desktop: 1025px+ */
+
+/* ===== MOBILE FIRST (320px - 640px) ===== */
+
+/* Typography adjustments for mobile */
+@media (max-width: 640px) {
+    html {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    h2 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    h3 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    body {
+        font-size: var(--font-size-sm);
+    }
+
+    /* Container adjustments */
+    .container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
+
+    /* Grid adjustments */
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    /* Button adjustments */
+    .btn {
+        width: 100%;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    /* Form adjustments */
+    .form-group {
+        margin-bottom: var(--spacing-md);
+    }
+
+    .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Card adjustments */
+    .card {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Table adjustments */
+    table {
+        font-size: var(--font-size-xs);
+    }
+
+    th, td {
+        padding: var(--spacing-xs);
+    }
+
+    /* Modal adjustments */
+    .modal {
+        width: 90%;
+        max-width: 100%;
+    }
+
+    /* Flex adjustments */
+    .flex-col-mobile {
+        flex-direction: column;
+    }
+
+    /* Hide desktop-only elements */
+    .hidden-mobile {
+        display: none;
+    }
+
+    /* Show mobile-only elements */
+    .visible-mobile {
+        display: block;
+    }
+
+    /* Spacing adjustments */
+    .p-md {
+        padding: var(--spacing-sm);
+    }
+
+    .m-lg {
+        margin: var(--spacing-md);
+    }
+
+    /* Text adjustments */
+    .text-2xl {
+        font-size: var(--font-size-xl);
+    }
+
+    .text-xl {
+        font-size: var(--font-size-lg);
+    }
+
+    /* Navigation adjustments */
+    nav {
+        flex-direction: column;
+    }
+
+    nav a {
+        padding: var(--spacing-sm);
+        border-bottom: 1px solid var(--color-neutral-lighter);
+    }
+
+    /* Quiz interface adjustments */
+    .quiz-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .question-box {
+        padding: var(--spacing-md);
+    }
+
+    .options-box {
+        gap: var(--spacing-sm);
+    }
+
+    .option {
+        padding: var(--spacing-md);
+        min-height: 44px; /* Touch target size */
+    }
+
+    .quiz-controls {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .quiz-controls button {
+        width: 100%;
+    }
+
+    /* Progress bar adjustments */
+    .progress-bar {
+        height: 4px;
+    }
+
+    /* Timer adjustments */
+    .timer {
+        font-size: var(--font-size-2xl);
+    }
+
+    /* Scoreboard adjustments */
+    .scoreboard-table {
+        font-size: var(--font-size-xs);
+    }
+
+    .scoreboard-table th,
+    .scoreboard-table td {
+        padding: var(--spacing-xs);
+    }
+
+    /* Chart adjustments */
+    .chart-container {
+        height: 250px;
+    }
+
+    /* Results page adjustments */
+    .score-display {
+        font-size: var(--font-size-3xl);
+    }
+
+    .result-item {
+        padding: var(--spacing-md);
+    }
+}
+
+/* ===== TABLET (641px - 1024px) ===== */
+@media (min-width: 641px) and (max-width: 1024px) {
+    html {
+        font-size: 15px;
+    }
+
+    h1 {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    h2 {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    h3 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Container adjustments */
+    .container {
+        padding-left: var(--spacing-md);
+        padding-right: var(--spacing-md);
+    }
+
+    /* Grid adjustments */
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Button adjustments */
+    .btn {
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Card adjustments */
+    .card {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    /* Table adjustments */
+    table {
+        font-size: var(--font-size-sm);
+    }
+
+    th, td {
+        padding: var(--spacing-sm);
+    }
+
+    /* Modal adjustments */
+    .modal {
+        width: 80%;
+        max-width: 600px;
+    }
+
+    /* Hide mobile-only elements */
+    .hidden-tablet {
+        display: none;
+    }
+
+    /* Show tablet-only elements */
+    .visible-tablet {
+        display: block;
+    }
+
+    /* Navigation adjustments */
+    nav {
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+
+    nav a {
+        padding: var(--spacing-md);
+        border-bottom: none;
+    }
+
+    /* Quiz interface adjustments */
+    .quiz-header {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+    }
+
+    .question-box {
+        padding: var(--spacing-lg);
+    }
+
+    .options-box {
+        gap: var(--spacing-md);
+    }
+
+    .option {
+        padding: var(--spacing-md);
+        min-height: 44px;
+    }
+
+    .quiz-controls {
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+
+    .quiz-controls button {
+        flex: 1;
+    }
+
+    /* Progress bar adjustments */
+    .progress-bar {
+        height: 6px;
+    }
+
+    /* Timer adjustments */
+    .timer {
+        font-size: var(--font-size-3xl);
+    }
+
+    /* Scoreboard adjustments */
+    .scoreboard-table {
+        font-size: var(--font-size-sm);
+    }
+
+    .scoreboard-table th,
+    .scoreboard-table td {
+        padding: var(--spacing-sm);
+    }
+
+    /* Chart adjustments */
+    .chart-container {
+        height: 350px;
+    }
+
+    /* Results page adjustments */
+    .score-display {
+        font-size: var(--font-size-4xl);
+    }
+
+    .result-item {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* ===== DESKTOP (1025px+) ===== */
+@media (min-width: 1025px) {
+    html {
+        font-size: 16px;
+    }
+
+    h1 {
+        font-size: var(--font-size-4xl);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    h2 {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    h3 {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Container adjustments */
+    .container {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+
+    /* Grid adjustments */
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* Button adjustments */
+    .btn {
+        margin-bottom: 0;
+    }
+
+    /* Card adjustments */
+    .card {
+        padding: var(--spacing-xl);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Table adjustments */
+    table {
+        font-size: var(--font-size-base);
+    }
+
+    th, td {
+        padding: var(--spacing-md);
+    }
+
+    /* Modal adjustments */
+    .modal {
+        width: 90%;
+        max-width: 800px;
+    }
+
+    /* Hide tablet/mobile-only elements */
+    .hidden-desktop {
+        display: none;
+    }
+
+    /* Show desktop-only elements */
+    .visible-desktop {
+        display: block;
+    }
+
+    /* Navigation adjustments */
+    nav {
+        flex-direction: row;
+        gap: var(--spacing-lg);
+    }
+
+    nav a {
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-bottom: none;
+    }
+
+    /* Quiz interface adjustments */
+    .quiz-header {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: var(--spacing-lg);
+    }
+
+    .question-box {
+        padding: var(--spacing-xl);
+    }
+
+    .options-box {
+        gap: var(--spacing-lg);
+    }
+
+    .option {
+        padding: var(--spacing-lg);
+        min-height: 44px;
+    }
+
+    .quiz-controls {
+        flex-direction: row;
+        gap: var(--spacing-lg);
+    }
+
+    .quiz-controls button {
+        flex: 1;
+    }
+
+    /* Progress bar adjustments */
+    .progress-bar {
+        height: 8px;
+    }
+
+    /* Timer adjustments */
+    .timer {
+        font-size: var(--font-size-4xl);
+    }
+
+    /* Scoreboard adjustments */
+    .scoreboard-table {
+        font-size: var(--font-size-base);
+    }
+
+    .scoreboard-table th,
+    .scoreboard-table td {
+        padding: var(--spacing-md);
+    }
+
+    /* Chart adjustments */
+    .chart-container {
+        height: 400px;
+    }
+
+    /* Results page adjustments */
+    .score-display {
+        font-size: 64px;
+    }
+
+    .result-item {
+        padding: var(--spacing-xl);
+    }
+
+    /* Multi-column layouts */
+    .layout-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .layout-3col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .layout-sidebar {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: var(--spacing-lg);
+    }
+}
+
+/* ===== LANDSCAPE ORIENTATION ===== */
+@media (orientation: landscape) and (max-height: 500px) {
+    .container {
+        padding-top: var(--spacing-sm);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .card {
+        padding: var(--spacing-md);
+    }
+
+    h1, h2, h3 {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .btn {
+        padding: var(--spacing-xs) var(--spacing-md);
+        height: 36px;
+    }
+
+    .form-control {
+        height: 36px;
+    }
+}
+
+/* ===== PORTRAIT ORIENTATION ===== */
+@media (orientation: portrait) {
+    /* Portrait-specific styles if needed */
+}
+
+/* ===== HIGH DPI SCREENS ===== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimize for high DPI screens */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    body {
+        background-color: white;
+        color: black;
+    }
+
+    .btn,
+    .hidden-print {
+        display: none;
+    }
+
+    .card {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+
+    img {
+        max-width: 100%;
+    }
+}
+
+/* ===== ACCESSIBILITY: REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===== ACCESSIBILITY: HIGH CONTRAST ===== */
+@media (prefers-contrast: more) {
+    body {
+        color: #000;
+        background-color: #fff;
+    }
+
+    .btn {
+        border-width: 2px;
+    }
+
+    .form-control {
+        border-width: 2px;
+    }
+
+    .card {
+        border-width: 2px;
+    }
+}
+
+/* ===== ACCESSIBILITY: DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text-primary);
+    }
+
+    .card {
+        background-color: var(--color-surface);
+        border-color: var(--color-neutral-lighter);
+    }
+
+    .form-control {
+        background-color: var(--color-surface);
+        border-color: var(--color-neutral-lighter);
+        color: var(--color-text-primary);
+    }
+
+    .btn-secondary {
+        background-color: var(--color-surface-dark);
+        color: var(--color-text-primary);
+    }
+}
+
+</content>

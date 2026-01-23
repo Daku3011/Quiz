@@ -52,6 +52,8 @@ public class AIService {
                 q.setOptionC(c);
                 q.setOptionD(d);
                 q.setCorrect(ans);
+                q.setExplanation("Basic concept.");
+                q.setChapter("General Engineering");
                 MOCK_DB.add(q);
         }
 
@@ -252,6 +254,9 @@ public class AIService {
                 return new ArrayList<>();
         }
 
+        // Limit max questions per AI call to avoid token limits/hallucinations
+        private static final int MAX_QUESTIONS_PER_REQUEST = 20;
+
         private List<Question> generateQuestionsInternal(String syllabusText, int count, boolean useGlm,
                         List<Map<String, Object>> weights) {
                 List<String> chunks = splitString(syllabusText, CHUNK_SIZE);
@@ -265,25 +270,33 @@ public class AIService {
                 int remainder = count % totalChunks;
 
                 for (int i = 0; i < totalChunks; i++) {
-                        // Distribute questions evenly
+                        // Distribute questions evenly to text chunks
                         int qForThisChunk = baseQ + (i < remainder ? 1 : 0);
 
                         if (qForThisChunk > 0) {
                                 String chunkText = chunks.get(i);
-                                final int currentBatchCount = qForThisChunk;
 
-                                futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                                        try {
-                                                if (useGlm) {
-                                                        return generateBatchGLM(chunkText, currentBatchCount, weights);
-                                                } else {
-                                                        return generateBatch(chunkText, currentBatchCount, weights);
+                                // Further split if this chunk requires too many questions
+                                int subBatches = (int) Math.ceil((double) qForThisChunk / MAX_QUESTIONS_PER_REQUEST);
+                                int questionsPerSubBatch = qForThisChunk / subBatches;
+                                int subRemainder = qForThisChunk % subBatches;
+
+                                for (int j = 0; j < subBatches; j++) {
+                                        final int batchCount = questionsPerSubBatch + (j < subRemainder ? 1 : 0);
+
+                                        futures.add(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                                                try {
+                                                        if (useGlm) {
+                                                                return generateBatchGLM(chunkText, batchCount, weights);
+                                                        } else {
+                                                                return generateBatch(chunkText, batchCount, weights);
+                                                        }
+                                                } catch (Exception e) {
+                                                        logger.error("Error generating batch for chunk", e);
+                                                        return new ArrayList<>();
                                                 }
-                                        } catch (Exception e) {
-                                                logger.error("Error generating batch for chunk", e);
-                                                return new ArrayList<>();
-                                        }
-                                }));
+                                        }));
+                                }
                         }
                 }
 
@@ -343,7 +356,7 @@ public class AIService {
                                 "- Return the response as a valid JSON ARRAY of objects.\n\n" +
                                 "JSON Format:\n" +
                                 "[\n" +
-                                "  {\"text\": \"...\", \"optionA\": \"...\", \"optionB\": \"...\", \"optionC\": \"...\", \"optionD\": \"...\", \"correct\": \"A\", \"explanation\": \"...\"},\n"
+                                "  {\"text\": \"...\", \"optionA\": \"...\", \"optionB\": \"...\", \"optionC\": \"...\", \"optionD\": \"...\", \"correct\": \"A\", \"explanation\": \"...\", \"chapter\": \"Chapter Name\", \"courseOutcome\": \"CO1\"},\n"
                                 +
                                 "  ... (total " + count + " objects)\n" +
                                 "]\n\n" +
@@ -353,7 +366,11 @@ public class AIService {
                                 "2. Escape all quotes and backslashes.\n" +
                                 "3. Mix of difficulty: 30% Hard, 40% Medium, 30% Conceptual.\n" +
                                 "4. INCLUDE CODE SNIPPETS in the 'text' field where applicable.\n" +
-                                "5. 'explanation' must be concise (max 30 words).\n\n" +
+                                "5. 'explanation' must be concise (max 30 words).\n" +
+                                "6. 'chapter' field must MATCH one of the chapter names provided in weights or a relevant topic name from the text.\n"
+                                +
+                                "7. 'courseOutcome' field is REQUIRED (e.g., 'CO1', 'CO2'). Map the question to the most relevant Course Outcome from the text.\n\n"
+                                +
                                 "Reference Text:\n" + syllabusText;
         }
 

@@ -16,25 +16,27 @@ import java.util.Map;
 @Service
 public class SessionService {
     private final SessionRepository sessionRepo;
+    private final OTPService otpService;
     // simple in-memory mapping sessionId -> questions
     private final Map<Long, List<Question>> sessionQuestions = new HashMap<>();
 
-    public SessionService(SessionRepository sessionRepo) {
+    public SessionService(SessionRepository sessionRepo, OTPService otpService) {
         this.sessionRepo = sessionRepo;
+        this.otpService = otpService;
     }
 
     /**
      * Creates a new session and stores associated questions in memory.
      * 
-     * @param title     Quiz title.
-     * @param otp       Secure OTP.
-     * @param questions List of generated questions.
+     * @param title      Quiz title.
+     * @param otpDetails Secure OTP Entity.
+     * @param questions  List of generated questions.
      * @return Persisted session entity.
      */
-    public Session createSession(String title, String otp, List<Question> questions) {
+    public Session createSession(String title, com.quiz.model.Otp otpDetails, List<Question> questions) {
         Session s = new Session();
         s.setTitle(title);
-        s.setOtp(otp);
+        s.setOtpDetails(otpDetails);
         s.setActive(true);
         Session saved = sessionRepo.save(s);
         sessionQuestions.put(saved.getId(), questions);
@@ -46,9 +48,11 @@ public class SessionService {
     }
 
     public boolean validateOtp(Long sessionId, String otp) {
-        return sessionRepo.findById(sessionId)
-                .map(s -> s.isActive() && s.getOtp().equals(otp))
-                .orElse(false);
+        Session session = sessionRepo.findById(sessionId).orElse(null);
+        if (session == null || !session.isActive())
+            return false;
+
+        return otpService.validateOtp(session, otp);
     }
 
     public Session getSession(Long sessionId) {
