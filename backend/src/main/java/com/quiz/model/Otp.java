@@ -17,6 +17,11 @@ public class Otp {
     @Column(nullable = false)
     private Instant expiryTime;
 
+    // Storing plain code for display in Faculty Dashboard history.
+    // In a high-security environment, this would be avoided, but it's required for
+    // this use case.
+    private String code;
+
     private int attempts = 0;
 
     private static final int MAX_ATTEMPTS = 5;
@@ -47,6 +52,14 @@ public class Otp {
 
     public void setCodeHash(String codeHash) {
         this.codeHash = codeHash;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Instant getExpiryTime() {

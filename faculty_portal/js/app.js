@@ -200,8 +200,8 @@ function renderWeights(chapters) {
         const shortName = ch.name.length > 50 ? ch.name.substring(0, 47) + '...' : ch.name;
         return `
             <div class="form-group">
-                <label style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ch.name}">${shortName}</label>
-                <input type="number" class="chapter-weight-input" data-name="${ch.name}" value="${ch.weight}" min="0" max="100" onchange="updateTotalWeight()">
+                <label style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ch.name}">${shortName} <span class="badge" style="background:#eee; color:#555; font-size:0.7em;">${ch.mappedCO || 'CO?'}</span></label>
+                <input type="number" class="chapter-weight-input" data-name="${ch.name}" data-co="${ch.mappedCO || ''}" value="${ch.weight}" min="0" max="100" onchange="updateTotalWeight()">
             </div>
         `;
     }).join('');
@@ -225,7 +225,8 @@ function getWeights() {
     inputs.forEach(input => {
         weights.push({
             name: input.dataset.name,
-            weight: parseInt(input.value) || 0
+            weight: parseInt(input.value) || 0,
+            mappedCO: input.dataset.co || null 
         });
     });
     return weights;
@@ -527,7 +528,7 @@ async function loadSessions() {
                     <td>${s.id}</td>
                     <td>${s.title}</td>
                     <td><span class="badge" style="background:var(--success-color)">ACTIVE</span></td>
-                    <td>${s.otp}</td>
+                    <td>${s.otpDetails ? s.otpDetails.code : 'Hidden'}</td>
                     <td>
                         <button class="btn-secondary" onclick="viewScoreboard(${s.id})">📊 Scoreboard</button>
                         <button class="btn-danger" onclick="stopSessionApi(${s.id})">Stop</button>

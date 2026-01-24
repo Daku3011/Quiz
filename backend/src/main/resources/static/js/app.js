@@ -78,7 +78,6 @@ async function handleLogin(event) {
 
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
-    const remember = document.getElementById('login-remember').checked;
 
     let isValid = true;
 
@@ -118,17 +117,19 @@ async function handleLogin(event) {
             const data = await res.json();
             studentId = data.studentId;
 
-            if (remember) {
-                localStorage.setItem('student_email', email);
-            }
+
 
             sessionStorage.setItem('quizState', JSON.stringify({
                 studentId, email, authenticated: true
             }));
 
-            showSection('joinSession');
-            document.getElementById('join-enrollment').value = email;
-            document.getElementById('join-name').focus();
+            showSection('waiting');
+            document.getElementById('waiting-session-title').textContent = 'Connecting...';
+            document.getElementById('waiting-instructor').textContent = 'Checking for active sessions...';
+            document.getElementById('students-joined').parentElement.classList.add('hidden'); // Hide count
+            document.getElementById('waiting-status').textContent = 'Please wait...';
+            
+            checkForActiveSessions();
         } else {
             const errorText = await res.text();
             document.getElementById('login-error').textContent = 'Login failed: ' + errorText;
@@ -583,6 +584,7 @@ function downloadPDF() {
 function exitQuiz() {
     sessionStorage.clear();
     showSection('login');
+    window.location.reload();
 }
 
 // Cheating detection
@@ -600,11 +602,56 @@ function handleCheating() {
     submitQuiz(true);
 }
 
+// Standby Mode Logic
+async function checkForActiveSessions() {
+    try {
+        const res = await fetch(`${API_BASE}/session/active`);
+        if (res.ok) {
+            const sessions = await res.json();
+            
+            if (sessions.length > 0) {
+                // Session found!
+                const session = sessions[0]; // Auto-pick the first one
+                showSection('joinSession');
+                
+                // Pre-fill
+                document.getElementById('join-session-id').value = session.id;
+                document.getElementById('join-name').focus();
+                
+                const state = JSON.parse(sessionStorage.getItem('quizState'));
+                if (state && state.email) {
+                    document.getElementById('join-enrollment').value = state.email;
+                }
+            } else {
+                // No session
+                showSection('waiting');
+                document.getElementById('waiting-session-title').textContent = 'Standby Mode';
+                document.getElementById('waiting-instructor').textContent = 'Waiting for Faculty to start a session...';
+                document.getElementById('students-joined').parentElement.classList.add('hidden');
+                document.getElementById('waiting-status').textContent = 'Polling for sessions...';
+                
+                // Poll again in 5s
+                setTimeout(checkForActiveSessions, 5000);
+            }
+        } else {
+            console.error("Failed to check sessions");
+            setTimeout(checkForActiveSessions, 5000);
+        }
+    } catch (e) {
+        console.error("Network error checking sessions", e);
+        setTimeout(checkForActiveSessions, 5000);
+    }
+}
+
 // Utility functions
 function showSection(name) {
     Object.values(sections).forEach(el => el.classList.add('hidden'));
     if (sections[name]) {
         sections[name].classList.remove('hidden');
+    }
+    // Re-show joined count if leaving waiting/standby (simple reset)
+    if (name !== 'waiting') {
+        document.getElementById('students-joined').parentElement.classList.remove('hidden');
     }
 }
 
@@ -630,17 +677,21 @@ window.onload = function () {
         if (state.authenticated) {
             sessionId = state.sessionId;
             studentId = state.studentId;
-            showSection('joinSession');
-            if (state.email) {
-                document.getElementById('join-enrollment').value = state.email;
+            // Instead of going straight to join, check if we need to standby
+            if (!sessionId) {
+                 checkForActiveSessions();
+            } else {
+                 showSection('joinSession');
+                 if (state.email) {
+                    document.getElementById('join-enrollment').value = state.email;
+                }
+                document.getElementById('join-name').focus();
             }
-            document.getElementById('join-name').focus();
         }
     } else {
         const rememberedEmail = localStorage.getItem('student_email');
         if (rememberedEmail) {
             document.getElementById('login-email').value = rememberedEmail;
-            document.getElementById('login-remember').checked = true;
         }
         showSection('login');
     }

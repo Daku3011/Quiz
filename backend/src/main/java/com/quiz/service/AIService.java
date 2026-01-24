@@ -14,8 +14,7 @@ public class AIService {
         private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AIService.class);
 
         // We keep a small "mock database" here just in case the AI is unavailable.
-        // It's full of general engineering questions to keep things running during
-        // development.
+        // It's full of general engineering questions to keep things running during development.
         private static final List<Question> MOCK_DB = new ArrayList<>();
 
         static {
@@ -90,11 +89,9 @@ public class AIService {
         private static final int BATCH_SIZE = 10;
 
         // This is the main entry point to generate questions.
-        // If we have an AI key, we'll use Gemini in parallel batches to speed things
-        // up.
+        // If we have an AI key, we'll use Gemini in parallel batches to speed things up.
         // If not, we fall back to our mock questions so the app doesn't break.
-        // Chunk size for large files (approx 15k chars to stay safely within token
-        // limits detailed context)
+        // Chunk size for large files (approx 15k chars to stay safely within token limits detailed context)
         private static final int CHUNK_SIZE = 15000;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
@@ -155,11 +152,11 @@ public class AIService {
                                         "  \"credits\": \"...\",\n" +
                                         "  \"hours\": \"...\",\n" +
                                         "  \"chapters\": [\n" +
-                                        "    {\"name\": \"Chapter 1: ...\", \"weight\": 20},\n" +
+                                        "    {\"name\": \"Chapter 1: ...\", \"weight\": 20, \"mappedCO\": \"CO1\"},\n" +
                                         "    ...\n" +
                                         "  ]\n" +
                                         "}\n" +
-                                        "Ensure weights sum to 100. If total hours are not clearly stated, estimate based on credits.\n\n"
+                                        "Ensure weights sum to 100. If total hours are not clearly stated, estimate based on credits. Extract the mapped Course Outcome (CO) for each chapter if available in the text, otherwise infer the most likely CO (e.g. CO1, CO2).\n\n"
                                         +
                                         "Syllabus Content:\n" + syllabusText;
 
@@ -330,7 +327,12 @@ public class AIService {
                         weightConstraint.append("\nDISTRIBUTE QUESTIONS ACCORDING TO THESE CHAPTER WEIGHTS:\n");
                         for (Map<String, Object> w : weights) {
                                 weightConstraint.append("- ").append(w.get("name")).append(": ")
-                                                .append(w.get("weight")).append("% of questions.\n");
+                                                .append(w.get("weight")).append("% of questions.");
+                                if (w.containsKey("mappedCO") && w.get("mappedCO") != null) {
+                                        weightConstraint.append(" (MUST BE TAGGED AS ").append(w.get("mappedCO"))
+                                                        .append(")");
+                                }
+                                weightConstraint.append("\n");
                         }
                 }
 
@@ -454,8 +456,7 @@ public class AIService {
         }
 
         // Here we handle the actual communication with Gemini for a single batch.
-        // We prompt it to give us strict JSON back so we can easily turn it into
-        // Question objects.
+        // We prompt it to give us strict JSON back so we can easily turn it into Question objects.
         private List<Question> generateBatch(String syllabusText, int count, List<Map<String, Object>> weights)
                         throws Exception {
                 // Construct the prompt for Gemini
@@ -489,7 +490,6 @@ public class AIService {
                                         java.net.http.HttpResponse.BodyHandlers.ofString());
 
                         if (response.statusCode() == 200) {
-                                // ... existing success logic ...
                                 com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(response.body());
                                 String responseText = root.path("candidates").get(0)
                                                 .path("content").path("parts").get(0)
@@ -573,9 +573,7 @@ public class AIService {
                 if (start != -1 && end != -1 && end > start) {
                         return input.substring(start, end + 1);
                 }
-                // Fallback: return input if brackets not found (might be raw json without
-                // markdown)
-                // or just cleanup markdown if no brackets found (unlikely for array)
+                // Fallback: return input if brackets not found (might be raw json without markdown) or just cleanup markdown if no brackets found (unlikely for array)
                 return input.replace("```json", "").replace("```", "").trim();
         }
 

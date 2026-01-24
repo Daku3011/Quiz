@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manage the lifecycle of quiz sessions.
- * Handles creation, retrieval, and OTP validation.
+ * Manage the lifecycle of quiz sessions. Handles creation, retrieval, and OTP validation.
  */
 @Service
 public class SessionService {

@@ -4,8 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 
-// This service handles the security for our quiz sessions by generating 
-// and "sending" One-Time Passwords (OTPs) to the faculty.
+// This service handles the security for our quiz sessions by generating  and "sending" One-Time Passwords (OTPs) to the faculty.
 @Service
 public class OTPService {
     private final SecureRandom rnd = new SecureRandom();
@@ -39,6 +38,7 @@ public class OTPService {
         java.time.Instant expiry = java.time.Instant.now().plus(24, java.time.temporal.ChronoUnit.HOURS);
 
         com.quiz.model.Otp otpEntity = new com.quiz.model.Otp(hashed, expiry);
+        otpEntity.setCode(plainCode); // Storing plain code for history display
         // We don't save it yet; it will be saved via cascade from Session
 
         return new OtpResult(plainCode, otpEntity);
