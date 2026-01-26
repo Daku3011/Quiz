@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manage the lifecycle of quiz sessions. Handles creation, retrieval, and OTP validation.
+ * Manage the lifecycle of quiz sessions. Handles creation, retrieval, and OTP
+ * validation.
  */
 @Service
 public class SessionService {
@@ -59,7 +60,20 @@ public class SessionService {
     }
 
     public List<Session> getActiveSessions() {
-        return sessionRepo.findByActiveTrue();
+        List<Session> activeSessions = sessionRepo.findByActiveTrue();
+        java.time.Instant now = java.time.Instant.now();
+
+        // Filter and update expired sessions
+        return activeSessions.stream()
+                .filter(s -> {
+                    if (s.getEndTime() != null && now.isAfter(s.getEndTime())) {
+                        s.setActive(false);
+                        sessionRepo.save(s);
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public void stopSession(Long sessionId) {

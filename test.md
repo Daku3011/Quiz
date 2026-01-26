@@ -8,20 +8,21 @@
 
 ## 📚 Wiki Contents
 
-| Section | Description |
-|---------|-------------|
-| **[Home](#quiz-application-wiki)** | Overview and quick start guide |
-| **[Installation](#-installation-guide)** | Step-by-step installation instructions |
-| **[Getting Started](#-getting-started)** | How to run the application |
-| **[Faculty Guide](#-faculty-guide)** | Complete guide for faculty members |
-| **[Student Guide](#-student-guide)** | Complete guide for students |
-| **[Architecture](#-architecture)** | System design and architecture |
-| **[Project Structure](#-project-structure)** | Project Structure |
-| **[API Reference](#-api-reference)** | REST API documentation |
-| **[Configuration](#-configuration)** | Configuration options |
-| **[Troubleshooting](#-troubleshooting)** | Common issues and solutions |
-| **[Contributing](#-contributing)** | How to contribute to the project |
-| **[FAQ](#-frequently-asked-questions-faq)** | Frequently asked questions |
+| Section                                      | Description                            |
+| -------------------------------------------- | -------------------------------------- |
+| **[Home](#quiz-application-wiki)**           | Overview and quick start guide         |
+| **[Installation](#-installation-guide)**     | Step-by-step installation instructions |
+| **[Getting Started](#-getting-started)**     | How to run the application             |
+| **[Faculty Guide](#-faculty-guide)**         | Complete guide for faculty members     |
+| **[Student Guide](#-student-guide)**         | Complete guide for students            |
+| **[Architecture](#-architecture)**           | System design and architecture         |
+| **[Project Structure](#-project-structure)** | Project Structure                      |
+| **[API Reference](#-api-reference)**         | REST API documentation                 |
+| **[Configuration](#-configuration)**         | Configuration options                  |
+| **[Deployment](#-deployment)**               | Instructions for deploying to Render   |
+| **[Troubleshooting](#-troubleshooting)**     | Common issues and solutions            |
+| **[Contributing](#-contributing)**           | How to contribute to the project       |
+| **[FAQ](#-frequently-asked-questions-faq)**  | Frequently asked questions             |
 
 ---
 
@@ -64,29 +65,30 @@ https://github.com/Daku3011/Quiz.git
 
 ### 👨‍🏫 Faculty Features
 
-| Feature | Description |
-|---------|-------------|
-| 📄 **Syllabus Upload** | Upload text or PDF files to automatically generate quiz questions using AI |
+| Feature                    | Description                                                                 |
+| -------------------------- | --------------------------------------------------------------------------- |
+| 📄 **Syllabus Upload**     | Upload text or PDF files to automatically generate quiz questions using AI  |
 | ✏️ **Question Management** | Review, edit, and customize generated questions before starting the session |
-| 🎮 **Session Management** | Start a new quiz session with a unique Session ID and OTP |
-| 📊 **Live Scoreboard** | Monitor student progress in real-time with a dynamic scoreboard |
-| 🔒 **Secure Access** | Built-in authentication and OTP verification for session security |
+| 🎮 **Session Management**  | Start a new quiz session with a unique Session ID and OTP                   |
+| 📊 **Live Scoreboard**     | Monitor student progress in real-time with a dynamic scoreboard             |
+| 🔒 **Secure Access**       | Built-in authentication and OTP verification for session security           |
 
 ### 👨‍🎓 Student Features
 
 Students can join the quiz using either the **Desktop App** or the **Web Interface**:
 
-| Platform | Description |
-|----------|-------------|
-| 🖥️ **Desktop Client** | Native JavaFX application for a focused, distraction-free experience |
-| 🌐 **Web Client** | Responsive web interface accessible from any device (Mobile, Tablet, Laptop) |
-| ✅ **Seamless Flow** | Register → Join Session (ID + OTP) → Take Quiz → Submit & View Score |
+| Platform              | Description                                                                  |
+| --------------------- | ---------------------------------------------------------------------------- |
+| 🖥️ **Desktop Client** | Native JavaFX application for a focused, distraction-free experience         |
+| 🌐 **Web Client**     | Responsive web interface accessible from any device (Mobile, Tablet, Laptop) |
+| ✅ **Seamless Flow**  | Register → Join Session (ID + OTP) → Take Quiz → Submit & View Score         |
 
 > **Note:** Both platforms provide the same functionality, allowing students to choose their preferred method of participation.
 
 ---
 
 ## 🏗️ [Architecture](#-architecture)
+
 The application follows a **three-tier architecture** with clear separation of concerns:
 
 ```
@@ -136,37 +138,37 @@ The application follows a **three-tier architecture** with clear separation of c
 
 ### Backend Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| ☕ **Java** | 17+ | Core programming language |
-| 🍃 **Spring Boot** | 3.x | Application framework |
-| 🔐 **Spring Security** | - | Authentication & authorization |
-| 💾 **Spring Data JPA** | - | Database access layer |
-| 🗄️ **H2 Database** | - | In-memory/embedded database |
-| 📦 **Maven** | 3.6+ | Build & dependency management |
-| 📄 **PDFBox** | - | PDF parsing for syllabus upload |
+| Technology             | Version | Purpose                         |
+| ---------------------- | ------- | ------------------------------- |
+| ☕ **Java**            | 17+     | Core programming language       |
+| 🍃 **Spring Boot**     | 3.x     | Application framework           |
+| 🔐 **Spring Security** | -       | Authentication & authorization  |
+| 💾 **Spring Data JPA** | -       | Database access layer           |
+| 🗄️ **H2 Database**     | -       | In-memory/embedded database     |
+| 📦 **Maven**           | 3.6+    | Build & dependency management   |
+| 📄 **PDFBox**          | -       | PDF parsing for syllabus upload |
 
 ### Frontend Technologies (Desktop)
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| 🖼️ **JavaFX** | 19 | Desktop UI framework |
-| 🎨 **CSS3** | - | Modern UI styling |
+| Technology    | Version | Purpose              |
+| ------------- | ------- | -------------------- |
+| 🖼️ **JavaFX** | 19      | Desktop UI framework |
+| 🎨 **CSS3**   | -       | Modern UI styling    |
 
 ### Frontend Technologies (Web)
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| 🌐 **HTML5** | - | Structure |
-| 🎨 **CSS3** | - | Styling & responsive design |
-| ⚡ **Vanilla JavaScript** | ES6+ | SPA functionality (no frameworks) |
+| Technology                | Version | Purpose                           |
+| ------------------------- | ------- | --------------------------------- |
+| 🌐 **HTML5**              | -       | Structure                         |
+| 🎨 **CSS3**               | -       | Styling & responsive design       |
+| ⚡ **Vanilla JavaScript** | ES6+    | SPA functionality (no frameworks) |
 
 ### AI & Integration
 
-| Component | Description |
-|-----------|-------------|
-| 🤖 **Mock AI Service** | Built-in question generator |
-| 🔌 **Extensible API** | Ready for OpenAI/Gemini integration |
+| Component              | Description                         |
+| ---------------------- | ----------------------------------- |
+| 🤖 **Mock AI Service** | Built-in question generator         |
+| 🔌 **Extensible API**  | Ready for OpenAI/Gemini integration |
 
 > 📌 **Design Philosophy:** The application uses battle-tested technologies with minimal dependencies for maximum stability and ease of deployment.
 
@@ -176,29 +178,29 @@ The application follows a **three-tier architecture** with clear separation of c
 
 ### Hardware Requirements
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| **Processor** | Dual-core 2.0 GHz | Quad-core 2.5 GHz+ |
-| **RAM** | 4 GB | 8 GB+ |
-| **Storage** | 500 MB free | 1 GB+ free |
-| **Network** | Basic internet | Broadband connection |
+| Component     | Minimum           | Recommended          |
+| ------------- | ----------------- | -------------------- |
+| **Processor** | Dual-core 2.0 GHz | Quad-core 2.5 GHz+   |
+| **RAM**       | 4 GB              | 8 GB+                |
+| **Storage**   | 500 MB free       | 1 GB+ free           |
+| **Network**   | Basic internet    | Broadband connection |
 
 ### Software Requirements
 
-| Software | Version | Notes |
-|----------|---------|-------|
-| **Java JDK** | 17 or higher | Oracle JDK or OpenJDK |
-| **Apache Maven** | 3.6+ | For building the project |
-| **Operating System** | Windows 10+, macOS 10.14+, Linux (Ubuntu 20.04+) | 64-bit required |
-| **Web Browser** | Latest version | Chrome, Firefox, Safari, or Edge |
+| Software             | Version                                          | Notes                            |
+| -------------------- | ------------------------------------------------ | -------------------------------- |
+| **Java JDK**         | 17 or higher                                     | Oracle JDK or OpenJDK            |
+| **Apache Maven**     | 3.6+                                             | For building the project         |
+| **Operating System** | Windows 10+, macOS 10.14+, Linux (Ubuntu 20.04+) | 64-bit required                  |
+| **Web Browser**      | Latest version                                   | Chrome, Firefox, Safari, or Edge |
 
 ### Network Requirements
 
-| Requirement | Details |
-|-------------|---------|
-| **Port Availability** | Port 8080 must be available |
-| **Local Network** | For mobile device access, all devices must be on same network |
-| **Firewall** | Allow Java through firewall for network access |
+| Requirement           | Details                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| **Port Availability** | Port 8080 must be available                                   |
+| **Local Network**     | For mobile device access, all devices must be on same network |
+| **Firewall**          | Allow Java through firewall for network access                |
 
 > ⚠️ **Important:** Ensure Java 17+ is installed before proceeding with installation.
 
@@ -206,58 +208,28 @@ The application follows a **three-tier architecture** with clear separation of c
 
 ## 📥 Installation Guide
 
-### Step 1️⃣: Install Java 17
+### Step 1️⃣: Prerequisites
 
-#### 🪟 Windows
+Ensure you have the following installed:
 
-1. Download Java 17 JDK from:
-   - [Oracle JDK](https://www.oracle.com/java/technologies/downloads/) or
-   - [Adoptium Eclipse Temurin](https://adoptium.net/)
+- **Java 17+** (Required for Backend)
+- **Maven 3.6+** (Required for Build)
+- **Python 3** (Optional, for running Faculty Portal locally)
 
-2. Run the installer and follow the wizard
+### Step 2️⃣: Automated Setup (Recommended)
 
-3. Set environment variables:
-   ```cmd
-   setx JAVA_HOME "C:\Program Files\Java\jdk-17"
-   setx PATH "%PATH%;%JAVA_HOME%\bin"
-   ```
-
-4. Verify installation:
-   ```cmd
-   java -version
-   ```
-
-#### 🍎 macOS
-
-Using Homebrew:
-```bash
-# Install Homebrew if not installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install Java 17
-brew install openjdk@17
-
-# Link Java
-sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
-```
-
-Verify:
-```bash
-java -version
-```
-
-#### 🐧 Linux (Ubuntu/Debian)
+We provide a setup script to check your environment and build the project automatically.
 
 ```bash
-# Update package list
-sudo apt update
+# 1. Clone the repository
+git clone https://github.com/Daku3011/Quiz.git
+cd Quiz
 
-# Install Java 17
-sudo apt install openjdk-17-jdk -y
-
-# Verify installation
-java -version
+# 2. Run Setup Script
+./setup.sh
 ```
+
+> **Note:** You must configure your AI API Key before running. Create a file named `backend/.env` and add: `GEMINI_API_KEY=your_key_here`.
 
 ---
 
@@ -317,6 +289,7 @@ mvn clean install
 ```
 
 Expected output:
+
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time:  XX.XXX s
@@ -330,6 +303,7 @@ mvn clean install
 ```
 
 Expected output:
+
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time:  XX.XXX s
@@ -347,7 +321,36 @@ Your Quiz Application is now ready to run. Proceed to the [Getting Started](#-ge
 
 ## 🚀 Getting Started
 
-Follow these steps to run the Quiz Application:
+You can run the system locally using the automated launcher or deploy it to the cloud.
+
+### 🔹 Option 1: Local Automation (run.sh)
+
+The `run.sh` script handles everything: starts the Backend, launches the Faculty Web Portal (via Python), and opens the Desktop Client.
+
+```bash
+./run.sh
+```
+
+**What happens next?**
+
+1. **Backend** starts on `http://localhost:8080`.
+2. **Faculty Portal** (Web) starts on `http://localhost:9876`.
+3. **Desktop Client** launches automatically.
+
+### 🔹 Option 2: Docker / Cloud Deployment
+
+For production or cloud usage (like Render), see the **[Deployment](#-deployment)** section.
+
+---
+
+## 🌐 Access Points (Local)
+
+| User        | Interface                | URL / Access                                   |
+| ----------- | ------------------------ | ---------------------------------------------- |
+| **Faculty** | **Web Dashboard** (New!) | [http://localhost:9876](http://localhost:9876) |
+| **Faculty** | Desktop App              | Launches via `run.sh`                          |
+| **Student** | **Web Portal**           | [http://localhost:8080](http://localhost:8080) |
+| **Student** | Desktop App              | Launches via `run.sh`                          |
 
 ### 🔹 Step 1: Start the Backend Server
 
@@ -362,6 +365,7 @@ mvn spring-boot:run
 ```
 
 **Expected Output:**
+
 ```
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -395,6 +399,7 @@ mvn javafx:run
 ```
 
 **Login Screen:**
+
 - Select **"I am a Faculty"** to access the Faculty Dashboard
 
 <details>
@@ -412,6 +417,7 @@ mvn javafx:run
 │                                     │
 └─────────────────────────────────────┘
 ```
+
 </details>
 
 ---
@@ -434,6 +440,7 @@ mvn javafx:run
 #### Option B: Web Client (Recommended for Mobile/Tablets)
 
 **For Local Access:**
+
 ```
 http://localhost:8080
 ```
@@ -441,10 +448,11 @@ http://localhost:8080
 **For Network Access (Other Devices):**
 
 1. Find your IP address:
+
    ```bash
    # Windows
    ipconfig
-   
+
    # macOS/Linux
    ifconfig
    # or
@@ -452,11 +460,13 @@ http://localhost:8080
    ```
 
 2. Open browser on any device (mobile, tablet, laptop) and navigate to:
+
    ```
    http://<YOUR_IP_ADDRESS>:8080
    ```
-   
+
    Example:
+
    ```
    http://192.168.1.5:8080
    ```
@@ -494,18 +504,19 @@ http://localhost:8080
 
 Verify all components are running:
 
-| Component | URL/Command | Status Check |
-|-----------|-------------|--------------|
-| Backend API | `http://localhost:8080/api` | Should return API info |
-| Web Client | `http://localhost:8080` | Should show student login |
-| Faculty Dashboard | Terminal output | JavaFX window opens |
-| Student Desktop | Terminal output | JavaFX window opens |
+| Component         | URL/Command                 | Status Check              |
+| ----------------- | --------------------------- | ------------------------- |
+| Backend API       | `http://localhost:8080/api` | Should return API info    |
+| Web Client        | `http://localhost:8080`     | Should show student login |
+| Faculty Dashboard | Terminal output             | JavaFX window opens       |
+| Student Desktop   | Terminal output             | JavaFX window opens       |
 
 > 🎉 **Success!** All components are running. You're ready to create your first quiz!
 
 ---
 
 **Next Steps:**
+
 - 📖 Read the [Faculty Guide](#-faculty-guide) to learn how to create quizzes
 - 📖 Read the [Student Guide](#-student-guide) to learn how to take quizzes
 - ⚙️ Check [Configuration](#-configuration) for customization options
@@ -518,14 +529,16 @@ Complete guide for faculty members to create and manage quizzes.
 
 ### 🎬 Getting Started
 
-#### Launch Faculty Dashboard
+#### Launch Faculty Dashboard (Web)
 
-```bash
-cd client
-mvn javafx:run
-```
+1. Ensure the system is running (`./run.sh`).
+2. Open your browser to:
+   ```
+   http://localhost:9876
+   ```
+3. Login with default credentials: `admin` / `admin123`
 
-Select **"I am a Faculty"** at the login screen.
+_(Alternatively, if running on Render, visit your deployed Faculty Portal URL)_
 
 ---
 
@@ -536,16 +549,19 @@ Select **"I am a Faculty"** at the login screen.
 You have three options:
 
 **Option 1: Upload Text File**
+
 - Click `📄 Upload File` button
 - Select a `.txt` file containing syllabus content
 - File will be automatically processed
 
 **Option 2: Upload PDF File**
+
 - Click `📄 Upload File` button
 - Select a `.pdf` file
 - System will extract text automatically using PDFBox
 
 **Option 3: Paste Content**
+
 - Click on the text area
 - Paste your syllabus content directly
 - Supports multi-line content
@@ -566,7 +582,8 @@ You have three options:
    - Questions are generated automatically
    - Wait for confirmation message
 
-**Generation Time:** 
+**Generation Time:**
+
 - 10 questions: ~5-10 seconds
 - 30 questions: ~15-30 seconds
 
@@ -574,6 +591,7 @@ You have three options:
 <summary>🤖 How AI Generates Questions</summary>
 
 The AI service:
+
 1. Analyzes syllabus content
 2. Identifies key topics and concepts
 3. Creates multiple-choice questions
@@ -590,6 +608,7 @@ The AI service:
 After generation, you can:
 
 **✏️ Edit Questions:**
+
 - Click on any question text to edit
 - Modify question wording
 - Update options
@@ -597,6 +616,7 @@ After generation, you can:
 - Save changes
 
 **➕ Add Custom Questions:**
+
 - Click `+ Add Question` button
 - Enter question text
 - Add 4 options (A, B, C, D)
@@ -604,11 +624,13 @@ After generation, you can:
 - Save
 
 **❌ Delete Questions:**
+
 - Click trash icon next to any question
 - Confirm deletion
 - Question is removed from quiz
 
 **📋 Question Preview:**
+
 ```
 Q1. What is Java?
    A) A programming language ✓
@@ -628,6 +650,7 @@ Q1. What is Java?
 1. Click `🎮 Start Session` button
 
 2. **Session Created:**
+
    ```
    ╔════════════════════════════════╗
    ║      Session Created!          ║
@@ -655,6 +678,7 @@ Q1. What is Java?
 1. Click `📊 View Scoreboard` button
 
 2. **Scoreboard Display:**
+
    ```
    ┌───────────────────────────────────────────────┐
    │           Live Quiz Scoreboard                │
@@ -665,11 +689,12 @@ Q1. What is Java?
    │  2   │ Jane Smith      │ 2021002   │  8/10 ✓  │
    │  3   │ Bob Johnson     │ 2021003   │  7/10 ⏳ │
    └──────┴─────────────────┴───────────┴──────────┘
-   
+
    ✓ Submitted  ⏳ In Progress  ❌ Not Started
    ```
 
 **Features:**
+
 - ⚡ **Real-time Updates:** Scoreboard refreshes automatically
 - 📈 **Rankings:** Students ranked by score
 - ✅ **Status Indicators:** See who submitted, in progress, or not started
@@ -683,6 +708,7 @@ Q1. What is Java?
 #### Active Sessions
 
 View all active sessions:
+
 - Session ID
 - Number of participants
 - Start time
@@ -705,20 +731,18 @@ View all active sessions:
    - JSON (for processing)
 3. Save file to desired location
 
-
-
 ---
 
 ### 💡 Tips & Best Practices
 
-| Tip | Description |
-|-----|-------------|
-| 🎯 **Clear Questions** | Ensure questions are unambiguous and grammatically correct |
-| ⏱️ **Time Management** | Set appropriate quiz duration based on question count |
-| 🔄 **Test First** | Test the quiz yourself before sharing with students |
-| 📢 **Clear Instructions** | Explain quiz format and rules before starting |
-| 👀 **Monitor Live** | Keep scoreboard open to track student progress |
-| 💾 **Save Sessions** | Export results immediately after quiz completion |
+| Tip                       | Description                                                |
+| ------------------------- | ---------------------------------------------------------- |
+| 🎯 **Clear Questions**    | Ensure questions are unambiguous and grammatically correct |
+| ⏱️ **Time Management**    | Set appropriate quiz duration based on question count      |
+| 🔄 **Test First**         | Test the quiz yourself before sharing with students        |
+| 📢 **Clear Instructions** | Explain quiz format and rules before starting              |
+| 👀 **Monitor Live**       | Keep scoreboard open to track student progress             |
+| 💾 **Save Sessions**      | Export results immediately after quiz completion           |
 
 ---
 
@@ -728,24 +752,28 @@ View all active sessions:
 <summary><strong>Can I reuse questions from previous quizzes?</strong></summary>
 
 Currently, questions are not saved between sessions. Plan to implement a question bank feature in future updates.
+
 </details>
 
 <details>
 <summary><strong>How many students can join simultaneously?</strong></summary>
 
 The system supports up to 100 concurrent students per session with current configuration.
+
 </details>
 
 <details>
 <summary><strong>Can I pause a quiz?</strong></summary>
 
 Currently, quizzes cannot be paused once started. Students must complete in one sitting.
+
 </details>
 
 <details>
 <summary><strong>What if a student loses connection?</strong></summary>
 
 Students can rejoin using the same Session ID and OTP. Their progress is saved.
+
 </details>
 
 ---
@@ -762,10 +790,10 @@ Complete guide for students to join and take quizzes.
 
 Students can participate using either:
 
-| Platform | Best For | Pros |
-|----------|----------|------|
+| Platform           | Best For            | Pros                                |
+| ------------------ | ------------------- | ----------------------------------- |
 | 🖥️ **Desktop App** | Focused environment | No distractions, native performance |
-| 🌐 **Web Client** | Mobile/Tablet | No installation, works anywhere |
+| 🌐 **Web Client**  | Mobile/Tablet       | No installation, works anywhere     |
 
 ---
 
@@ -801,6 +829,7 @@ Fill in the registration form:
 ```
 
 **Fields:**
+
 - **Name:** Your full name
 - **Enrollment Number:** Your student ID
 
@@ -852,12 +881,14 @@ Enter session details provided by faculty:
 ```
 
 **Navigation:**
+
 - Click on an option to select your answer
 - Use `Next` button to move to next question
 - Use `Previous` button to go back
 - Selected answers are highlighted
 
 **Features:**
+
 - 📍 **Progress:** Current question number
 - ✅ **Selection:** Visual feedback for selected answers
 - 🔄 **Review:** Can change answers before submitting
@@ -871,6 +902,7 @@ Enter session details provided by faculty:
 3. Confirm submission
 
 **Confirmation Dialog:**
+
 ```
 ┌────────────────────────────────┐
 │      Submit Quiz?              │
@@ -922,11 +954,13 @@ Enter session details provided by faculty:
 Navigate to one of these URLs:
 
 **If on the same computer as server:**
+
 ```
 http://localhost:8080
 ```
 
 **If on a different device (mobile/tablet):**
+
 ```
 http://<FACULTY_IP_ADDRESS>:8080
 ```
@@ -945,18 +979,9 @@ Example: `http://192.168.1.5:8080`
 <tr><td>
 
 ```html
-┌──────────────────────────────┐
-│   📱 Quiz App - Register     │
-├──────────────────────────────┤
-│                              │
-│ 👤 Name                      │
-│ [John Doe                  ] │
-│                              │
-│ 🎓 Enrollment Number         │
-│ [2021001                   ] │
-│                              │
-│      [  Register  ]          │
-│                              │
+┌──────────────────────────────┐ │ 📱 Quiz App - Register │
+├──────────────────────────────┤ │ │ │ 👤 Name │ │ [John Doe ] │ │ │ │ 🎓
+Enrollment Number │ │ [2021001 ] │ │ │ │ [ Register ] │ │ │
 └──────────────────────────────┘
 ```
 
@@ -975,19 +1000,9 @@ Fill in your details and click `Register`.
 <tr><td>
 
 ```html
-┌──────────────────────────────┐
-│   📱 Quiz App - Join         │
-├──────────────────────────────┤
-│                              │
-│ 🔑 Session ID                │
-│ [ABC123                    ] │
-│                              │
-│ 🔐 OTP                       │
-│ [456789                    ] │
-│                              │
-│      [  Join Quiz  ]         │
-│                              │
-└──────────────────────────────┘
+┌──────────────────────────────┐ │ 📱 Quiz App - Join │
+├──────────────────────────────┤ │ │ │ 🔑 Session ID │ │ [ABC123 ] │ │ │ │ 🔐
+OTP │ │ [456789 ] │ │ │ │ [ Join Quiz ] │ │ │ └──────────────────────────────┘
 ```
 
 </td></tr>
@@ -1005,30 +1020,18 @@ Enter Session ID and OTP, then click `Join Quiz`.
 <tr><td>
 
 ```html
-┌─────────────────────────────┐
-│ ☰                  ⏱️ 14:32 │
-├─────────────────────────────┤
-│                             │
-│ Question 1/10               │
-│                             │
-│ What is Java?               │
-│                             │
-│ [ ] A programming language  │
-│ [x] A coffee brand          │
-│ [ ] An operating system     │
-│ [ ] A database              │
-│                             │
-│ ┌─────────────────────────┐ │
-│ │    Next Question  →     │ │
-│ └─────────────────────────┘ │
-│                             │
-└─────────────────────────────┘
+┌─────────────────────────────┐ │ ☰ ⏱️ 14:32 │ ├─────────────────────────────┤
+│ │ │ Question 1/10 │ │ │ │ What is Java? │ │ │ │ [ ] A programming language │ │
+[x] A coffee brand │ │ [ ] An operating system │ │ [ ] A database │ │ │ │
+┌─────────────────────────┐ │ │ │ Next Question → │ │ │
+└─────────────────────────┘ │ │ │ └─────────────────────────────┘
 ```
 
 </td></tr>
 </table>
 
 **Features:**
+
 - 📱 **Responsive:** Adapts to screen size
 - 👆 **Touch-friendly:** Large tap targets
 - 🎨 **Modern UI:** Clean, intuitive design
@@ -1046,22 +1049,10 @@ Tap `Submit Quiz` → Confirm → View instant results!
 <tr><td>
 
 ```html
-┌─────────────────────────────┐
-│        🎉 Results           │
-├─────────────────────────────┤
-│                             │
-│   Score: 8/10 (80%)         │
-│                             │
-│   ✅ Correct: 8             │
-│   ❌ Wrong: 2               │
-│                             │
-│   Rank: #3                  │
-│                             │
-│ ┌─────────────────────────┐ │
-│ │   View Detailed Report  │ │
-│ └─────────────────────────┘ │
-│                             │
-└─────────────────────────────┘
+┌─────────────────────────────┐ │ 🎉 Results │ ├─────────────────────────────┤ │
+│ │ Score: 8/10 (80%) │ │ │ │ ✅ Correct: 8 │ │ ❌ Wrong: 2 │ │ │ │ Rank: #3 │ │
+│ │ ┌─────────────────────────┐ │ │ │ View Detailed Report │ │ │
+└─────────────────────────┘ │ │ │ └─────────────────────────────┘
 ```
 
 </td></tr>
@@ -1071,14 +1062,14 @@ Tap `Submit Quiz` → Confirm → View instant results!
 
 ### 📱 Mobile Best Practices
 
-| Tip | Description |
-|-----|-------------|
-| 🔋 **Battery** | Ensure device is charged before starting |
-| 📶 **Connection** | Stable WiFi connection required |
-| 🔕 **Notifications** | Enable Do Not Disturb mode |
-| 🌐 **Browser** | Use Chrome or Safari for best experience |
-| 📏 **Orientation** | Portrait mode recommended |
-| 💾 **Background Apps** | Close unnecessary apps |
+| Tip                    | Description                              |
+| ---------------------- | ---------------------------------------- |
+| 🔋 **Battery**         | Ensure device is charged before starting |
+| 📶 **Connection**      | Stable WiFi connection required          |
+| 🔕 **Notifications**   | Enable Do Not Disturb mode               |
+| 🌐 **Browser**         | Use Chrome or Safari for best experience |
+| 📏 **Orientation**     | Portrait mode recommended                |
+| 💾 **Background Apps** | Close unnecessary apps                   |
 
 ---
 
@@ -1088,36 +1079,42 @@ Tap `Submit Quiz` → Confirm → View instant results!
 <summary><strong>Can I join from my phone?</strong></summary>
 
 Yes! Use the web client for the best mobile experience. Just open your browser and enter the provided URL.
+
 </details>
 
 <details>
 <summary><strong>What if I lose internet connection during the quiz?</strong></summary>
 
 Your progress is saved. Rejoin using the same Session ID and OTP to continue where you left off.
+
 </details>
 
 <details>
 <summary><strong>Can I change my answers?</strong></summary>
 
 Yes, you can change answers before submitting. Use the Previous/Next buttons to navigate.
+
 </details>
 
 <details>
 <summary><strong>How much time do I have?</strong></summary>
 
 Time limit (if any) is set by your faculty and displayed at the top of the quiz.
+
 </details>
 
 <details>
 <summary><strong>Can I see the correct answers after submission?</strong></summary>
 
 This depends on settings configured by your faculty. Some quizzes show answers, others don't.
+
 </details>
 
 <details>
 <summary><strong>What browsers are supported?</strong></summary>
 
 Chrome, Firefox, Safari, and Edge (latest versions). Chrome recommended for mobile devices.
+
 </details>
 
 ---
@@ -1283,35 +1280,35 @@ Quiz/
 
 #### Backend Components
 
-| Component | Purpose | Technology |
-|-----------|---------|------------|
-| **Controllers** | Handle HTTP requests and responses | Spring MVC |
-| **Services** | Business logic and AI integration | Spring Service |
-| **Repositories** | Database operations | Spring Data JPA |
-| **Models** | Entity definitions | JPA Entities |
-| **Security** | Authentication & authorization | Spring Security + JWT |
-| **Static Resources** | Student web client | HTML/CSS/JS |
+| Component            | Purpose                            | Technology            |
+| -------------------- | ---------------------------------- | --------------------- |
+| **Controllers**      | Handle HTTP requests and responses | Spring MVC            |
+| **Services**         | Business logic and AI integration  | Spring Service        |
+| **Repositories**     | Database operations                | Spring Data JPA       |
+| **Models**           | Entity definitions                 | JPA Entities          |
+| **Security**         | Authentication & authorization     | Spring Security + JWT |
+| **Static Resources** | Student web client                 | HTML/CSS/JS           |
 
 #### Client Components
 
-| Component | Purpose | Technology |
-|-----------|---------|------------|
-| **Main** | Application entry point | JavaFX |
-| **Views** | User interface screens | JavaFX + FXML |
-| **Controllers** | UI event handling | JavaFX Controllers |
-| **API Client** | Backend communication | HTTP Client |
-| **Styles** | Visual appearance | CSS3 |
+| Component       | Purpose                 | Technology         |
+| --------------- | ----------------------- | ------------------ |
+| **Main**        | Application entry point | JavaFX             |
+| **Views**       | User interface screens  | JavaFX + FXML      |
+| **Controllers** | UI event handling       | JavaFX Controllers |
+| **API Client**  | Backend communication   | HTTP Client        |
+| **Styles**      | Visual appearance       | CSS3               |
 
 ---
 
 ### 🔧 Configuration Files
 
-| File | Location | Purpose |
-|------|----------|---------|
-| `application.properties` | `backend/src/main/resources/` | Backend configuration |
-| `pom.xml` | `backend/` & `client/` | Maven dependencies |
-| `*.css` | `client/src/main/resources/css/` | JavaFX styling |
-| `*.fxml` | `client/src/main/resources/fxml/` | JavaFX layouts |
+| File                     | Location                          | Purpose               |
+| ------------------------ | --------------------------------- | --------------------- |
+| `application.properties` | `backend/src/main/resources/`     | Backend configuration |
+| `pom.xml`                | `backend/` & `client/`            | Maven dependencies    |
+| `*.css`                  | `client/src/main/resources/css/`  | JavaFX styling        |
+| `*.fxml`                 | `client/src/main/resources/fxml/` | JavaFX layouts        |
 
 ---
 
@@ -1392,6 +1389,7 @@ Authorization: Bearer <jwt_token>
 Authenticate faculty member and receive JWT token.
 
 **Request:**
+
 ```json
 {
   "username": "faculty@example.com",
@@ -1400,6 +1398,7 @@ Authenticate faculty member and receive JWT token.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1414,6 +1413,7 @@ Authenticate faculty member and receive JWT token.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Authentication successful
 - `401 Unauthorized` - Invalid credentials
 - `400 Bad Request` - Missing fields
@@ -1427,6 +1427,7 @@ Authenticate faculty member and receive JWT token.
 Register a new student (no authentication required).
 
 **Request:**
+
 ```json
 {
   "name": "John Doe",
@@ -1435,6 +1436,7 @@ Register a new student (no authentication required).
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1444,6 +1446,7 @@ Register a new student (no authentication required).
 ```
 
 **Status Codes:**
+
 - `201 Created` - Registration successful
 - `409 Conflict` - Enrollment number already exists
 - `400 Bad Request` - Invalid input
@@ -1461,6 +1464,7 @@ Generate quiz questions from syllabus content.
 **Authentication:** Required (Faculty only)
 
 **Request:**
+
 ```json
 {
   "syllabusContent": "Java is a high-level programming language...",
@@ -1470,6 +1474,7 @@ Generate quiz questions from syllabus content.
 ```
 
 **Or with PDF (Base64):**
+
 ```json
 {
   "syllabusFile": "data:application/pdf;base64,JVBERi0xLjQK...",
@@ -1479,6 +1484,7 @@ Generate quiz questions from syllabus content.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1499,6 +1505,7 @@ Generate quiz questions from syllabus content.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Questions generated successfully
 - `401 Unauthorized` - Not authenticated
 - `403 Forbidden` - Not a faculty member
@@ -1517,6 +1524,7 @@ Start a new quiz session with generated questions.
 **Authentication:** Required (Faculty only)
 
 **Request:**
+
 ```json
 {
   "questions": [
@@ -1536,6 +1544,7 @@ Start a new quiz session with generated questions.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1549,6 +1558,7 @@ Start a new quiz session with generated questions.
 ```
 
 **Status Codes:**
+
 - `201 Created` - Session created successfully
 - `401 Unauthorized` - Not authenticated
 - `403 Forbidden` - Not a faculty member
@@ -1563,6 +1573,7 @@ Start a new quiz session with generated questions.
 Student joins an active quiz session.
 
 **Request:**
+
 ```json
 {
   "sessionId": "ABC123",
@@ -1573,6 +1584,7 @@ Student joins an active quiz session.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1595,6 +1607,7 @@ Student joins an active quiz session.
 > **Note:** `correctAnswer` is not included in the response.
 
 **Status Codes:**
+
 - `200 OK` - Successfully joined
 - `404 Not Found` - Invalid Session ID
 - `401 Unauthorized` - Invalid OTP
@@ -1611,6 +1624,7 @@ Get details of a specific session.
 **Authentication:** Required
 
 **Response:**
+
 ```json
 {
   "sessionId": "ABC123",
@@ -1624,6 +1638,7 @@ Get details of a specific session.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Session found
 - `404 Not Found` - Session doesn't exist
 - `401 Unauthorized` - Not authenticated
@@ -1641,6 +1656,7 @@ Student submits quiz answers.
 **Authentication:** Required (Session token)
 
 **Request:**
+
 ```json
 {
   "sessionId": "ABC123",
@@ -1656,6 +1672,7 @@ Student submits quiz answers.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1672,6 +1689,7 @@ Student submits quiz answers.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Submission successful
 - `400 Bad Request` - Invalid answers format
 - `409 Conflict` - Already submitted
@@ -1688,6 +1706,7 @@ Retrieve details of a specific submission.
 **Authentication:** Required
 
 **Response:**
+
 ```json
 {
   "submissionId": "sub_12345",
@@ -1723,6 +1742,7 @@ Get real-time scoreboard for a session.
 **Authentication:** Required (Faculty only)
 
 **Response:**
+
 ```json
 {
   "sessionId": "ABC123",
@@ -1768,6 +1788,7 @@ Get real-time scoreboard for a session.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Scoreboard retrieved
 - `404 Not Found` - Session not found
 - `403 Forbidden` - Not authorized
@@ -1783,9 +1804,11 @@ Export session results in various formats.
 **Authentication:** Required (Faculty only)
 
 **Query Parameters:**
+
 - `format` - Export format: `csv`, `json`, or `pdf`
 
 **Response (CSV):**
+
 ```csv
 Rank,Name,Enrollment,Score,Percentage,Submitted At
 1,John Doe,2021001,9,90%,2025-11-23 10:20:15
@@ -1793,6 +1816,7 @@ Rank,Name,Enrollment,Score,Percentage,Submitted At
 ```
 
 **Status Codes:**
+
 - `200 OK` - Export successful
 - `404 Not Found` - Session not found
 - `403 Forbidden` - Not authorized
@@ -1808,6 +1832,7 @@ Rank,Name,Enrollment,Score,Percentage,Submitted At
 Check if the API is running.
 
 **Response:**
+
 ```json
 {
   "status": "UP",
@@ -1827,6 +1852,7 @@ Get statistics for a specific question.
 **Authentication:** Required (Faculty only)
 
 **Response:**
+
 ```json
 {
   "questionId": 1,
@@ -1864,28 +1890,28 @@ All error responses follow this format:
 
 **Common Error Codes:**
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `AUTH_REQUIRED` | 401 | Authentication required |
-| `INVALID_TOKEN` | 401 | JWT token invalid or expired |
-| `FORBIDDEN` | 403 | Insufficient permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `ALREADY_EXISTS` | 409 | Resource already exists |
-| `VALIDATION_ERROR` | 400 | Input validation failed |
-| `SESSION_EXPIRED` | 410 | Quiz session expired |
-| `SERVER_ERROR` | 500 | Internal server error |
+| Code               | HTTP Status | Description                  |
+| ------------------ | ----------- | ---------------------------- |
+| `AUTH_REQUIRED`    | 401         | Authentication required      |
+| `INVALID_TOKEN`    | 401         | JWT token invalid or expired |
+| `FORBIDDEN`        | 403         | Insufficient permissions     |
+| `NOT_FOUND`        | 404         | Resource not found           |
+| `ALREADY_EXISTS`   | 409         | Resource already exists      |
+| `VALIDATION_ERROR` | 400         | Input validation failed      |
+| `SESSION_EXPIRED`  | 410         | Quiz session expired         |
+| `SERVER_ERROR`     | 500         | Internal server error        |
 
 ---
 
 ### 🔄 Rate Limiting
 
-| Endpoint Type | Rate Limit |
-|---------------|------------|
-| Authentication | 5 requests/minute |
-| Question Generation | 10 requests/hour |
-| Submissions | 1 request/minute per student |
-| Scoreboard | 100 requests/minute |
-| Other endpoints | 60 requests/minute |
+| Endpoint Type       | Rate Limit                   |
+| ------------------- | ---------------------------- |
+| Authentication      | 5 requests/minute            |
+| Question Generation | 10 requests/hour             |
+| Submissions         | 1 request/minute per student |
+| Scoreboard          | 100 requests/minute          |
+| Other endpoints     | 60 requests/minute           |
 
 ---
 
@@ -1910,17 +1936,17 @@ curl -X POST http://localhost:8080/api/questions/generate \
 
 ```javascript
 // Student joins session
-const response = await fetch('http://localhost:8080/api/session/join', {
-  method: 'POST',
+const response = await fetch("http://localhost:8080/api/session/join", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    sessionId: 'ABC123',
-    otp: '456789',
-    studentName: 'John Doe',
-    enrollmentNumber: '2021001'
-  })
+    sessionId: "ABC123",
+    otp: "456789",
+    studentName: "John Doe",
+    enrollmentNumber: "2021001",
+  }),
 });
 
 const data = await response.json();
@@ -1933,7 +1959,41 @@ console.log(data);
 
 ---
 
-## 🔧 Troubleshooting
+## � Deployment (Render)
+
+The application is configured for deployment on **Render**.
+
+### 1. Identify Access URLs
+
+- **Student Portal & Backend API**: `https://<YOUR-BACKEND-APP>.onrender.com`
+- **Faculty Portal**: `https://<YOUR-FRONTEND-SITE>.onrender.com`
+
+### 2. Deploy Backend (Docker)
+
+1. Create a `Web Service` on Render.
+2. Connect your GitHub repository.
+3. Settings:
+   - **Runtime**: Docker
+   - **Root Directory**: `backend`
+   - **Environment Variables**:
+     - `GEMINI_API_KEY`: Your AI API Key
+     - `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` (Optional: Use H2 default if empty)
+4. Deploy using the provided `Dockerfile`.
+
+### 3. Deploy Frontend (Static Site)
+
+1. Create a `Static Site` on Render.
+2. Connect your GitHub repository.
+3. Settings:
+   - **Root Directory**: `faculty_portal`
+   - **Publish Directory**: `.` (leave empty)
+4. **Configuration Update**:
+   - Update `faculty_portal/js/config.js` with your **Backend URL** from Step 2.
+   - Commit and push to GitHub to trigger redeploy.
+
+---
+
+## �� Troubleshooting
 
 Common issues and their solutions.
 
@@ -1943,11 +2003,13 @@ Common issues and their solutions.
 <summary><strong>❌ Java version mismatch error</strong></summary>
 
 **Error:**
+
 ```
 Unsupported class file major version XX
 ```
 
 **Solution:**
+
 1. Check Java version:
    ```bash
    java -version
@@ -1962,11 +2024,13 @@ Unsupported class file major version XX
 <summary><strong>❌ Maven not found</strong></summary>
 
 **Error:**
+
 ```
 'mvn' is not recognized as an internal or external command
 ```
 
 **Solution:**
+
 1. Verify Maven installation:
    ```bash
    mvn -version
@@ -1982,11 +2046,13 @@ Unsupported class file major version XX
 <summary><strong>❌ Build fails with dependency errors</strong></summary>
 
 **Error:**
+
 ```
 Could not resolve dependencies for project
 ```
 
 **Solution:**
+
 ```bash
 # Clear Maven cache
 mvn clean
@@ -2008,6 +2074,7 @@ mvn clean install -U -DskipTests
 <summary><strong>❌ Port 8080 already in use</strong></summary>
 
 **Error:**
+
 ```
 Port 8080 was already in use
 ```
@@ -2015,18 +2082,21 @@ Port 8080 was already in use
 **Solution 1:** Kill process using port 8080
 
 **Windows:**
+
 ```cmd
 netstat -ano | findstr :8080
 taskkill /PID <PID> /F
 ```
 
 **macOS/Linux:**
+
 ```bash
 lsof -i :8080
 kill -9 <PID>
 ```
 
 **Solution 2:** Change port in `application.properties`
+
 ```properties
 server.port=8081
 ```
@@ -2037,11 +2107,13 @@ server.port=8081
 <summary><strong>❌ Database connection error</strong></summary>
 
 **Error:**
+
 ```
 Unable to open JDBC Connection
 ```
 
 **Solution:**
+
 1. Check H2 database configuration
 2. Verify database file permissions
 3. Delete `data/` folder and restart:
@@ -2056,11 +2128,13 @@ Unable to open JDBC Connection
 <summary><strong>❌ Application fails to start</strong></summary>
 
 **Error:**
+
 ```
 APPLICATION FAILED TO START
 ```
 
 **Solution:**
+
 1. Check logs in console
 2. Verify all dependencies are installed
 3. Ensure Java 17+ is being used
@@ -2080,11 +2154,13 @@ APPLICATION FAILED TO START
 <summary><strong>❌ JavaFX runtime components missing</strong></summary>
 
 **Error:**
+
 ```
 Error: JavaFX runtime components are missing
 ```
 
 **Solution:**
+
 1. Use Maven command instead of direct java:
    ```bash
    mvn javafx:run
@@ -2098,11 +2174,13 @@ Error: JavaFX runtime components are missing
 <summary><strong>❌ Cannot connect to backend</strong></summary>
 
 **Error:**
+
 ```
 Connection refused: connect
 ```
 
 **Solution:**
+
 1. Ensure backend server is running
 2. Check backend URL in client config
 3. Verify port number (default: 8080)
@@ -2116,6 +2194,7 @@ Connection refused: connect
 **Symptoms:** Blank window, missing elements
 
 **Solution:**
+
 1. Check CSS files are loaded
 2. Verify FXML files exist
 3. Clear JavaFX cache:
@@ -2136,15 +2215,18 @@ Connection refused: connect
 **Problem:** `http://localhost:8080` not working on phone
 
 **Solution:**
+
 1. Ensure both devices are on same WiFi network
 2. Find computer's IP address:
+
    ```bash
    # Windows
    ipconfig
-   
+
    # Mac/Linux
    ifconfig
    ```
+
 3. Use IP address instead:
    ```
    http://192.168.1.5:8080
@@ -2159,6 +2241,7 @@ Connection refused: connect
 **Error:** Page not found
 
 **Solution:**
+
 1. Verify backend is running
 2. Check static files in `backend/src/main/resources/static/`
 3. Clear browser cache (Ctrl+Shift+Del)
@@ -2172,6 +2255,7 @@ Connection refused: connect
 **Symptoms:** Features not working, console errors
 
 **Solution:**
+
 1. Open browser DevTools (F12)
 2. Check Console tab for errors
 3. Verify API calls are successful
@@ -2190,6 +2274,7 @@ Connection refused: connect
 **Error:** Cannot join session
 
 **Solution:**
+
 1. Verify Session ID is correct (case-sensitive)
 2. Check OTP hasn't expired
 3. Ensure faculty started session
@@ -2203,6 +2288,7 @@ Connection refused: connect
 **Problem:** AI fails to generate questions
 
 **Solution:**
+
 1. Check syllabus content is clear and structured
 2. Verify PDF is not corrupted
 3. Try plain text instead of PDF
@@ -2220,6 +2306,7 @@ Connection refused: connect
 **Problem:** Scores not showing in real-time
 
 **Solution:**
+
 1. Refresh scoreboard manually
 2. Check auto-refresh is enabled
 3. Verify students submitted answers
@@ -2238,6 +2325,7 @@ Connection refused: connect
 **Error:** Login failed
 
 **Solution:**
+
 1. Check username and password
 2. Verify faculty account exists
 3. Reset password in database
@@ -2251,6 +2339,7 @@ Connection refused: connect
 **Error:** Unauthorized access
 
 **Solution:**
+
 1. Log in again to get new token
 2. Increase token expiration in config:
    ```properties
@@ -2268,6 +2357,7 @@ Connection refused: connect
 <summary><strong>⚠️ Slow application performance</strong></summary>
 
 **Solution:**
+
 1. Increase JVM memory:
    ```bash
    export MAVEN_OPTS="-Xmx2g"
@@ -2284,6 +2374,7 @@ Connection refused: connect
 <summary><strong>⚠️ High memory usage</strong></summary>
 
 **Solution:**
+
 1. Monitor with Task Manager/Activity Monitor
 2. Restart application periodically
 3. Limit concurrent sessions
@@ -2412,6 +2503,7 @@ spring.h2.console.path=/h2-console
 ```
 
 **H2 Console Access:**
+
 ```
 http://localhost:8080/h2-console
 JDBC URL: jdbc:h2:file:./data/quizdb
@@ -2524,20 +2616,20 @@ File: `backend/src/main/resources/static/js/config.js`
 ```javascript
 const CONFIG = {
   // API Base URL
-  API_BASE_URL: '/api',
-  
+  API_BASE_URL: "/api",
+
   // Timeouts
   REQUEST_TIMEOUT: 10000,
   REFRESH_INTERVAL: 5000,
-  
+
   // UI Settings
   QUESTIONS_PER_PAGE: 1,
   ENABLE_ANIMATIONS: true,
-  
+
   // Quiz Settings
   SHOW_TIMER: true,
   ALLOW_REVIEW: true,
-  AUTO_SUBMIT: false
+  AUTO_SUBMIT: false,
 };
 ```
 
@@ -2616,7 +2708,7 @@ File: `backend/src/main/java/com/quiz/security/SecurityConfig.java`
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
@@ -2629,7 +2721,7 @@ public class SecurityConfig {
             )
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
+
         return http.build();
     }
 }
@@ -2646,20 +2738,20 @@ File: `client/src/main/resources/css/theme.css`
 ```css
 /* Color Scheme */
 :root {
-    -fx-primary-color: #2196F3;
-    -fx-secondary-color: #FFC107;
-    -fx-success-color: #4CAF50;
-    -fx-danger-color: #F44336;
-    -fx-text-color: #212121;
-    -fx-background-color: #FFFFFF;
+  -fx-primary-color: #2196f3;
+  -fx-secondary-color: #ffc107;
+  -fx-success-color: #4caf50;
+  -fx-danger-color: #f44336;
+  -fx-text-color: #212121;
+  -fx-background-color: #ffffff;
 }
 
 /* Custom Styles */
 .quiz-button {
-    -fx-background-color: -fx-primary-color;
-    -fx-text-fill: white;
-    -fx-padding: 10 20;
-    -fx-font-size: 14px;
+  -fx-background-color: -fx-primary-color;
+  -fx-text-fill: white;
+  -fx-padding: 10 20;
+  -fx-font-size: 14px;
 }
 ```
 
@@ -2674,26 +2766,26 @@ File: `backend/src/main/resources/static/css/mobile.css`
 ```css
 /* Mobile Devices */
 @media (max-width: 767px) {
-    .quiz-container {
-        padding: 10px;
-        font-size: 14px;
-    }
+  .quiz-container {
+    padding: 10px;
+    font-size: 14px;
+  }
 }
 
 /* Tablets */
 @media (min-width: 768px) and (max-width: 1023px) {
-    .quiz-container {
-        padding: 20px;
-        font-size: 16px;
-    }
+  .quiz-container {
+    padding: 20px;
+    font-size: 16px;
+  }
 }
 
 /* Desktop */
 @media (min-width: 1024px) {
-    .quiz-container {
-        padding: 30px;
-        font-size: 18px;
-    }
+  .quiz-container {
+    padding: 30px;
+    font-size: 18px;
+  }
 }
 ```
 
@@ -2725,6 +2817,7 @@ server.port=80
 ```
 
 **Run with specific profile:**
+
 ```bash
 # Development
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
@@ -2803,15 +2896,15 @@ We welcome contributions from the community! Here's how you can help make the Qu
 
 ### 🌟 Ways to Contribute
 
-| Type | Description | Skill Level |
-|------|-------------|-------------|
-| 🐛 **Bug Reports** | Report issues you encounter | Beginner |
-| 💡 **Feature Requests** | Suggest new features | Beginner |
-| 📖 **Documentation** | Improve docs and wiki | Beginner |
-| 🎨 **UI/UX** | Enhance user interface | Intermediate |
-| 🔧 **Bug Fixes** | Fix reported issues | Intermediate |
-| ✨ **New Features** | Implement new functionality | Advanced |
-| 🧪 **Testing** | Write unit/integration tests | Intermediate |
+| Type                    | Description                  | Skill Level  |
+| ----------------------- | ---------------------------- | ------------ |
+| 🐛 **Bug Reports**      | Report issues you encounter  | Beginner     |
+| 💡 **Feature Requests** | Suggest new features         | Beginner     |
+| 📖 **Documentation**    | Improve docs and wiki        | Beginner     |
+| 🎨 **UI/UX**            | Enhance user interface       | Intermediate |
+| 🔧 **Bug Fixes**        | Fix reported issues          | Intermediate |
+| ✨ **New Features**     | Implement new functionality  | Advanced     |
+| 🧪 **Testing**          | Write unit/integration tests | Intermediate |
 
 ---
 
@@ -2848,6 +2941,7 @@ git checkout -b docs/doc-description
 ```
 
 **Branch Naming Convention:**
+
 - `feature/` - New features
 - `fix/` - Bug fixes
 - `docs/` - Documentation updates
@@ -2872,23 +2966,25 @@ mvn test
 #### 2. Follow Code Style
 
 **Java Code Style:**
+
 - Use 4 spaces for indentation
 - Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
 - Add JavaDoc for public methods
 - Keep methods under 50 lines
 
 **Example:**
+
 ```java
 /**
  * Generates quiz questions from syllabus content.
- * 
+ *
  * @param syllabusContent The input syllabus text
  * @param questionCount Number of questions to generate
  * @return List of generated questions
  * @throws InvalidInputException if syllabus is empty
  */
 public List<Question> generateQuestions(
-    String syllabusContent, 
+    String syllabusContent,
     int questionCount
 ) throws InvalidInputException {
     // Implementation
@@ -2896,6 +2992,7 @@ public List<Question> generateQuestions(
 ```
 
 **JavaScript Code Style:**
+
 - Use 2 spaces for indentation
 - Use `const` and `let`, avoid `var`
 - Use arrow functions
@@ -2906,18 +3003,20 @@ public List<Question> generateQuestions(
 #### 3. Write Tests
 
 **Backend Tests (JUnit):**
+
 ```java
 @Test
 public void testQuestionGeneration() {
     String syllabus = "Java is a programming language";
     List<Question> questions = service.generateQuestions(syllabus, 5);
-    
+
     assertNotNull(questions);
     assertEquals(5, questions.size());
 }
 ```
 
 **Run Tests:**
+
 ```bash
 # Backend tests
 cd backend
@@ -2933,6 +3032,7 @@ mvn test
 #### 4. Commit Your Changes
 
 **Commit Message Format:**
+
 ```
 <type>(<scope>): <subject>
 
@@ -2942,6 +3042,7 @@ mvn test
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -2951,6 +3052,7 @@ mvn test
 - `chore`: Maintenance
 
 **Examples:**
+
 ```bash
 git commit -m "feat(backend): add support for multiple choice questions"
 git commit -m "fix(client): resolve scoreboard refresh issue"
@@ -2980,29 +3082,35 @@ git push origin feature/your-feature-name
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Code refactoring
 
 ## Testing
+
 - [ ] All tests pass locally
 - [ ] Added new tests for changes
 - [ ] Tested manually
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Comments added for complex code
 - [ ] Documentation updated
 - [ ] No breaking changes
 
 ## Screenshots (if applicable)
+
 [Add screenshots here]
 
 ## Related Issues
+
 Closes #123
 ```
 
@@ -3027,11 +3135,13 @@ Closes #123
 #### Issue Template
 
 **Bug Report:**
+
 ```markdown
 **Description:**
 Clear description of the bug
 
 **Steps to Reproduce:**
+
 1. Go to '...'
 2. Click on '...'
 3. See error
@@ -3043,6 +3153,7 @@ What should happen
 What actually happens
 
 **Environment:**
+
 - OS: [e.g., Windows 10]
 - Java Version: [e.g., 17.0.1]
 - Browser: [e.g., Chrome 120]
@@ -3055,6 +3166,7 @@ Any other relevant information
 ```
 
 **Feature Request:**
+
 ```markdown
 **Feature Description:**
 Clear description of the feature
@@ -3123,6 +3235,7 @@ int maxQuestions = calculateMaxQuestions(syllabusLength);
 Help improve code quality:
 
 **Unit Tests:**
+
 ```java
 @Test
 public void testSessionCreation() {
@@ -3133,13 +3246,14 @@ public void testSessionCreation() {
 ```
 
 **Integration Tests:**
+
 ```java
 @SpringBootTest
 @AutoConfigureMockMvc
 public class SessionControllerTest {
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Test
     public void testStartSession() throws Exception {
         mockMvc.perform(post("/api/session/start")
@@ -3172,6 +3286,7 @@ Before submitting PR:
 ### 🏆 Recognition
 
 Contributors will be:
+
 - Listed in [CONTRIBUTORS.md](https://github.com/Daku3011/Quiz/blob/main/CONTRIBUTORS.md)
 - Mentioned in release notes
 - Given credit in documentation
@@ -3192,6 +3307,7 @@ Contributors will be:
 We follow the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). Please be respectful and inclusive.
 
 **Key Points:**
+
 - Be welcoming and friendly
 - Respect differing viewpoints
 - Accept constructive criticism
@@ -3201,7 +3317,7 @@ We follow the [Contributor Covenant Code of Conduct](https://www.contributor-cov
 
 ### 🙏 Thank You!
 
-Every contribution, no matter how small, makes this project better. We appreciate your time and effort! 
+Every contribution, no matter how small, makes this project better. We appreciate your time and effort!
 
 **Happy Contributing! 🎉**
 
@@ -3219,27 +3335,30 @@ Every contribution, no matter how small, makes this project better. We appreciat
 <summary><strong>What is the Quiz Application?</strong></summary>
 
 The Quiz Application is a hybrid platform that combines a JavaFX desktop application for faculty management with a web-based interface for student participation. It features AI-powered question generation, real-time scoring, and multi-platform support.
+
 </details>
 
 <details>
 <summary><strong>Is this application free to use?</strong></summary>
 
 Yes! The Quiz Application is open-source and completely free to use, modify, and distribute.
+
 </details>
 
 <details>
 <summary><strong>What platforms are supported?</strong></summary>
 
 - **Faculty:** Windows, macOS, Linux (JavaFX Desktop App)
-- **Students:** 
+- **Students:**
   - Desktop: Windows, macOS, Linux (JavaFX App)
   - Mobile/Web: Any device with a modern browser (Chrome, Firefox, Safari, Edge)
-</details>
+  </details>
 
 <details>
 <summary><strong>Do I need internet to use this application?</strong></summary>
 
 No, the application works on a local network. Internet is only needed if you want to use AI features with external APIs (OpenAI/Gemini) in future versions.
+
 </details>
 
 ---
@@ -3250,12 +3369,14 @@ No, the application works on a local network. Internet is only needed if you wan
 <summary><strong>What are the system requirements?</strong></summary>
 
 **Minimum:**
+
 - Java 17 or higher
 - Maven 3.6+
 - 4 GB RAM
 - 500 MB free storage
 
 **Recommended:**
+
 - Java 17+
 - Maven 3.8+
 - 8 GB RAM
@@ -3266,6 +3387,7 @@ No, the application works on a local network. Internet is only needed if you wan
 <summary><strong>How long does installation take?</strong></summary>
 
 Typically 10-15 minutes:
+
 - Java installation: ~5 minutes
 - Maven installation: ~3 minutes
 - Project download & build: ~5-7 minutes
@@ -3275,6 +3397,7 @@ Typically 10-15 minutes:
 <summary><strong>Can I install on a Raspberry Pi?</strong></summary>
 
 Yes, but performance may vary. Recommended for small groups (≤20 students). Ensure you have:
+
 - Raspberry Pi 4 (4GB+ RAM)
 - 64-bit OS
 - Java 17 ARM version
@@ -3288,12 +3411,14 @@ Yes, but performance may vary. Recommended for small groups (≤20 students). En
 <summary><strong>How many students can join a single session?</strong></summary>
 
 Default limit is 100 concurrent students. This can be increased in configuration for more powerful servers.
+
 </details>
 
 <details>
 <summary><strong>Can I create quizzes without AI generation?</strong></summary>
 
 Yes! You can:
+
 - Manually create questions
 - Import from existing files
 - Mix AI-generated and manual questions
@@ -3303,23 +3428,27 @@ Yes! You can:
 <summary><strong>How does AI generate questions?</strong></summary>
 
 Currently uses a mock AI service. Future versions will support:
+
 - OpenAI GPT models
 - Google Gemini
 - Custom AI endpoints
 
 The AI analyzes syllabus content and creates multiple-choice questions based on key concepts.
+
 </details>
 
 <details>
 <summary><strong>Can I reuse questions?</strong></summary>
 
 Currently, questions are session-specific. A question bank feature is planned for future releases where you can save and reuse questions.
+
 </details>
 
 <details>
 <summary><strong>Can I see who hasn't submitted yet?</strong></summary>
 
 Yes! The live scoreboard shows:
+
 - ✅ Submitted students (with scores)
 - ⏳ In-progress students
 - ❌ Not started students
@@ -3329,6 +3458,7 @@ Yes! The live scoreboard shows:
 <summary><strong>Can I export quiz results?</strong></summary>
 
 Yes! Export options include:
+
 - CSV (for Excel/Google Sheets)
 - PDF (for printing)
 - JSON (for data processing)
@@ -3338,9 +3468,11 @@ Yes! Export options include:
 <summary><strong>How long does a session stay active?</strong></summary>
 
 Default: 60 minutes from creation. This can be configured in `application.properties`:
+
 ```properties
 session.expiration=90  # 90 minutes
 ```
+
 </details>
 
 ---
@@ -3351,36 +3483,42 @@ session.expiration=90  # 90 minutes
 <summary><strong>Can I take the quiz on my phone?</strong></summary>
 
 Yes! Use the web client by opening your browser and navigating to the URL provided by your faculty (e.g., `http://192.168.1.5:8080`).
+
 </details>
 
 <details>
 <summary><strong>What if I lose internet connection during the quiz?</strong></summary>
 
 Your progress is automatically saved. Rejoin using the same Session ID and OTP to continue where you left off.
+
 </details>
 
 <details>
 <summary><strong>Can I change my answers before submitting?</strong></summary>
 
 Yes! You can navigate between questions and change answers until you click "Submit Quiz".
+
 </details>
 
 <details>
 <summary><strong>Will I see the correct answers after submitting?</strong></summary>
 
 This depends on your faculty's settings. Some quizzes show correct answers immediately, others don't.
+
 </details>
 
 <details>
 <summary><strong>Can I take the quiz multiple times?</strong></summary>
 
 No, currently only one attempt per session is allowed. Each student can submit only once.
+
 </details>
 
 <details>
 <summary><strong>Is my data secure?</strong></summary>
 
 Yes! All communication uses secure protocols, and sessions are protected with OTP verification. Data is stored locally on the server.
+
 </details>
 
 ---
@@ -3401,12 +3539,14 @@ Yes! All communication uses secure protocols, and sessions are protected with OT
 <summary><strong>Can students see each other's answers?</strong></summary>
 
 No. Students only see their own questions and scores. Faculty can view all submissions.
+
 </details>
 
 <details>
 <summary><strong>Where is data stored?</strong></summary>
 
 All data is stored locally in an H2 database file (`./data/quizdb`) on the server machine. No data is sent to external servers (except AI API if configured).
+
 </details>
 
 ---
@@ -3417,6 +3557,7 @@ All data is stored locally in an H2 database file (`./data/quizdb`) on the serve
 <summary><strong>Which database does it use?</strong></summary>
 
 H2 embedded database by default. Can be configured to use:
+
 - PostgreSQL
 - MySQL
 - MariaDB
@@ -3427,6 +3568,7 @@ H2 embedded database by default. Can be configured to use:
 <summary><strong>Can I use this in production?</strong></summary>
 
 Yes, but consider:
+
 - Using a production database (PostgreSQL/MySQL)
 - Implementing proper security measures
 - Setting up backups
@@ -3438,18 +3580,21 @@ Yes, but consider:
 <summary><strong>Is it scalable?</strong></summary>
 
 Yes! The architecture supports:
+
 - Horizontal scaling (multiple servers)
 - Load balancing
 - Database replication
 - Caching layers
 
 For very large deployments (500+ concurrent users), consider cloud deployment with proper infrastructure.
+
 </details>
 
 <details>
 <summary><strong>Can I integrate with existing systems?</strong></summary>
 
 Yes! The REST API allows integration with:
+
 - Learning Management Systems (LMS)
 - Student Information Systems (SIS)
 - Authentication systems (LDAP, OAuth)
@@ -3463,6 +3608,7 @@ Yes! The REST API allows integration with:
 - H2 Console: **8080/h2-console** (optional)
 
 Ensure these ports are open in your firewall.
+
 </details>
 
 ---
@@ -3473,6 +3619,7 @@ Ensure these ports are open in your firewall.
 <summary><strong>Can I customize the UI?</strong></summary>
 
 Yes! Customize by editing:
+
 - JavaFX CSS files: `client/src/main/resources/css/`
 - Web CSS files: `backend/src/main/resources/static/css/`
 - Color schemes, fonts, layouts are all customizable
@@ -3482,6 +3629,7 @@ Yes! Customize by editing:
 <summary><strong>Can I change the application name/logo?</strong></summary>
 
 Yes! Update:
+
 - Logo images in `resources/images/`
 - Application title in configuration
 - Window titles in JavaFX code
@@ -3491,6 +3639,7 @@ Yes! Update:
 <summary><strong>Can I add more question types?</strong></summary>
 
 Currently supports multiple choice. Planned additions:
+
 - True/False
 - Fill in the blanks
 - Short answer
@@ -3498,6 +3647,7 @@ Currently supports multiple choice. Planned additions:
 - Matching questions
 
 Contributions welcome!
+
 </details>
 
 ---
@@ -3508,6 +3658,7 @@ Contributions welcome!
 <summary><strong>Can I deploy on cloud?</strong></summary>
 
 Yes! Compatible with:
+
 - AWS (EC2, Elastic Beanstalk)
 - Google Cloud Platform
 - Microsoft Azure
@@ -3527,18 +3678,21 @@ COPY backend/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
+
 </details>
 
 <details>
 <summary><strong>How do I enable HTTPS?</strong></summary>
 
 Configure SSL in `application.properties`:
+
 ```properties
 server.ssl.enabled=true
 server.ssl.key-store=classpath:keystore.p12
 server.ssl.key-store-password=your_password
 server.ssl.key-store-type=PKCS12
 ```
+
 </details>
 
 ---
@@ -3560,12 +3714,14 @@ mvn clean install
 
 # Restart application
 ```
+
 </details>
 
 <details>
 <summary><strong>How often is the project updated?</strong></summary>
 
 Check the [GitHub repository](https://github.com/Daku3011/Quiz) for:
+
 - Latest releases
 - Changelog
 - Upcoming features
@@ -3576,6 +3732,7 @@ Check the [GitHub repository](https://github.com/Daku3011/Quiz) for:
 <summary><strong>How do I backup my data?</strong></summary>
 
 Simply copy the database folder:
+
 ```bash
 # Backup
 cp -r data/ backups/data-$(date +%Y%m%d)/
@@ -3585,10 +3742,12 @@ cp -r backups/data-YYYYMMDD/ data/
 ```
 
 For automated backups, enable in configuration:
+
 ```properties
 backup.enabled=true
 backup.schedule.cron=0 0 2 * * ?
 ```
+
 </details>
 
 ---
@@ -3599,6 +3758,7 @@ backup.schedule.cron=0 0 2 * * ?
 <summary><strong>Why can't I generate questions?</strong></summary>
 
 Check:
+
 1. Backend server is running
 2. Syllabus content is clear and structured
 3. AI service is configured
@@ -3610,6 +3770,7 @@ Check:
 <summary><strong>Students can't connect from mobile - why?</strong></summary>
 
 Ensure:
+
 1. Backend server is running
 2. Devices are on same WiFi network
 3. Firewall allows port 8080
@@ -3625,6 +3786,7 @@ Ensure:
 <summary><strong>Where can I learn more?</strong></summary>
 
 **Official Documentation:**
+
 - [[Installation]] - Setup guide
 - [[Getting Started]] - Quick start
 - [[Faculty Guide]] - For teachers
@@ -3632,6 +3794,7 @@ Ensure:
 - [[API Reference]] - For developers
 
 **External Resources:**
+
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [JavaFX Documentation](https://openjfx.io/)
 - [Maven Guide](https://maven.apache.org/guides/)
@@ -3645,6 +3808,7 @@ Ensure:
 <summary><strong>Can I request a new feature?</strong></summary>
 
 Yes! We welcome feature requests:
+
 1. Check [existing issues](https://github.com/Daku3011/Quiz/issues) first
 2. Create a new issue with "Feature Request" label
 3. Describe the feature and use case
@@ -3655,6 +3819,7 @@ Yes! We welcome feature requests:
 <summary><strong>What features are planned?</strong></summary>
 
 **Upcoming Features:**
+
 - Real OpenAI/Gemini integration
 - Question bank system
 - Timed quizzes
@@ -3665,6 +3830,7 @@ Yes! We welcome feature requests:
 - Multi-language support
 
 See [[Contributing#Future-Enhancements]] for full list.
+
 </details>
 
 ---
@@ -3686,6 +3852,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 ### 📅 Version 2.0 (Planned)
 
 #### 🤖 AI Integration
+
 - [ ] OpenAI GPT-3.5/GPT-4 integration
 - [ ] Google Gemini integration
 - [ ] Custom AI endpoint support
@@ -3693,6 +3860,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Automatic difficulty assessment
 
 #### 📝 Question Types
+
 - [ ] True/False questions
 - [ ] Fill in the blanks
 - [ ] Short answer questions
@@ -3701,6 +3869,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Ordering questions
 
 #### 💾 Question Bank
+
 - [ ] Save questions to bank
 - [ ] Categorize by subject/topic
 - [ ] Search and filter questions
@@ -3708,6 +3877,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Share question banks between faculty
 
 #### ⏱️ Quiz Features
+
 - [ ] Timed quizzes with countdown
 - [ ] Question randomization
 - [ ] Option shuffling
@@ -3720,6 +3890,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 ### 📅 Version 3.0 (Future)
 
 #### 📊 Advanced Analytics
+
 - [ ] Student performance reports
 - [ ] Question difficulty analysis
 - [ ] Topic-wise score breakdown
@@ -3728,6 +3899,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Export to Power BI/Tableau
 
 #### 📧 Notifications & Communication
+
 - [ ] Email notifications
 - [ ] SMS alerts (optional)
 - [ ] In-app notifications
@@ -3735,6 +3907,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Discussion forums
 
 #### 🔐 Advanced Security
+
 - [ ] OAuth 2.0 integration
 - [ ] LDAP/Active Directory
 - [ ] Two-factor authentication
@@ -3742,6 +3915,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Audit logs
 
 #### 🌐 Internationalization
+
 - [ ] Multi-language support
 - [ ] RTL (Right-to-Left) layouts
 - [ ] Localized date/time formats
@@ -3752,6 +3926,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 ### 📅 Version 4.0 (Long-term Vision)
 
 #### 📱 Mobile Apps
+
 - [ ] Native Android app
 - [ ] Native iOS app
 - [ ] Offline mode support
@@ -3759,6 +3934,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Mobile-optimized UI
 
 #### ☁️ Cloud & Enterprise
+
 - [ ] Cloud deployment templates
 - [ ] Multi-tenancy support
 - [ ] Horizontal scaling
@@ -3767,6 +3943,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Enterprise SSO
 
 #### 🎮 Gamification
+
 - [ ] Badges and achievements
 - [ ] Leaderboards
 - [ ] Points system
@@ -3774,6 +3951,7 @@ See [[Contributing#Future-Enhancements]] for full list.
 - [ ] Challenges and tournaments
 
 #### 🔌 Integrations
+
 - [ ] LMS integration (Moodle, Canvas, Blackboard)
 - [ ] Google Classroom sync
 - [ ] Microsoft Teams integration
@@ -3855,7 +4033,7 @@ SOFTWARE.
 ✓ Modify  
 ✓ Distribute  
 ✓ Private use  
-✓ Patent use  
+✓ Patent use
 
 ### ❌ What You Can't Do
 
@@ -3887,6 +4065,7 @@ SOFTWARE.
 ### 🙏 Special Thanks
 
 **Technologies & Frameworks:**
+
 - ☕ [Spring Boot Team](https://spring.io/) - Excellent backend framework
 - 🖼️ [OpenJFX Community](https://openjfx.io/) - JavaFX platform
 - 🗄️ [H2 Database](https://www.h2database.com/) - Embedded database
@@ -3894,12 +4073,14 @@ SOFTWARE.
 - 📄 [Apache PDFBox](https://pdfbox.apache.org/) - PDF processing
 
 **Libraries & Dependencies:**
+
 - Spring Security - Authentication & Authorization
 - Spring Data JPA - Data access
 - JWT (JSON Web Tokens) - Secure communication
 - Lombok - Reducing boilerplate code
 
 **Community:**
+
 - All [contributors](https://github.com/Daku3011/Quiz/graphs/contributors)
 - Issue reporters and testers
 - Documentation contributors
@@ -3911,20 +4092,22 @@ SOFTWARE.
 
 ### 💬 Community Support
 
-| Platform | Purpose | Link |
-|----------|---------|------|
-| 🐛 **GitHub Issues** | Bug reports, feature requests | [Create Issue](https://github.com/Daku3011/Quiz/issues) |
+| Platform                  | Purpose                        | Link                                                            |
+| ------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| 🐛 **GitHub Issues**      | Bug reports, feature requests  | [Create Issue](https://github.com/Daku3011/Quiz/issues)         |
 | 💡 **GitHub Discussions** | Q&A, ideas, general discussion | [Join Discussion](https://github.com/Daku3011/Quiz/discussions) |
-| 📖 **Wiki** | Documentation and guides | [View Wiki](https://github.com/Daku3011/Quiz/wiki) |
-| ⭐ **GitHub Stars** | Show your support! | [Star Repository](https://github.com/Daku3011/Quiz) |
+| 📖 **Wiki**               | Documentation and guides       | [View Wiki](https://github.com/Daku3011/Quiz/wiki)              |
+| ⭐ **GitHub Stars**       | Show your support!             | [Star Repository](https://github.com/Daku3011/Quiz)             |
 
 ### 📧 Direct Contact
 
 **For Security Issues:**
+
 - 🔒 Report via GitHub Security Advisories
 - 📧 Email maintainers (available on GitHub profiles)
 
 **For Business Inquiries:**
+
 - 💼 Contact through GitHub profiles
 - 💬 Reach out via LinkedIn (if available)
 
@@ -3946,6 +4129,7 @@ SOFTWARE.
 ### Version 1.0.1 (November 2025) - Initial Release
 
 #### ✨ Features
+
 - ✅ JavaFX Desktop Application for Faculty
 - ✅ JavaFX Desktop Application for Students
 - ✅ Responsive Web Client for Students
@@ -3959,6 +4143,7 @@ SOFTWARE.
 - ✅ CSV/PDF/JSON export
 
 #### 🔧 Technical
+
 - Java 17 support
 - Maven build system
 - Spring Security with JWT
@@ -3966,6 +4151,7 @@ SOFTWARE.
 - Responsive web design
 
 #### 📖 Documentation
+
 - Comprehensive wiki
 - Installation guide
 - User guides (Faculty & Student)
@@ -3992,13 +4178,13 @@ This project is perfect for:
 
 ## 🌍 Testimonials
 
-> *"Easy to set up and use. The AI question generation saved me hours of work!"*  
+> _"Easy to set up and use. The AI question generation saved me hours of work!"_  
 > — Faculty Member
 
-> *"Love the mobile web interface. I can take quizzes from anywhere!"*  
+> _"Love the mobile web interface. I can take quizzes from anywhere!"_  
 > — Student
 
-> *"Perfect for our remote learning setup. Highly recommended!"*  
+> _"Perfect for our remote learning setup. Highly recommended!"_  
 > — Institute Coordinator
 
 **Want to share your experience?** [Add a testimonial](https://github.com/Daku3011/Quiz/discussions)
@@ -4012,6 +4198,7 @@ Thank you for choosing the Quiz Application! We hope it makes your teaching and 
 ### Show Your Support ⭐
 
 If you find this project helpful:
+
 - ⭐ Star the repository
 - 🍴 Fork and contribute
 - 📢 Share with others
@@ -4021,10 +4208,9 @@ If you find this project helpful:
 
 ---
 
-
 ## 📅 Last Updated
 
-**Wiki Version:** 1.0.1 
+**Wiki Version:** 1.0.1
 **Last Updated:** November 23, 2025  
 **Project Status:** ✅ Active Development
 
@@ -4043,6 +4229,3 @@ If you find this project helpful:
 [![GitHub stars](https://img.shields.io/github/stars/Daku3011/Quiz?style=social)](https://github.com/Daku3011/Quiz)
 
 </div>
-
-
-
