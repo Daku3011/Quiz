@@ -14,7 +14,8 @@ public class AIService {
         private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AIService.class);
 
         // We keep a small "mock database" here just in case the AI is unavailable.
-        // It's full of general engineering questions to keep things running during development.
+        // It's full of general engineering questions to keep things running during
+        // development.
         private static final List<Question> MOCK_DB = new ArrayList<>();
 
         static {
@@ -59,10 +60,10 @@ public class AIService {
         @org.springframework.beans.factory.annotation.Value("${gemini.api.key:#{null}}")
         private String geminiApiKey;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.api.url:#{null}}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent}")
         private String geminiApiUrl;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.model:#{null}}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.model:gemma-3-27b-it}")
         private String geminiModel;
 
         @org.springframework.beans.factory.annotation.Value("${glm.api.key:#{null}}")
@@ -86,12 +87,14 @@ public class AIService {
                         .build();
 
         // Batch size for parallel requests. Increased to 10 for higher throughput.
-        private static final int BATCH_SIZE = 20;
+        private static final int BATCH_SIZE = 10;
 
         // This is the main entry point to generate questions.
-        // If we have an AI key, we'll use Gemini in parallel batches to speed things up.
+        // If we have an AI key, we'll use Gemini in parallel batches to speed things
+        // up.
         // If not, we fall back to our mock questions so the app doesn't break.
-        // Chunk size for large files (approx 15k chars to stay safely within token limits detailed context)
+        // Chunk size for large files (approx 15k chars to stay safely within token
+        // limits detailed context)
         private static final int CHUNK_SIZE = 15000;
 
         public List<Question> generateQuestions(String syllabusText, int count) {
@@ -456,7 +459,8 @@ public class AIService {
         }
 
         // Here we handle the actual communication with Gemini for a single batch.
-        // We prompt it to give us strict JSON back so we can easily turn it into Question objects.
+        // We prompt it to give us strict JSON back so we can easily turn it into
+        // Question objects.
         private List<Question> generateBatch(String syllabusText, int count, List<Map<String, Object>> weights)
                         throws Exception {
                 // Construct the prompt for Gemini
@@ -573,7 +577,8 @@ public class AIService {
                 if (start != -1 && end != -1 && end > start) {
                         return input.substring(start, end + 1);
                 }
-                // Fallback: return input if brackets not found (might be raw json without markdown) or just cleanup markdown if no brackets found (unlikely for array)
+                // Fallback: return input if brackets not found (might be raw json without
+                // markdown) or just cleanup markdown if no brackets found (unlikely for array)
                 return input.replace("```json", "").replace("```", "").trim();
         }
 
