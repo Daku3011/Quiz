@@ -1965,8 +1965,8 @@ The application is configured for deployment on **Render**.
 
 ### 1. Identify Access URLs
 
-- **Student Portal & Backend API**: `https://<YOUR-BACKEND-APP>.onrender.com`
-- **Faculty Portal**: `https://<YOUR-FRONTEND-SITE>.onrender.com`
+- **Student Portal & Backend API**: `https://quiz-31dy.onrender.com`
+- **Faculty Portal**: `https://faculty-quiz-portal.onrender.com`
 
 ### 2. Deploy Backend (Docker)
 
