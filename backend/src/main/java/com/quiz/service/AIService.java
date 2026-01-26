@@ -86,7 +86,7 @@ public class AIService {
                         .build();
 
         // Batch size for parallel requests. Increased to 10 for higher throughput.
-        private static final int BATCH_SIZE = 10;
+        private static final int BATCH_SIZE = 20;
 
         // This is the main entry point to generate questions.
         // If we have an AI key, we'll use Gemini in parallel batches to speed things up.
