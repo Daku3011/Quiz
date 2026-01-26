@@ -2,7 +2,7 @@ const CONFIG = {
     // API_BASE_URL: 'http://localhost:8080' // Local Development
     API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:8080' 
-        : 'https://quiz-backend-render-url.onrender.com' // Placeholder for Render URL
+        : 'https://quiz-31dy.onrender.com' // Placeholder for Render URL
 };
 
 // Auto-detect if we are in production (you can change this logic)

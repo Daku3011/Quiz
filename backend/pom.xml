@@ -116,6 +116,13 @@
                 <configuration>
                     <jvmArguments>-Xmx256m</jvmArguments>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- JAVA VERSION -->
