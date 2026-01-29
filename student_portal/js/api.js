@@ -3,7 +3,7 @@
  * Fetch wrapper for making HTTP requests to the backend API
  */
 
-const API_BASE = '/api';
+const API_BASE = (window.CONFIG && window.CONFIG.API_BASE_URL) ? window.CONFIG.API_BASE_URL + '/api' : '/api';
 
 /**
  * API Client class for making HTTP requests
