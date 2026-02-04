@@ -54,6 +54,7 @@ public class AIService {
                 q.setCorrect(ans);
                 q.setExplanation("Basic concept.");
                 q.setChapter("General Engineering");
+                q.setCourseOutcome("CO1"); // Default for mock
                 MOCK_DB.add(q);
         }
 
@@ -310,8 +311,40 @@ public class AIService {
                         return generateMockQuestions(count);
                 }
 
+                // POST-PROCESS: Ensure every question has a valid Course Outcome (CO)
+                // If AI missed it, we try to map it from the provided weights or default to
+                // CO1.
+                assignDefaultCOs(allQuestions, weights);
+
                 logger.info("Successfully generated {} questions from {} chunks.", allQuestions.size(), totalChunks);
                 return allQuestions;
+        }
+
+        private void assignDefaultCOs(List<Question> questions, List<Map<String, Object>> weights) {
+                // Pre-process weights for fast lookup: ChapterName -> MappedCO
+                Map<String, String> chapterToCO = new java.util.HashMap<>();
+                if (weights != null) {
+                        for (Map<String, Object> w : weights) {
+                                String name = (String) w.get("name");
+                                String co = (String) w.get("mappedCO");
+                                if (name != null && co != null) {
+                                        chapterToCO.put(name.toLowerCase(), co);
+                                }
+                        }
+                }
+
+                for (Question q : questions) {
+                        if (q.getCourseOutcome() == null || q.getCourseOutcome().isBlank()) {
+                                // Try to find match
+                                String ch = q.getChapter();
+                                if (ch != null && chapterToCO.containsKey(ch.toLowerCase())) {
+                                        q.setCourseOutcome(chapterToCO.get(ch.toLowerCase()));
+                                } else {
+                                        // Default fallback if no chapter match or no CO in weights
+                                        q.setCourseOutcome("CO1");
+                                }
+                        }
+                }
         }
 
         private List<String> splitString(String text, int maxSize) {

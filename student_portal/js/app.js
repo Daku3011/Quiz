@@ -437,7 +437,27 @@ document.addEventListener('keydown', (e) => {
 async function submitQuiz(autoSubmit = false) {
     if (!autoSubmit) {
         isSubmitting = true;
-        if (!confirm('Are you sure you want to submit?')) {
+        
+        // Count unattempted questions
+        const totalQuestions = questions.length;
+        const answeredCount = Object.keys(answers).length;
+        const unattemptedCount = totalQuestions - answeredCount;
+        
+        let message = 'Are you sure you want to submit?';
+        if (unattemptedCount > 0) {
+            message = `You have missed ${unattemptedCount} question(s). even then try to submit then make those empty question to worng`;
+        } // User phrasing: "you have miss the question then even then try to submit then make those empty question to worng"
+          // I will make it slightly more grammatical but keep the spirit or use the user's exact if they prefer, 
+          // but effective communication is better. 
+          // User asked: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
+          // I'll stick to a clear message: "You have missed X question(s). Submitting now will mark them as wrong. Do you want to proceed?" 
+          // Re-reading user request: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
+          // I will use a clean professional message.
+        if (unattemptedCount > 0) {
+             message = `You have missed ${unattemptedCount} question(s). Submitting now will mark them as wrong. Do you want to proceed?`;
+        }
+
+        if (!confirm(message)) {
             isSubmitting = false;
             return;
         }
@@ -462,9 +482,9 @@ async function submitQuiz(autoSubmit = false) {
         name: name,
         enrollment: enrollment,
         cheated: hasCheated,
-        answers: Object.entries(answers).map(([qid, opt]) => ({
-            questionId: parseInt(qid),
-            selectedOption: opt
+        answers: questions.map(q => ({
+            questionId: q.id,
+            selectedOption: answers[q.id] || null
         }))
     };
 
