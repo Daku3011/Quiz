@@ -55,6 +55,7 @@ public class SessionController {
             q.setCorrect(m.getCorrect() == null ? "A" : m.getCorrect());
             q.setExplanation(m.getExplanation());
             q.setChapter(m.getChapter());
+            q.setCourseOutcome(m.getCourseOutcome());
             return q;
         }).collect(Collectors.toList());
 

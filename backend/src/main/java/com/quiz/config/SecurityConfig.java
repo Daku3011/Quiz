@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/favicon.svg", "/images/**", "/css/**", "/js/**",
                                 "/api/auth/**", "/api/session/**",
-                                "/api/syllabus/**", "/api/quiz/**",
+                                "/api/syllabus/**", "/api/quiz/**", "/api/analytics/**",
                                 "/api/student/**", "/api/admin/**", "/h2-console/**") // TODO: Tighten this up later
                         .permitAll()
                         .anyRequest().authenticated())

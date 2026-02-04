@@ -463,7 +463,9 @@ async function startSession() {
             optionC: q.optionC || "C",
             optionD: q.optionD || "D",
             correct: q.correct || "A",
-            explanation: q.explanation || ""
+            explanation: q.explanation || "",
+            chapter: q.chapter || "General",
+            courseOutcome: q.courseOutcome || ""
         })),
         numberOfSets: parseInt(document.getElementById('q-sets').value) || 1,
         durationMinutes: parseInt(document.getElementById('duration').value) || 60
@@ -601,7 +603,11 @@ async function loadScoreboard() {
         const res = await fetch(`${API_BASE}/api/session/${sid}/scoreboard`);
         if (res.ok) {
             const data = await res.json();
-            renderScoreboard(data);
+            
+            // Render Analytics Dashboard (New)
+            loadSessionAnalytics(sid);
+
+            renderScoreboard(data, sid);
         } else {
             alert("Session not found or empty.");
         }
@@ -610,7 +616,51 @@ async function loadScoreboard() {
     }
 }
 
-function renderScoreboard(data) {
+// Load Session Analytics
+async function loadSessionAnalytics(sid) {
+    try {
+        const res = await fetch(`${API_BASE}/api/analytics/session/${sid}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderAnalyticsDashboard(data);
+        }
+    } catch (e) {
+        console.error("Failed to load analytics", e);
+    }
+}
+
+function renderAnalyticsDashboard(data) {
+    const dash = document.getElementById('session-analytics');
+    if (!data || data.totalSubmissions === 0) {
+        dash.classList.add('hidden');
+        return;
+    }
+    dash.classList.remove('hidden');
+    
+    document.getElementById('analytics-avg').textContent = data.averageScore;
+    document.getElementById('analytics-high').textContent = data.highestScore;
+    document.getElementById('analytics-low').textContent = data.lowestScore;
+    
+    // Render CO Chart
+    const coContainer = document.getElementById('analytics-co-chart');
+    if (data.coAnalysis && data.coAnalysis.length > 0) {
+        coContainer.innerHTML = data.coAnalysis.map(co => `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:60px; font-weight:bold;">${co.co}</div>
+                <div style="flex:1; background:#eee; height:20px; border-radius:10px; overflow:hidden;">
+                    <div style="width:${co.accuracy}%; background:var(--primary-color); height:100%;"></div>
+                </div>
+                <div style="width:50px; font-size:0.9rem;">${Math.round(co.accuracy)}%</div>
+            </div>
+        `).join('');
+    } else {
+        coContainer.innerHTML = '<p class="text-muted">No CO data available.</p>';
+    }
+}
+
+
+function renderScoreboard(data, sessionId) {
+    currentScoreboardData = data; // Store for access
     const tbody = document.getElementById('scoreboard-body');
     if (!data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center">No submissions yet.</td></tr>';
@@ -630,8 +680,96 @@ function renderScoreboard(data) {
             <td class="${row.cheated ? 'status-cheated' : 'status-valid'}">
                 ${row.cheated ? '⚠️ CHEATING' : 'Valid'}
             </td>
+            <td>
+                <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="openStudentDetails(${sessionId}, ${idx})">View</button>
+            </td>
         </tr>
     `).join('');
+}
+
+// Student Details Modal
+let currentScoreboardData = []; 
+
+async function openStudentDetails(sessionId, idx) {
+    const student = currentScoreboardData[idx];
+    if (!student) return;
+    
+    const studentId = student.studentId;
+    if (!studentId) {
+        alert("Student ID missing in data. Please restart backend.");
+        return;
+    }
+
+    const modal = document.getElementById('student-details-modal');
+    const content = modal.querySelector('.modal-body');
+    
+    // Show loading
+    document.getElementById('detail-answers-list').innerHTML = '<p>Loading...</p>';
+    document.getElementById('detail-co-stats').innerHTML = '';
+    modal.classList.add('active');
+
+    try {
+        const res = await fetch(`${API_BASE}/api/analytics/student/${studentId}/session/${sessionId}`);
+        if (res.ok) {
+            const data = await res.json();
+            renderStudentDetails(data, student);
+        } else {
+            alert("Failed to load details");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error loading details");
+    }
+}
+
+function renderStudentDetails(data, studentInfo) {
+    document.getElementById('detail-score').textContent = `${data.score} (${studentInfo.score})`;
+    const cheatEl = document.getElementById('detail-cheated');
+    cheatEl.textContent = data.cheated ? "YES" : "NO";
+    cheatEl.style.color = data.cheated ? "red" : "green";
+
+    // CO Stats
+    const coDiv = document.getElementById('detail-co-stats');
+    if (data.coPerformance && data.coPerformance.length > 0) {
+        coDiv.innerHTML = data.coPerformance.map(co => `
+            <div class="badge" style="background:${getCOColor(co.percentage)}; color:white; display:flex; flex-direction:column; align-items:center;">
+                <span style="font-weight:bold;">${co.co}</span>
+                <span style="font-size:0.8rem;">${Math.round(co.percentage)}%</span>
+            </div>
+        `).join('');
+    } else {
+        coDiv.innerHTML = '<span class="text-muted">No CO data</span>';
+    }
+
+    // Question List
+    const list = document.getElementById('detail-answers-list');
+    if (data.answers && data.answers.length > 0) {
+        list.innerHTML = data.answers.map((ans, i) => `
+            <div class="card" style="padding:10px; border-left: 5px solid ${ans.isCorrect ? 'var(--success-color)' : 'var(--danger-color)'}">
+                <div style="font-weight:bold; margin-bottom:5px;">Q${i+1}: ${ans.questionText || 'Unknown Question'}</div>
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <span>Selected: <strong>${ans.selected}</strong></span>
+                    <span>Correct: <strong>${ans.correctOption}</strong></span>
+                </div>
+                ${!ans.isCorrect ? `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:5px;">Explanation: ${ans.explanation || 'N/A'}</div>` : ''}
+                <div style="font-size:0.8rem; text-align:right; margin-top:5px; color:#666;">
+                    CO: ${ans.co || 'None'}
+                </div>
+            </div>
+        `).join('');
+    } else {
+        list.innerHTML = '<p>No answer details available.</p>';
+    }
+}
+
+function getCOColor(percentage) {
+    if (percentage >= 75) return 'var(--success-color)';
+    if (percentage >= 50) return '#f59e0b'; // orange
+    return 'var(--danger-color)';
+}
+
+function closeStudentModal() {
+    document.getElementById('student-details-modal').classList.remove('active');
 }
 
 // Initial Setup
@@ -654,16 +792,39 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSessionId = sess.sessionId;
             currentOtp = sess.otp;
 
-            document.getElementById('disp-sess-id').textContent = currentSessionId;
-            document.getElementById('disp-otp').textContent = currentOtp;
-            document.getElementById('current-session-card').classList.remove('hidden');
-            
-            // Optional: Switch to active sessions tab if restoring
-            switchTab('active-sessions');
-            loadSessions();
+            // Verify if session really exists in backend
+            fetch(`${API_BASE}/api/session/active`)
+                .then(res => res.json())
+                .then(activeSessions => {
+                    const exists = activeSessions.find(s => s.id === currentSessionId);
+                    if (exists) {
+                        document.getElementById('disp-sess-id').textContent = currentSessionId;
+                        document.getElementById('disp-otp').textContent = currentOtp;
+                        document.getElementById('current-session-card').classList.remove('hidden');
+                        switchTab('active-sessions');
+                        // Also prep scoreboard
+                        document.getElementById('scoreboard-sess-id').value = currentSessionId;
+                    } else {
+                        // Session invalid/expired on server
+                        console.warn("Restored session found invalid on server. Clearing.");
+                        currentSessionId = null;
+                        currentOtp = null;
+                        localStorage.removeItem('activeSession');
+                        document.getElementById('current-session-card').classList.add('hidden');
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to validate session restoration", err);
+                    // Decide strategy: keep or clear? Let's keep for now but maybe warn?
+                    // Actually safe to clear if we assume server is truth
+                });
+
         } catch (e) {
-            console.error("Failed to restore session", e);
+            console.error("Error parsing stored session", e);
             localStorage.removeItem('activeSession');
         }
     }
+
+    // Load initial active sessions list
+    loadSessions();
 });

@@ -8,4 +8,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     List<Submission> findBySessionId(Long sessionId);
 
     boolean existsByStudentIdAndSessionId(Long studentId, Long sessionId);
+
+    java.util.Optional<Submission> findByStudentIdAndSessionId(Long studentId, Long sessionId);
 }

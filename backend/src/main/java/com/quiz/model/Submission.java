@@ -77,4 +77,15 @@ public class Submission {
     public void setCheated(boolean cheated) {
         this.cheated = cheated;
     }
+
+    @Lob
+    private String details; // JSON of answers
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
 }

@@ -127,6 +127,16 @@ public class SessionDTOs {
         public void setChapter(String chapter) {
             this.chapter = chapter;
         }
+
+        private String courseOutcome;
+
+        public String getCourseOutcome() {
+            return courseOutcome;
+        }
+
+        public void setCourseOutcome(String courseOutcome) {
+            this.courseOutcome = courseOutcome;
+        }
     }
 
     public static class JoinSessionRequest {

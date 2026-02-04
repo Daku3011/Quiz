@@ -40,6 +40,7 @@ public class ScoreboardController {
                                 .map(com.quiz.model.Student::getEnrollment).orElse("Unknown");
 
                         return Map.of(
+                                "studentId", s.getStudentId(),
                                 "studentName", studentName,
                                 "enrollment", enrollment,
                                 "score", s.getScore(),

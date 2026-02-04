@@ -385,6 +385,33 @@
             </div>
           </header>
 
+          <!-- Session Analytics Dashboard -->
+          <div id="session-analytics" class="card glass-panel hidden" style="margin-bottom: 20px;">
+            <div class="card-header">
+              <h3>Session Overview</h3>
+            </div>
+            <div class="card-body" style="display: flex; gap: 20px; flex-wrap: wrap;">
+               <div style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+                 <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Average Score</h4>
+                 <div id="analytics-avg" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">--</div>
+               </div>
+               <div style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+                 <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Highest Score</h4>
+                 <div id="analytics-high" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">--</div>
+               </div>
+               <div style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+                 <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Lowest Score</h4>
+                 <div id="analytics-low" style="font-size: 2rem; font-weight: 700; color: var(--danger-color);">--</div>
+               </div>
+            </div>
+            <div class="card-body">
+                <h4 style="margin-bottom: 15px;">Course Outcome (CO) Performance</h4>
+                <div id="analytics-co-chart" style="display: flex; gap: 10px; flex-direction: column;">
+                    <!-- CO Bars injected here -->
+                </div>
+            </div>
+          </div>
+
           <div class="card glass-panel">
             <div class="card-body">
               <table class="data-table scoreboard-table">
@@ -396,6 +423,8 @@
                     <th>Score</th>
                     <th>Time</th>
                     <th>Status</th>
+                    <th>Details</th>
+                  </tr>
                   </tr>
                 </thead>
                 <tbody id="scoreboard-body">
@@ -458,6 +487,37 @@
           <button class="btn-primary" onclick="saveQuestionEdit()">
             Save Changes
           </button>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div class="modal" id="student-details-modal">
+      <div class="modal-content glass-panel" style="max-width: 800px; width: 95%;">
+        <div class="modal-header">
+          <h3>Student Insight</h3>
+          <button class="close-btn" onclick="closeStudentModal()">×</button>
+        </div>
+        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+           <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px;">
+               <div>
+                   <strong>Score:</strong> <span id="detail-score" style="font-size: 1.2rem;">--</span>
+               </div>
+               <div>
+                   <strong>Cheat Status:</strong> <span id="detail-cheated">--</span>
+               </div>
+           </div>
+
+           <h4>CO Proficiency</h4>
+           <div id="detail-co-stats" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+               <!-- CO badges -->
+           </div>
+
+           <h4>Question Breakdown</h4>
+           <div id="detail-answers-list" style="display: flex; flex-direction: column; gap: 10px;">
+               <!-- Q&A list -->
+           </div>
         </div>
       </div>
     </div>

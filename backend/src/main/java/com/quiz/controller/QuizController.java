@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 // This is where the magic happens for the students. 
 // It takes their submissions, calculates their scores, and makes sure they get the right set of questions.
 import java.util.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/quiz")
@@ -108,6 +109,14 @@ public class QuizController {
                 char setChar = (char) ('A' + setIndex);
                 sub.setQuestionSet("Set " + setChar);
             });
+
+            // Serialize answers to JSON
+            try {
+                String detailsJson = new ObjectMapper().writeValueAsString(answers);
+                sub.setDetails(detailsJson);
+            } catch (Exception e) {
+                logger.error("Failed to serialize submission details", e);
+            }
 
             submissionRepo.save(sub);
             logger.info("Submission saved: Session={}, Student={}, Score={}", sessionId, studentId, score.get());
