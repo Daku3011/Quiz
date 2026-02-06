@@ -117,9 +117,7 @@ public class AnalyticsController {
                 "coAnalysis", coAnalysis));
     }
 
-    /**
-     * Detailed analytics for a single student's submission in a session.
-     */
+    // Detailed analytics for a single student's submission in a session.
     @GetMapping("/student/{studentId}/session/{sessionId}")
     public ResponseEntity<?> getStudentSessionAnalytics(@PathVariable("studentId") Long studentId,
             @PathVariable("sessionId") Long sessionId) {
@@ -192,8 +190,7 @@ public class AnalyticsController {
 
                         Map<String, Object> response = new HashMap<>();
                         response.put("score", sub.getScore());
-                        // If score is 0 and cheated is false but answers exist, it might be just a 0
-                        // score.
+                        // If score is 0 and cheated is false but answers exist, it might be just a 0 score.
                         // But if cheated is true, score is forced to 0.
                         response.put("cheated", sub.isCheated());
                         response.put("answers", enrichedAnswers);

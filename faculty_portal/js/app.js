@@ -1,7 +1,7 @@
-const API_BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) 
-    ? CONFIG.API_BASE_URL 
-    : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:9090' 
+const API_BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
+    ? CONFIG.API_BASE_URL
+    : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:9090'
         : `http://${window.location.hostname}:9090`); // Fallback
 
 console.log('Faculty App.js loaded');
@@ -11,6 +11,54 @@ let questions = [];
 let currentSessionId = null;
 let currentOtp = null;
 let currentUser = null;
+
+// Reactive Stepper Logic
+function updateStepper(step) {
+    // Reset all
+    document.querySelectorAll('.step-item').forEach(el => {
+        el.classList.remove('active', 'completed');
+        el.querySelector('.step-circle').innerHTML = el.dataset.step || el.innerText.match(/\d/)[0];
+    });
+    document.querySelectorAll('.step-line').forEach(el => el.classList.remove('completed'));
+
+    // Step 1: Configure (Always Completed if we are past it, active if current)
+    const s1 = document.querySelectorAll('.step-item')[0];
+    const l1 = document.querySelectorAll('.step-line')[0];
+    const s2 = document.querySelectorAll('.step-item')[1];
+    const l2 = document.querySelectorAll('.step-line')[1];
+    const s3 = document.querySelectorAll('.step-item')[2];
+
+    if (step >= 1) {
+        s1.classList.add('active');
+        if (step > 1) {
+            s1.classList.add('completed');
+            s1.querySelector('.step-circle').innerHTML = '✓';
+            l1.classList.add('completed');
+            s2.classList.add('active');
+        }
+    }
+
+    if (step >= 3) {
+        s2.classList.add('completed');
+        s2.querySelector('.step-circle').innerHTML = '✓';
+        l2.classList.add('completed');
+        s3.classList.add('active');
+    }
+}
+
+// Bind to Inputs for Reactivity
+document.addEventListener('DOMContentLoaded', () => {
+    const syllabusInput = document.getElementById('syllabus-text');
+    if (syllabusInput) {
+        syllabusInput.addEventListener('input', (e) => {
+            if (e.target.value.trim().length > 0) {
+                if (questions.length === 0) updateStepper(2); // Move to Generate if text exists
+            } else {
+                if (questions.length === 0) updateStepper(1); // Back to Configure if empty
+            }
+        });
+    }
+});
 
 // Auth Logic
 function checkAuth() {
@@ -119,6 +167,7 @@ if (fileInput) {
 
                     document.getElementById('syllabus-text').value = fullText;
                     document.getElementById('file-details').innerHTML += ' <span style="color:var(--success-color)">✅ Done!</span>';
+                    refreshStepperState(); // Move to Generate
                 } catch (error) {
                     console.error(error);
                     alert("Error parsing PDF: " + error.message);
@@ -129,6 +178,7 @@ if (fileInput) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById('syllabus-text').value = e.target.result;
+                refreshStepperState(); // Move to Generate
             };
             reader.readAsText(file);
         } else {
@@ -151,6 +201,7 @@ function clearSyllabus() {
         weightsContainer.classList.add('hidden');
         document.getElementById('weights-list').innerHTML = '';
     }
+    refreshStepperState();
 }
 
 // Analyze Syllabus for Chapters and Weights
@@ -178,7 +229,7 @@ async function analyzeSyllabus() {
             // data = { credits: "...", hours: "...", chapters: [{name: "...", weight: 20}, ...] }
             renderWeights(data.chapters || []);
             document.getElementById('weights-container').classList.remove('hidden');
-            
+
             // Optionally update UI with credits/hours
             if (data.credits || data.hours) {
                 const detailsDiv = document.getElementById('file-details');
@@ -229,7 +280,7 @@ function getWeights() {
         weights.push({
             name: input.dataset.name,
             weight: parseInt(input.value) || 0,
-            mappedCO: input.dataset.co || null 
+            mappedCO: input.dataset.co || null
         });
     });
     return weights;
@@ -263,6 +314,7 @@ async function generateQuestions() {
             questions = [...questions, ...newQuestions];
             populateFilters();
             renderQuestions();
+            refreshStepperState(); // Move to Review
             alert(`Generated ${newQuestions.length} questions successfully!`);
         } else {
             const err = await response.text();
@@ -306,7 +358,7 @@ function renderQuestions(listToRender = null) {
         // Simple fix: Store original index in data if filtered? 
         // OR: Just find index in global 'questions' array by object reference.
         const realIndex = questions.indexOf(q);
-        
+
         return `
         <div class="question-item">
             <div class="q-header">
@@ -345,10 +397,10 @@ function populateFilters() {
     const currentCh = chSelect.value;
     const currentCo = coSelect.value;
 
-    chSelect.innerHTML = '<option value="">All Chapters</option>' + 
+    chSelect.innerHTML = '<option value="">All Chapters</option>' +
         Array.from(chapterSet).sort().map(c => `<option value="${c}">${c}</option>`).join('');
-    
-    coSelect.innerHTML = '<option value="">All COs</option>' + 
+
+    coSelect.innerHTML = '<option value="">All COs</option>' +
         Array.from(coSet).sort().map(c => `<option value="${c}">${c}</option>`).join('');
 
     if (chapterSet.has(currentCh)) chSelect.value = currentCh;
@@ -374,6 +426,7 @@ function clearAllQuestions() {
         questions = [];
         populateFilters();
         renderQuestions();
+        refreshStepperState();
     }
 }
 
@@ -436,6 +489,7 @@ function addManually() {
         list.scrollTop = list.scrollHeight;
         editQuestion(questions.length - 1);
     }, 100);
+    updateStepper(3); // Move to Review
 }
 
 // Schedule Toggle
@@ -453,8 +507,9 @@ function toggleSchedule() {
 async function startSession() {
     if (questions.length === 0) return;
 
+    const customTitle = document.getElementById('quiz-title').value.trim();
     const payload = {
-        title: "Web Quiz " + new Date().toLocaleTimeString(),
+        title: customTitle || ("Web Quiz " + new Date().toLocaleTimeString()),
         otp: "AUTO", // Backend ignores this usually and generates one, or we need to send?
         questions: questions.map(q => ({
             text: q.text,
@@ -467,12 +522,13 @@ async function startSession() {
             chapter: q.chapter || "General",
             courseOutcome: q.courseOutcome || ""
         })),
-        numberOfSets: parseInt(document.getElementById('q-sets').value) || 1,
-        durationMinutes: parseInt(document.getElementById('duration').value) || 60
+        numberOfSets: parseInt(document.getElementById('q-sets')?.value) || 1,
+        durationMinutes: parseInt(document.getElementById('duration')?.value) || 60
     };
 
-    // Schedule logic
-    if (document.getElementById('schedule-check').checked) {
+    // Schedule logic (Safe Check)
+    const scheduleCheck = document.getElementById('schedule-check');
+    if (scheduleCheck && scheduleCheck.checked) {
         const dt = document.getElementById('start-time').value;
         if (!dt) {
             alert("Please select a start time");
@@ -603,7 +659,7 @@ async function loadScoreboard() {
         const res = await fetch(`${API_BASE}/api/session/${sid}/scoreboard`);
         if (res.ok) {
             const data = await res.json();
-            
+
             // Render Analytics Dashboard (New)
             loadSessionAnalytics(sid);
 
@@ -636,11 +692,11 @@ function renderAnalyticsDashboard(data) {
         return;
     }
     dash.classList.remove('hidden');
-    
+
     document.getElementById('analytics-avg').textContent = data.averageScore;
     document.getElementById('analytics-high').textContent = data.highestScore;
     document.getElementById('analytics-low').textContent = data.lowestScore;
-    
+
     // Render CO Chart
     const coContainer = document.getElementById('analytics-co-chart');
     if (data.coAnalysis && data.coAnalysis.length > 0) {
@@ -688,12 +744,12 @@ function renderScoreboard(data, sessionId) {
 }
 
 // Student Details Modal
-let currentScoreboardData = []; 
+let currentScoreboardData = [];
 
 async function openStudentDetails(sessionId, idx) {
     const student = currentScoreboardData[idx];
     if (!student) return;
-    
+
     const studentId = student.studentId;
     if (!studentId) {
         alert("Student ID missing in data. Please restart backend.");
@@ -702,7 +758,7 @@ async function openStudentDetails(sessionId, idx) {
 
     const modal = document.getElementById('student-details-modal');
     const content = modal.querySelector('.modal-body');
-    
+
     // Show loading
     document.getElementById('detail-answers-list').innerHTML = '<p>Loading...</p>';
     document.getElementById('detail-co-stats').innerHTML = '';
@@ -746,7 +802,7 @@ function renderStudentDetails(data, studentInfo) {
     if (data.answers && data.answers.length > 0) {
         list.innerHTML = data.answers.map((ans, i) => `
             <div class="card" style="padding:10px; border-left: 5px solid ${ans.isCorrect ? 'var(--success-color)' : 'var(--danger-color)'}">
-                <div style="font-weight:bold; margin-bottom:5px;">Q${i+1}: ${ans.questionText || 'Unknown Question'}</div>
+                <div style="font-weight:bold; margin-bottom:5px;">Q${i + 1}: ${ans.questionText || 'Unknown Question'}</div>
                 <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
                     <span>Selected: <strong>${ans.selected}</strong></span>
                     <span>Correct: <strong>${ans.correctOption}</strong></span>

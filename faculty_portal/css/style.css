@@ -1,36 +1,36 @@
 :root {
-  /* Premium Light Theme Palette */
-  --bg-dark: #f8fafc;
-  /* Light Gray/White */
-  --bg-darker: #ffffff;
-  --primary-color: #4f46e5;
-  /* Indigo */
-  --primary-hover: #4338ca;
-  --secondary-color: #7c3aed;
-  /* Violet */
-  --accent-color: #db2777;
-  /* Pink */
-  --success-color: #059669;
-  --warning-color: #d97706;
-  --danger-color: #dc2626;
+  /* Figma Design Palette */
+  --bg-dark: #f9fafb; /* Light Gray Background */
+  --bg-sidebar: #0f172a; /* Dark Slate Sidebar */
+  --bg-card: #ffffff; /* White Card */
 
-  --text-main: #1e293b;
-  /* Dark Slate */
-  --text-muted: #64748b;
-  /* Slate 500 */
+  --primary-color: #18181b; /* Charcoal Black (Action) */
+  --primary-hover: #27272a;
 
-  /* Light Mode Glass/Card */
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(0, 0, 0, 0.06);
-  --glass-highlight: rgba(0, 0, 0, 0.03);
+  --accent-color: #3b82f6; /* Blue for highlights/links */
+  --success-color: #10b981; /* Emerald Green */
+  --warning-color: #f59e0b; /* Amber */
+  --danger-color: #ef4444; /* Red */
 
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 8px;
+  --text-main: #111827; /* Almost Black */
+  --text-muted: #6b7280; /* Gray 500 */
+  --text-on-dark: #f3f4f6; /* Gray 100 */
 
+  /* Shadows & Radius */
+  --radius-lg: 16px; /* Consistent rounded corners */
+  --radius-md: 8px;
+  --radius-sm: 6px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg:
-    0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  --shadow-glow: 0 0 15px rgba(79, 70, 229, 0.15);
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Glass/Borders */
+  --border-color: #e5e7eb; /* Gray 200 */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
 }
 
 * {
@@ -51,17 +51,6 @@ body {
   color: var(--text-main);
   height: 100vh;
   overflow: hidden;
-  background-image:
-    radial-gradient(
-      circle at 10% 20%,
-      rgba(241, 245, 249, 1) 0%,
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 90% 80%,
-      rgba(226, 232, 240, 1) 0%,
-      transparent 40%
-    );
 }
 
 /* --- Layout --- */
@@ -73,89 +62,81 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid var(--glass-border);
+  width: 260px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   z-index: 10;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
-}
-
-.brand .logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(
-    135deg,
-    var(--primary-color),
-    var(--secondary-color)
-  );
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  padding: 0 0.5rem;
 }
 
 .brand h2 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-main);
-  background: none;
-  -webkit-text-fill-color: initial;
+  color: white;
+  letter-spacing: -0.02em;
 }
 
 .brand .highlight {
-  color: var(--primary-color);
-  -webkit-text-fill-color: var(--primary-color);
+  color: var(--accent-color);
+  -webkit-text-fill-color: initial;
 }
 
 .nav-menu {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .nav-btn {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   text-align: left;
 }
 
 .nav-btn:hover {
-  background: var(--glass-highlight);
-  color: var(--primary-color);
-  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  transform: none;
 }
 
 .nav-btn.active {
-  background: rgba(79, 70, 229, 0.08);
-  /* Light Indigo tint */
-  border-left: 3px solid var(--primary-color);
-  color: var(--primary-color);
+  background: var(--primary-color); /* Charcoal */
+  border-left: none; /* Remove old border */
+  color: white;
   font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-btn .icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.nav-btn.active .icon {
+  opacity: 1;
+  color: var(--accent-color);
 }
 
 .nav-btn .icon {
@@ -165,11 +146,12 @@ body {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--bg-dark);
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
 }
 
 .avatar {
@@ -194,9 +176,9 @@ body {
 }
 
 .user-profile .name {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -294,7 +276,7 @@ body {
 }
 
 .card-header h3 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -478,19 +460,10 @@ button {
   gap: 0.5rem;
 }
 
-.btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color),
-    var(--secondary-color)
-  );
-  color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:active {
@@ -500,8 +473,8 @@ button {
 .btn-secondary {
   background: white;
   color: var(--text-main);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
@@ -610,25 +583,25 @@ button {
   gap: 1.5rem;
   height: 100%;
   overflow-y: hidden; /* Prevent column itself from scrolling */
-  padding-right: 0; 
+  padding-right: 0;
 }
 
 /* Make Section 1 (Syllabus) flexible and internally scrollable */
 .col-left .card:first-child {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .col-left .card:first-child .card-body {
-    flex: 1;
-    overflow-y: auto;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* Make Section 2 (Configuration) fixed height (natural) */
 .col-left .card:last-child {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }
 
 ::-webkit-scrollbar {
@@ -927,4 +900,72 @@ button {
     grid-template-columns: 1fr;
     height: auto;
   }
+}
+
+/* --- Progress Stepper --- */
+.stepper-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.step-item.active {
+  opacity: 1;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(24, 24, 27, 0.1); /* Soft ring */
+}
+
+.step-item.completed .step-circle {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.step-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.step-line {
+  width: 40px;
+  height: 2px;
+  background: var(--border-color);
+  border-radius: 2px;
 }
