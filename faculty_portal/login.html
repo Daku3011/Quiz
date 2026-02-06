@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Login | Welcome Faculty</title>
+    <title>Faculty Login | Quiz Portal</title>
 
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
@@ -15,219 +15,277 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet" href="css/style.css">
-
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #7c3aed;
+            --primary-purple-dark: #6d28d9;
+            --primary-purple-light: #a78bfa;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --border-color: #e5e7eb;
+            --bg-white: #ffffff;
+            --error-color: #dc2626;
+            --error-bg: #fee2e2;
+        }
+
         body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            background: var(--bg-dark);
-            /* Uses light theme var from style.css */
+            /* Soft gradient background matching the design */
+            background: linear-gradient(135deg,
+                    #bfdbfe 0%,
+                    /* stronger blue */
+                    #dbeafe 20%,
+                    /* soft blue */
+                    #fce7f3 40%,
+                    /* soft pink */
+                    #f3e8ff 60%,
+                    /* soft purple */
+                    #dbeafe 80%,
+                    /* soft blue */
+                    #bfdbfe 100%
+                    /* stronger blue */
+                );
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
         }
 
-        /* Ambient Background */
-        .ambient-light {
-            position: absolute;
-            width: 100vmax;
-            height: 100vmax;
-            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), transparent 60%);
-            z-index: 0;
-            animation: pulse-glow 10s ease-in-out infinite alternate;
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
-        .login-card {
+        .login-container {
             width: 100%;
-            max-width: 400px;
-            padding: 2.5rem;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-
-            /* Light Theme Card */
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-
-            animation: slide-up-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            max-width: 460px;
+            padding: 24px;
         }
 
-        #login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .brand-header {
+        /* Logo and Header */
+        .login-header {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
         .logo-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            border-radius: 12px;
-            font-size: 24px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            border-radius: 14px;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
         }
 
-        .brand-header h1 {
-            font-size: 1.75rem;
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .login-header h1 {
+            font-size: 1.875rem;
             font-weight: 700;
             color: var(--text-main);
-            margin: 0;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
         }
 
-        .brand-header p {
+        .login-header p {
             color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Login Card */
+        .login-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                0 10px 20px -5px rgba(0, 0, 0, 0.05),
+                0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Form Styles */
+        #login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            color: var(--text-light);
+            pointer-events: none;
         }
 
         .form-input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg-white);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
             color: var(--text-main);
-            font-family: 'Outfit', sans-serif;
+            font-family: inherit;
+            font-size: 0.95rem;
             transition: all 0.2s ease;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-light);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            background: white;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }
 
-        .btn-login {
-            width: 100%;
-            padding: 0.85rem;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4);
-        }
-
-        .request-access {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .request-link {
-            color: #7c3aed;
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .request-link:hover {
-            color: #6d28d9;
-            text-decoration: underline;
-        }
-
-        /* Modal specific to login page (simplified) */
-        .simple-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .simple-modal.show {
-            display: flex;
-            animation: fade-in 0.2s ease;
-        }
-
-        .simple-modal-content {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            border-radius: 16px;
-            max-width: 320px;
-            text-align: center;
-            color: var(--text-main);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
+        /* Error Message */
         .error-message {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 0.75rem;
+            background: var(--error-bg);
+            color: var(--error-color);
+            padding: 0.75rem 1rem;
             border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
+            font-size: 0.875rem;
             display: none;
             border: 1px solid #fecaca;
             animation: shake 0.4s ease-in-out;
         }
 
-        @keyframes pulse-glow {
-            0% {
-                transform: scale(1);
-                opacity: 0.5;
-            }
-
-            100% {
-                transform: scale(1.1);
-                opacity: 0.8;
-            }
+        /* Sign In Button */
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
         }
 
-        @keyframes slide-up-fade {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+        }
 
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider span {
+            padding: 0 1rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Request Access */
+        .request-access {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .request-link {
+            color: var(--primary-purple);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .request-link:hover {
+            color: var(--primary-purple-dark);
+            text-decoration: underline;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
             to {
-                opacity: 1;
-                transform: translateY(0);
+                transform: rotate(360deg);
             }
         }
 
@@ -246,60 +304,173 @@
                 transform: translateX(5px);
             }
         }
+
+        /* Modal Styles */
+        .simple-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .simple-modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .simple-modal-content {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 360px;
+            text-align: center;
+            color: var(--text-main);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            margin: 20px;
+        }
+
+        .simple-modal-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .simple-modal-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #f3f4f6;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 16px;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="ambient-light"></div>
-
-    <div class="login-card">
-        <div class="brand-header">
-            <!-- Logo Removed -->
-            <h1>Welcome Faculty</h1>
-            <!-- <p>Secure Portal Login</p> -->
+    <div class="login-container">
+        <!-- Header with Logo -->
+        <div class="login-header">
+            <div class="logo-icon">
+                <!-- Graduation Cap SVG Icon -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+                </svg>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue to Quiz Portal</p>
         </div>
 
-        <div id="error-msg" class="error-message">Invalid credentials.</div>
+        <!-- Login Card -->
+        <div class="login-card">
+            <div id="error-msg" class="error-message">Invalid credentials.</div>
 
-        <form id="login-form">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" class="form-input" placeholder="e.g. faculty01" required>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <!-- User Icon -->
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="text" id="username" class="form-input" placeholder="e.g. faculty01" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <!-- Lock Icon -->
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+
+            <div class="divider">
+                <span>or</span>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+            <div class="request-access">
+                New faculty member? <span class="request-link" onclick="showRequestModal()">Request Access</span>
             </div>
-
-            <button type="submit" class="btn-login">Sign In</button>
-        </form>
-
-        <div class="request-access">
-            New faculty member? <span class="request-link" onclick="showRequestModal()">Request Access</span>
         </div>
     </div>
 
     <!-- Request Access Modal -->
     <div id="request-modal" class="simple-modal">
         <div class="simple-modal-content">
-            <h3 style="margin-bottom: 1rem;">Get Access</h3>
-            <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">
+            <h3>Get Access</h3>
+            <p>
                 Account creation is currently restricted to Administrators. Please contact the IT department to request
                 your credentials.
             </p>
-            <button class="btn-secondary" style="width: 100%; padding: 0.6rem;"
-                onclick="hideRequestModal()">Close</button>
+            <button class="btn-secondary" onclick="hideRequestModal()">Close</button>
         </div>
     </div>
 
     <script src="js/config.js?v=3"></script>
     <script src="js/app.js?v=3"></script>
     <script>
-        // Inline script to handle login page specifics if needed, 
-        // but prefer utilizing the shared app.js for logic.
-
+        // Login Form Handler
         const loginForm = document.getElementById('login-form');
         const errorMsg = document.getElementById('error-msg');
 
@@ -325,7 +496,7 @@
             } catch (err) {
                 console.error(err);
                 if (err.message.includes('Failed to fetch')) {
-                    errorMsg.textContent = 'Connection refused. Check if Backend is running on port 9090.';
+                    errorMsg.textContent = 'Connection refused. Check if Backend is running on port 8080.';
                 } else {
                     errorMsg.textContent = 'Login Error: ' + err.message;
                 }
