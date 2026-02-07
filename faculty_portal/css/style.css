@@ -131,17 +131,17 @@ body {
 }
 
 .nav-btn:hover {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(167, 139, 250, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.2) 100%);
   color: #6366f1;
-  border-left: 3px solid #818cf8;
+  border-left: 3px solid #6366f1;
 }
 
 .nav-btn.active {
-  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border-left: none;
   color: white;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.4);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
   border: none;
 }
 
@@ -175,7 +175,7 @@ body {
 .avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   border: none;
   border-radius: 50%;
   display: flex;
@@ -184,7 +184,7 @@ body {
   font-weight: 600;
   font-size: 0.85rem;
   color: white;
-  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.35);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
 .user-profile .info {
