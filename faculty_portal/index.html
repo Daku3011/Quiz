@@ -98,10 +98,11 @@
 
         <!-- Top Panel with Stepper and Header -->
         <div
-          style="background: white; border-radius: 16px; padding: 1rem 2rem; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+          style="background: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;">
 
           <!-- Stepper -->
-          <div class="stepper-container" style="margin-bottom: 1rem;">
+          <div class="stepper-container"
+            style="margin-bottom: 0.5rem; transform: scale(1.1); width: 100%; max-width: 500px;">
             <div class="stepper">
               <div class="step-item active" data-step="1">
                 <div class="step-circle">1</div>
@@ -122,9 +123,8 @@
 
           <!-- Header -->
           <header class="section-header" style="text-align: center; margin-bottom: 0;">
-            <h1 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.25rem 0; color: #1f2937;">Create New Quiz
-            </h1>
-            <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">Generate questions from syllabus content using AI.
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #1f2937;">Create New Quiz</h1>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0 0 0;">AI-powered Question Generation & Review
             </p>
           </header>
         </div>
@@ -134,104 +134,106 @@
           <!-- Left Column: Configuration -->
           <div class="col-left">
             <!-- Configuration Card -->
-            <div
-              style="background: white; border-radius: 16px; padding: 1.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-
-              <h3 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin: 0 0 1.5rem 0;">Configuration</h3>
-
-              <!-- Quiz Topic -->
-              <div style="margin-bottom: 1.25rem;">
-                <label
-                  style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Quiz
-                  Topic / Title</label>
-                <input type="text" id="quiz-title" placeholder="e.g. Introduction to Machine Learning">
+            <div class="card">
+              <div class="card-header">
+                <h3 style="margin: 0;">Configuration</h3>
               </div>
 
-              <!-- 3-Column Inputs Row -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-                <div>
+              <div class="card-body">
+                <!-- Quiz Topic -->
+                <div style="margin-bottom: 1.25rem;">
                   <label
-                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Total
-                    Questions</label>
-                  <input type="number" id="q-count" value="10" min="1" max="50">
-                </div>
-                <div>
-                  <label
-                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Number
-                    of Sets</label>
-                  <input type="number" id="q-sets" value="1" min="1" max="10">
-                </div>
-                <div>
-                  <label
-                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Duration
-                    (Min)</label>
-                  <input type="number" id="duration" value="60" min="10" max="180">
-                </div>
-              </div>
-
-              <!-- Syllabus Area (Full Width) -->
-              <div class="form-group" style="margin-top: 1rem; width: 100%;">
-                <label>Syllabus Content</label>
-                <textarea id="syllabus-text" placeholder="Paste text or drag PDF..."
-                  style="height: 120px; border-radius: var(--radius-sm); width: 100%;"></textarea>
-
-                <!-- Actions Row -->
-                <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-                  <!-- Upload PDF Button -->
-                  <label for="file-upload" class="btn-secondary"
-                    style="flex: 1; cursor: pointer; text-align: center; justify-content: center;">
-                    <img src="icons/icons8-upload-48.png" alt="Upload" style="width: 20px; opacity: 0.7;"> Upload PDF
-                  </label>
-                  <input type="file" id="file-upload" hidden accept=".txt,.pdf">
-                  <span id="file-details" class="hidden"></span>
-
-                  <!-- Analyze Syllabus Button -->
-                  <button id="analyze-btn" onclick="analyzeSyllabus()" class="btn-outline" style="flex: 2;">
-                    <span class="btn-icon" style="padding:0;"><img src="icons/icons8-search-32.png" alt="Analyze"
-                        style="width: 20px;"></span> Analyze & COs
-                  </button>
+                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Quiz
+                    Topic / Title</label>
+                  <input type="text" id="quiz-title" placeholder="e.g. Introduction to Machine Learning">
                 </div>
 
-                <!-- Chapter Weights Section (Hidden by default) -->
-                <div id="weights-container" class="hidden" style="
-                      margin-top: 20px;
-                      border-top: 1px solid var(--border-color);
-                      padding-top: 15px;
-                    ">
-                  <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Chapter Weights & CO Analysis</h4>
-                  <div id="weights-list" class="form-grid">
-                    <!-- Populated by JS -->
+                <!-- 3-Column Inputs Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                  <div>
+                    <label
+                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Total
+                      Questions</label>
+                    <input type="number" id="q-count" value="10" min="1" max="50">
                   </div>
-                  <div id="weights-summary" style="
-                        margin-top: 10px;
-                        font-size: 0.85rem;
-                        text-align: right;
+                  <div>
+                    <label
+                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Number
+                      of Sets</label>
+                    <input type="number" id="q-sets" value="1" min="1" max="10">
+                  </div>
+                  <div>
+                    <label
+                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Duration
+                      (Min)</label>
+                    <input type="number" id="duration" value="60" min="10" max="180">
+                  </div>
+                </div>
+
+                <!-- Syllabus Area (Full Width) -->
+                <div class="form-group" style="margin-top: 1rem; width: 100%;">
+                  <label>Syllabus Content</label>
+                  <textarea id="syllabus-text" placeholder="Paste text or drag PDF..."
+                    style="height: 120px; border-radius: var(--radius-sm); width: 100%;"></textarea>
+
+                  <!-- Actions Row -->
+                  <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+                    <!-- Upload PDF Button -->
+                    <label for="file-upload" class="btn-secondary"
+                      style="flex: 1; cursor: pointer; text-align: center; justify-content: center;">
+                      <img src="icons/icons8-upload-48.png" alt="Upload" style="width: 20px; opacity: 0.7;"> Upload PDF
+                    </label>
+                    <input type="file" id="file-upload" hidden accept=".txt,.pdf">
+                    <span id="file-details" class="hidden"></span>
+
+                    <!-- Analyze Syllabus Button -->
+                    <button id="analyze-btn" onclick="analyzeSyllabus()" class="btn-outline" style="flex: 2;">
+                      <span class="btn-icon" style="padding:0;"><img src="icons/icons8-search-32.png" alt="Analyze"
+                          style="width: 20px;"></span> Analyze & COs
+                    </button>
+                  </div>
+
+                  <!-- Chapter Weights Section (Hidden by default) -->
+                  <div id="weights-container" class="hidden" style="
+                        margin-top: 20px;
+                        border-top: 1px solid var(--border-color);
+                        padding-top: 15px;
                       ">
-                    Total Weight: <span id="total-weight">0</span>%
+                    <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Chapter Weights & CO Analysis</h4>
+                    <div id="weights-list" class="form-grid">
+                      <!-- Populated by JS -->
+                    </div>
+                    <div id="weights-summary" style="
+                          margin-top: 10px;
+                          font-size: 0.85rem;
+                          text-align: right;
+                        ">
+                      Total Weight: <span id="total-weight">0</span>%
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <button class="btn-primary full-width" id="generate-btn" onclick="generateQuestions()"
-                style="margin-top: 1.5rem;">
-                <span class="btn-icon" style="color: white; opacity: 1;">
-                  <img src="icons/icons8-faq-48.png" alt="Generate"
-                    style="width: 20px; filter: brightness(0) invert(1);">
-                </span> Generate Questions
-              </button>
+                <!-- Generate Questions Button (Moved inside body) -->
+                <button class="btn-primary full-width" id="generate-btn" onclick="generateQuestions()"
+                  style="margin-top: 1.5rem;">
+                  <span class="btn-icon" style="color: white; opacity: 1;">
+                    <img src="icons/icons8-faq-48.png" alt="Generate"
+                      style="width: 20px; filter: brightness(0) invert(1);">
+                  </span> Generate Questions
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Right Column: Question Preview -->
-          <div class="col-right"
-            style="overflow: visible; padding: 5px; display: flex; flex-direction: column; gap: 1rem;">
-            <!-- White Card Box -->
-            <div
-              style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); flex: 1; display: flex; flex-direction: column; padding: 1.5rem; overflow: hidden;">
+          <div class="col-right">
+            <!-- Single Unified White Card -->
+            <div class="card">
 
               <!-- Header -->
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-                <h3 style="font-size: 1.35rem; font-weight: 700; font-style: normal; color: #1f2937; margin: 0;">
+              <div class="card-header"
+                style="justify-content: space-between; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size: 1.35rem; font-weight: 700; color: #1f2937; margin: 0;">
                   Review Questions
                   <span class="badge" id="q-badge"
                     style="margin-left: 0.5rem; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem;">0</span>
@@ -241,177 +243,179 @@
                 </button>
               </div>
 
-              <!-- Filters - Row -->
-              <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
-                <select id="filter-chapter" class="form-select" onchange="applyFilters()" style="flex: 1;">
-                  <option value="">All Chapters</option>
-                </select>
-                <select id="filter-co" class="form-select" onchange="applyFilters()" style="flex: 1;">
-                  <option value="">All COs</option>
-                </select>
-              </div>
+              <div class="card-body">
+                <!-- Filters -->
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                  <select id="filter-chapter" class="form-select" onchange="applyFilters()" style="flex: 1;">
+                    <option value="">All Chapters</option>
+                  </select>
+                  <select id="filter-co" class="form-select" onchange="applyFilters()" style="flex: 1;">
+                    <option value="">All COs</option>
+                  </select>
+                </div>
 
-              <!-- Questions List -->
-              <div class="card-body scrollable-list" id="questions-list" style="flex: 1; overflow-y: auto;">
-                <div class="empty-state"
-                  style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); gap: 0.5rem;">
-                  <!-- Star Icon -->
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    style="opacity: 0.4;">
-                    <path
-                      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                  </svg>
-                  <p style="margin: 0; font-size: 0.9rem;">No questions generated yet.</p>
+                <!-- Questions List (Scrollable) -->
+                <div id="questions-list" style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem;">
+                  <div class="empty-state"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); gap: 1rem; padding: 2rem 0;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                      style="opacity: 0.4;">
+                      <path
+                        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                    <p style="margin: 0; font-size: 0.9rem;">No questions generated yet.</p>
+                  </div>
+                </div>
+
+                <!-- Action Buttons Row (Stuck to bottom) -->
+                <div
+                  style="display: flex; gap: 0.75rem; margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--border-color); flex: none;">
+                  <button id="start-session-btn" onclick="startSession()" disabled class="btn-success"
+                    style="flex: 2; height: 44px;">
+                    Start Session
+                  </button>
+                  <button onclick="openScheduleModal()" id="schedule-btn" class="btn-secondary" disabled
+                    style="flex: 1; height: 44px;">
+                    <span class="icon" style="margin-right: 5px;">
+                      <img src="icons/icons8-schedule-48.png" alt="Schedule" style="width: 20px;">
+                    </span> Schedule
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+  </div>
+  </section>
 
-            <!-- Buttons OUTSIDE the box -->
-            <div style="display: flex; gap: 0.75rem; flex-shrink: 0;">
-              <!-- Start Session Button replaced Clear All position -->
+  <!-- Active Sessions Tab -->
+  <section id="active-sessions" class="tab-content">
+    <header class="section-header">
+      <h1>Active Sessions</h1>
+      <p>Manage currently running quizzes.</p>
+    </header>
 
-              <!-- Schedule Button -->
-              <button onclick="openScheduleModal()" id="schedule-btn" class="btn-secondary" disabled style="flex: 1;">
-                <span class="icon" style="margin-right: 5px;">📅</span> Schedule
-              </button>
-
-              <!-- Start Session Button -->
-              <button id="start-session-btn" onclick="startSession()" disabled class="btn-success" style="flex: 2;">
-                Start Session
-              </button>
+    <!-- Latest Session Info -->
+    <div class="card glass-panel highlight-card hidden" id="current-session-card">
+      <div class="session-hero">
+        <div class="status-indicator live">LIVE</div>
+        <div class="details">
+          <h2>Session Active</h2>
+          <div class="codes">
+            <div class="code-block">
+              <span class="label">Session ID</span>
+              <span class="value" id="disp-sess-id">--</span>
+            </div>
+            <div class="code-block">
+              <span class="label">OTP</span>
+              <span class="value" id="disp-otp">--</span>
             </div>
           </div>
         </div>
-      </section>
-
-      <!-- Active Sessions Tab -->
-      <section id="active-sessions" class="tab-content">
-        <header class="section-header">
-          <h1>Active Sessions</h1>
-          <p>Manage currently running quizzes.</p>
-        </header>
-
-        <!-- Latest Session Info -->
-        <div class="card glass-panel highlight-card hidden" id="current-session-card">
-          <div class="session-hero">
-            <div class="status-indicator live">LIVE</div>
-            <div class="details">
-              <h2>Session Active</h2>
-              <div class="codes">
-                <div class="code-block">
-                  <span class="label">Session ID</span>
-                  <span class="value" id="disp-sess-id">--</span>
-                </div>
-                <div class="code-block">
-                  <span class="label">OTP</span>
-                  <span class="value" id="disp-otp">--</span>
-                </div>
-              </div>
-            </div>
-            <div class="controls">
-              <button class="btn-secondary" onclick="copySessionInfo()">
-                Copy Info
-              </button>
-              <button class="btn-danger" onclick="stopCurrentSession()">
-                Stop Session
-              </button>
-            </div>
-          </div>
+        <div class="controls">
+          <button class="btn-secondary" onclick="copySessionInfo()">
+            Copy Info
+          </button>
+          <button class="btn-danger" onclick="stopCurrentSession()">
+            Stop Session
+          </button>
         </div>
+      </div>
+    </div>
 
-        <div class="card glass-panel">
-          <div class="card-header">
-            <h3>Session History</h3>
-            <button class="btn-icon" onclick="loadSessions()"><img src="icons/reload.png" alt="Refresh" /></button>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Status</th>
-                  <th>OTP</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="sessions-table-body">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
+    <div class="card glass-panel">
+      <div class="card-header">
+        <h3>Session History</h3>
+        <button class="btn-icon" onclick="loadSessions()"><img src="icons/reload.png" alt="Refresh" /></button>
+      </div>
+      <div class="card-body">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>OTP</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-table-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scoreboard Tab -->
+  <section id="scoreboard" class="tab-content">
+    <header class="section-header">
+      <h1>Live Scoreboard</h1>
+      <div class="header-controls">
+        <input type="text" placeholder="Enter Session ID" id="scoreboard-sess-id" class="search-input" />
+        <button class="btn-primary" onclick="loadScoreboard()">
+          Load
+        </button>
+      </div>
+    </header>
+
+    <!-- Session Analytics Dashboard -->
+    <div id="session-analytics" class="card glass-panel hidden" style="margin-bottom: 20px;">
+      <div class="card-header">
+        <h3>Session Overview</h3>
+      </div>
+      <div class="card-body" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div
+          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Average Score</h4>
+          <div id="analytics-avg" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">--</div>
         </div>
-      </section>
-
-      <!-- Scoreboard Tab -->
-      <section id="scoreboard" class="tab-content">
-        <header class="section-header">
-          <h1>Live Scoreboard</h1>
-          <div class="header-controls">
-            <input type="text" placeholder="Enter Session ID" id="scoreboard-sess-id" class="search-input" />
-            <button class="btn-primary" onclick="loadScoreboard()">
-              Load
-            </button>
-          </div>
-        </header>
-
-        <!-- Session Analytics Dashboard -->
-        <div id="session-analytics" class="card glass-panel hidden" style="margin-bottom: 20px;">
-          <div class="card-header">
-            <h3>Session Overview</h3>
-          </div>
-          <div class="card-body" style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div
-              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Average Score</h4>
-              <div id="analytics-avg" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">--</div>
-            </div>
-            <div
-              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Highest Score</h4>
-              <div id="analytics-high" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">--</div>
-            </div>
-            <div
-              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Lowest Score</h4>
-              <div id="analytics-low" style="font-size: 2rem; font-weight: 700; color: var(--danger-color);">--</div>
-            </div>
-          </div>
-          <div class="card-body">
-            <h4 style="margin-bottom: 15px;">Course Outcome (CO) Performance</h4>
-            <div id="analytics-co-chart" style="display: flex; gap: 10px; flex-direction: column;">
-              <!-- CO Bars injected here -->
-            </div>
-          </div>
+        <div
+          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Highest Score</h4>
+          <div id="analytics-high" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">--</div>
         </div>
-
-        <div class="card glass-panel">
-          <div class="card-body">
-            <table class="data-table scoreboard-table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Student Name</th>
-                  <th>Enrollment</th>
-                  <th>Score</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                  <th>Details</th>
-                </tr>
-                </tr>
-              </thead>
-              <tbody id="scoreboard-body">
-                <tr>
-                  <td colspan="6" class="text-center">
-                    Enter a Session ID to view results.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div
+          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Lowest Score</h4>
+          <div id="analytics-low" style="font-size: 2rem; font-weight: 700; color: var(--danger-color);">--</div>
         </div>
-      </section>
-    </main>
+      </div>
+      <div class="card-body">
+        <h4 style="margin-bottom: 15px;">Course Outcome (CO) Performance</h4>
+        <div id="analytics-co-chart" style="display: flex; gap: 10px; flex-direction: column;">
+          <!-- CO Bars injected here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="card glass-panel">
+      <div class="card-body">
+        <table class="data-table scoreboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Student Name</th>
+              <th>Enrollment</th>
+              <th>Score</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+            </tr>
+          </thead>
+          <tbody id="scoreboard-body">
+            <tr>
+              <td colspan="6" class="text-center">
+                Enter a Session ID to view results.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  </main>
   </div>
 
   <!-- Modal for Question Editing -->

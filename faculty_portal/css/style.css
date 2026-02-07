@@ -288,6 +288,8 @@ body {
   align-items: center;
   border-bottom: 1px solid var(--glass-border);
   background: rgba(255, 255, 255, 0.5);
+  flex: 0 0 auto;
+  /* Do not stretch */
 }
 
 .card-header h3 {
@@ -299,9 +301,6 @@ body {
   color: var(--text-main);
 }
 
-.card-body {
-  padding: 1.5rem;
-}
 
 .card-footer {
   padding: 1.25rem 1.5rem;
@@ -314,11 +313,43 @@ body {
 .grid-layout {
   display: grid;
   grid-template-columns: 60fr 40fr;
-  grid-template-rows: 100%;
+  grid-template-rows: 1fr;
+  /* Force equal heights across columns */
   gap: 2rem;
-  /* Reduced header allows more space for content */
-  height: calc(100vh - 240px);
+  height: auto;
   min-height: 500px;
+  align-items: stretch;
+}
+
+/* Ensure both columns fill height but children (cards) don't necessarily stretch unless specified */
+.col-left,
+.col-right {
+  display: flex !important;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Ensure cards inside columns stretch to equal heights */
+.col-left .card,
+.col-right .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--glass-border);
+  overflow: visible;
+}
+
+/* Card body should stretch to fill card height for sticky bottom buttons */
+.card-body {
+  padding: 1.5rem;
+  flex: 1;
+  /* Grow to fill available space */
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
 }
 
 /* New Dashed Button for Add Manual */
@@ -392,7 +423,7 @@ select:focus {
 
 textarea {
   resize: none;
-  height: 150px;
+  height: 220px;
 }
 
 .search-input {
@@ -585,6 +616,19 @@ select:focus {
   background: #fecaca;
 }
 
+.btn-success:disabled {
+  background: var(--success-color);
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 /* Text Link (Add Manual, etc) */
 .btn-text {
   background: transparent;
@@ -634,35 +678,7 @@ select:focus {
   padding-right: 0.5rem;
 }
 
-/* Fixed Layout: Left Column Scroll */
-.col-left {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  height: 100%;
-  overflow: visible;
-  /* Allow shadows to show */
-  padding: 5px;
-  /* Small padding for shadow visibility */
-}
-
-/* Make Section 1 (Syllabus) flexible and internally scrollable */
-.col-left .card:first-child {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.col-left .card:first-child .card-body {
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* Make Section 2 (Configuration) fixed height (natural) */
-.col-left .card:last-child {
-  flex-shrink: 0;
-}
+/* Removed old column-specific rules - now using unified card layout above */
 
 ::-webkit-scrollbar {
   width: 6px;
