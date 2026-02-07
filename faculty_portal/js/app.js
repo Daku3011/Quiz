@@ -4,6 +4,7 @@ const API_BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
         ? 'http://localhost:9090'
         : `http://${window.location.hostname}:9090`); // Fallback
 
+
 console.log('Faculty App.js loaded');
 
 // State

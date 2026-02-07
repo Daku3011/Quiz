@@ -476,7 +476,7 @@
             } catch (err) {
                 console.error(err);
                 if (err.message.includes('Failed to fetch')) {
-                    errorMsg.textContent = 'Connection refused. Check if Backend is running on port 8080.';
+                    errorMsg.textContent = 'Connection refused. Check if Backend is running on port 9090.';
                 } else {
                     errorMsg.textContent = 'Login Error: ' + err.message;
                 }
