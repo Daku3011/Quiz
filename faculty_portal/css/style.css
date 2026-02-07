@@ -315,10 +315,34 @@ body {
   display: grid;
   grid-template-columns: 60fr 40fr;
   grid-template-rows: 100%;
-  /* Force row to respect container height */
   gap: 2rem;
-  height: calc(100vh - 340px);
-  min-height: 420px;
+  /* Reduced header allows more space for content */
+  height: calc(100vh - 240px);
+  min-height: 500px;
+}
+
+/* New Dashed Button for Add Manual */
+.btn-dashed {
+  width: 100%;
+  border: 2px dashed var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  border-radius: var(--radius-md);
+  height: 48px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.btn-dashed:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* .col-left moved to line ~580 to consolidate layout fix */
@@ -356,22 +380,7 @@ label {
   color: var(--text-muted);
 }
 
-input[type="text"],
-input[type="number"],
-input[type="datetime-local"],
-input[type="password"],
-select,
-textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--bg-dark);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  color: var(--text-main);
-  font-size: 0.95rem;
-  outline: none;
-  transition: all 0.2s;
-}
+
 
 input:focus,
 textarea:focus,
@@ -455,25 +464,74 @@ textarea {
   font-weight: 600;
 }
 
-/* --- Buttons --- */
-button {
+/* --- Buttons & Inputs Standardization --- */
+button,
+input,
+select,
+textarea {
   font-family: inherit;
-  cursor: pointer;
+  font-size: 0.9rem;
 }
 
+/* Standard Height for Inputs & Buttons */
 .btn-primary,
 .btn-secondary,
 .btn-danger,
-.btn-success {
-  padding: 0.75rem 1.5rem;
+.btn-success,
+.btn-outline,
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+select {
+  height: 42px;
+  /* Fixed height for alignment */
+  padding: 0 1rem;
+  /* Horizontal padding only */
   border-radius: var(--radius-sm);
-  border: none;
-  font-weight: 600;
-  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
+  transition: all 0.2s ease;
+  line-height: normal;
+}
+
+/* Input Specifics */
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+select {
+  width: 100%;
+  background: var(--bg-dark);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
+  background: white;
+}
+
+/* Button Base Pattern */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-success,
+.btn-outline {
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
   justify-content: center;
   gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Primary: Charcoal */
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
@@ -486,11 +544,18 @@ button {
   transform: translateY(0);
 }
 
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Secondary: White with Border */
 .btn-secondary {
   background: white;
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
@@ -498,6 +563,18 @@ button {
   border-color: var(--text-muted);
 }
 
+/* Outline: Integrated Action Button */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: rgba(24, 24, 27, 0.05);
+}
+
+/* Danger */
 .btn-danger {
   background: #fee2e2;
   color: var(--danger-color);
@@ -508,81 +585,46 @@ button {
   background: #fecaca;
 }
 
-.btn-danger-outline {
-  background: transparent;
-  border: 1px solid var(--danger-color);
-  color: var(--danger-color);
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.btn-danger-outline:hover {
-  background: var(--danger-color);
-  color: white;
-}
-
-.btn-success {
-  background: linear-gradient(135deg, var(--success-color), #059669);
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-}
-
-.btn-success:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
+/* Text Link (Add Manual, etc) */
 .btn-text {
   background: transparent;
+  padding: 0;
+  height: auto;
   border: none;
-  color: var(--text-muted);
+  color: var(--accent-color);
+  font-weight: 500;
+  cursor: pointer;
   font-size: 0.85rem;
 }
 
 .btn-text:hover {
-  color: var(--primary-color);
   text-decoration: underline;
+  color: #2563eb;
 }
 
-.btn-icon {
-  background: transparent;
-  border: none;
-  padding: 0.25rem;
-  border-radius: 4px;
-  color: var(--text-muted);
-  opacity: 0.7;
-  transition: 0.2s;
-}
-
-.btn-icon:hover {
-  background: var(--glass-highlight);
-  opacity: 1;
-  color: var(--primary-color);
-}
-
-.full-width {
-  width: 100%;
-}
-
+/* Icon Button (Edit/Delete) */
 .icon-btn {
   background: transparent;
   border: none;
   font-size: 1.1rem;
-  padding: 4px;
+  width: 32px;
+  height: 32px;
   border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.2s;
 }
 
 .icon-btn:hover {
-  background: var(--glass-highlight);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+
+.full-width {
+  width: 100%;
 }
 
 /* --- Lists & Scrollbars --- */
