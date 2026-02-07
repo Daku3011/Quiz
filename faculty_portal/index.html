@@ -65,17 +65,17 @@
       <nav class="nav-menu">
         <button class="nav-btn active" data-tab="create-quiz" onclick="switchTab('create-quiz')">
           <span class="icon"><img src="icons/icons8-question-48.png" alt="Generate"
-              style="width: 24px; filter: invert(1);"></span>
+              style="width: 24px; filter: invert(0);"></span>
           Generate
         </button>
         <button class="nav-btn" data-tab="active-sessions" onclick="switchTab('active-sessions')">
           <span class="icon"><img src="icons/icons8-history-48.png" alt="Session History"
-              style="width: 24px;filter: invert(1)"></span>
+              style="width: 24px;filter: invert(0);"></span>
           Session History
         </button>
         <button class="nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
           <span class="icon"><img src="icons/icons8-report-card-48.png" alt="Results"
-              style="width: 24px;filter: invert(1)"></span>
+              style="width: 24px;filter: invert(0)"></span>
           Results
         </button>
         <div style="flex:1"></div> <!-- Spacer -->
@@ -90,7 +90,7 @@
         </div>
         <button class="logout-btn" onclick="logout()" title="Logout">
           <span class="icon"><img src="icons/icons8-logout-48.png" alt="Logout"
-              style="width: 24px; filter: invert(1)"></span>
+              style="width: 24px; filter: invert(0)"></span>
         </button>
       </div>
     </aside>
@@ -156,19 +156,19 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                   <div>
                     <label
-                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Total
+                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Total
                       Questions</label>
                     <input type="number" id="q-count" value="10" min="1" max="50">
                   </div>
                   <div>
                     <label
-                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Number
+                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Number
                       of Sets</label>
                     <input type="number" id="q-sets" value="1" min="1" max="10">
                   </div>
                   <div>
                     <label
-                      style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Duration
+                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Duration
                       (Min)</label>
                     <input type="number" id="duration" value="60" min="10" max="180">
                   </div>
@@ -293,7 +293,7 @@
 
       <section id="active-sessions" class="tab-content">
         <header class="section-header" style="margin-bottom: 1.5rem;">
-          <h1 style="font-size: 1.75rem; font-weight: 700; color: #1f2937; margin: 0 0 0.25rem 0;">Active Sessions</h1>
+          <h1 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin: 0 0 0.25rem 0;">Active Sessions</h1>
           <p style="color: #6b7280; font-size: 0.95rem; margin: 0;">Manage currently running quizzes.</p>
         </header>
 
