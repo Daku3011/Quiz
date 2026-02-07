@@ -23,15 +23,18 @@
         }
 
         :root {
-            --primary-purple: #7c3aed;
-            --primary-purple-dark: #6d28d9;
-            --primary-purple-light: #a78bfa;
-            --text-main: #1f2937;
+            /* Figma Palette from style.css */
+            --bg-dark: #f9fafb;
+            --bg-sidebar: #0f172a;
+            --primary-color: #18181b;
+            /* Charcoal */
+            --accent-color: #3b82f6;
+            /* Blue */
+            --text-main: #111827;
             --text-muted: #6b7280;
-            --text-light: #9ca3af;
             --border-color: #e5e7eb;
             --bg-white: #ffffff;
-            --error-color: #dc2626;
+            --error-color: #ef4444;
             --error-bg: #fee2e2;
         }
 
@@ -41,42 +44,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Soft gradient background matching the design */
-            background: linear-gradient(135deg,
-                    #bfdbfe 0%,
-                    /* stronger blue */
-                    #dbeafe 20%,
-                    /* soft blue */
-                    #fce7f3 40%,
-                    /* soft pink */
-                    #f3e8ff 60%,
-                    /* soft purple */
-                    #dbeafe 80%,
-                    /* soft blue */
-                    #bfdbfe 100%
-                    /* stronger blue */
-                );
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            /* Dark Slate Background for Portal Entry */
+            background: var(--bg-sidebar);
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg-sidebar) 75%);
         }
 
         .login-container {
             width: 100%;
-            max-width: 460px;
+            max-width: 420px;
             padding: 24px;
         }
 
@@ -92,28 +67,30 @@
             justify-content: center;
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, #7c3aed, #9333ea);
-            border-radius: 14px;
+            background: var(--bg-white);
+            border-radius: 12px;
             margin-bottom: 1.25rem;
-            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .logo-icon svg {
             width: 28px;
             height: 28px;
-            fill: white;
+            fill: var(--primary-color);
         }
 
         .login-header h1 {
             font-size: 1.875rem;
             font-weight: 700;
-            color: var(--text-main);
+            color: white;
+            /* White text on dark bg */
             margin-bottom: 0.5rem;
             letter-spacing: -0.025em;
         }
 
         .login-header p {
-            color: var(--text-muted);
+            color: #94a3b8;
+            /* Slate 400 */
             font-size: 0.95rem;
         }
 
@@ -123,9 +100,8 @@
             border-radius: 16px;
             padding: 2rem;
             box-shadow:
-                0 4px 6px -1px rgba(0, 0, 0, 0.05),
-                0 10px 20px -5px rgba(0, 0, 0, 0.05),
-                0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         /* Form Styles */
@@ -158,16 +134,16 @@
             left: 14px;
             width: 18px;
             height: 18px;
-            color: var(--text-light);
+            color: var(--text-muted);
             pointer-events: none;
         }
 
         .form-input {
             width: 100%;
-            padding: 0.875rem 1rem 0.875rem 2.75rem;
-            background: var(--bg-white);
-            border: 1.5px solid var(--border-color);
-            border-radius: 10px;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             color: var(--text-main);
             font-family: inherit;
             font-size: 0.95rem;
@@ -175,13 +151,14 @@
         }
 
         .form-input::placeholder {
-            color: var(--text-light);
+            color: var(--text-muted);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--primary-purple);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1);
         }
 
         /* Error Message */
@@ -192,31 +169,33 @@
             border-radius: 8px;
             font-size: 0.875rem;
             display: none;
-            border: 1px solid #fecaca;
+            border: 1px solid #fca5a5;
             animation: shake 0.4s ease-in-out;
+            margin-bottom: 1rem;
         }
 
         /* Sign In Button */
         .btn-login {
             width: 100%;
-            padding: 0.9rem;
+            padding: 0.875rem;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            border-radius: 8px;
+            background: var(--primary-color);
             color: white;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
             font-family: inherit;
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+            background: #27272a;
+            /* Slightly lighter charcoal */
+            transform: translateY(-1px);
         }
 
         .btn-login:active {
@@ -246,7 +225,7 @@
 
         .divider span {
             padding: 0 1rem;
-            color: var(--text-light);
+            color: var(--text-muted);
             font-size: 0.875rem;
         }
 
@@ -258,7 +237,7 @@
         }
 
         .request-link {
-            color: var(--primary-purple);
+            color: var(--accent-color);
             text-decoration: none;
             font-weight: 500;
             cursor: pointer;
@@ -266,7 +245,8 @@
         }
 
         .request-link:hover {
-            color: var(--primary-purple-dark);
+            color: #2563eb;
+            /* Darker blue */
             text-decoration: underline;
         }
 
