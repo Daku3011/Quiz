@@ -1,23 +1,35 @@
 :root {
   /* Figma Design Palette */
-  --bg-dark: #f9fafb; /* Light Gray Background */
-  --bg-sidebar: #0f172a; /* Dark Slate Sidebar */
-  --bg-card: #ffffff; /* White Card */
+  --bg-dark: #f9fafb;
+  /* Light Gray Background */
+  --bg-sidebar: #0f172a;
+  /* Dark Slate Sidebar */
+  --bg-card: #ffffff;
+  /* White Card */
 
-  --primary-color: #18181b; /* Charcoal Black (Action) */
+  --primary-color: #18181b;
+  /* Charcoal Black (Action) */
   --primary-hover: #27272a;
 
-  --accent-color: #3b82f6; /* Blue for highlights/links */
-  --success-color: #10b981; /* Emerald Green */
-  --warning-color: #f59e0b; /* Amber */
-  --danger-color: #ef4444; /* Red */
+  --accent-color: #3b82f6;
+  /* Blue for highlights/links */
+  --success-color: #10b981;
+  /* Emerald Green */
+  --warning-color: #f59e0b;
+  /* Amber */
+  --danger-color: #ef4444;
+  /* Red */
 
-  --text-main: #111827; /* Almost Black */
-  --text-muted: #6b7280; /* Gray 500 */
-  --text-on-dark: #f3f4f6; /* Gray 100 */
+  --text-main: #111827;
+  /* Almost Black */
+  --text-muted: #6b7280;
+  /* Gray 500 */
+  --text-on-dark: #f3f4f6;
+  /* Gray 100 */
 
   /* Shadows & Radius */
-  --radius-lg: 16px; /* Consistent rounded corners */
+  --radius-lg: 16px;
+  /* Consistent rounded corners */
   --radius-md: 8px;
   --radius-sm: 6px;
 
@@ -28,7 +40,8 @@
     0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
   /* Glass/Borders */
-  --border-color: #e5e7eb; /* Gray 200 */
+  --border-color: #e5e7eb;
+  /* Gray 200 */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
 }
@@ -121,8 +134,10 @@ body {
 }
 
 .nav-btn.active {
-  background: var(--primary-color); /* Charcoal */
-  border-left: none; /* Remove old border */
+  background: var(--primary-color);
+  /* Charcoal */
+  border-left: none;
+  /* Remove old border */
   color: white;
   font-weight: 600;
   box-shadow: var(--shadow-sm);
@@ -298,11 +313,12 @@ body {
 /* --- Grid Layout --- */
 .grid-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  grid-template-rows: 100%; /* Force row to respect container height */
+  grid-template-columns: 60fr 40fr;
+  grid-template-rows: 100%;
+  /* Force row to respect container height */
   gap: 2rem;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 340px);
+  min-height: 420px;
 }
 
 /* .col-left moved to line ~580 to consolidate layout fix */
@@ -398,12 +414,12 @@ textarea {
   transition: all 0.2s;
 }
 
-.checkbox-wrapper input:checked ~ .checkmark {
+.checkbox-wrapper input:checked~.checkmark {
   background: var(--primary-color);
   border-color: var(--primary-color);
 }
 
-.checkbox-wrapper input:checked ~ .checkmark::after {
+.checkbox-wrapper input:checked~.checkmark::after {
   content: "✔";
   position: absolute;
   top: -2px;
@@ -582,8 +598,10 @@ button {
   flex-direction: column;
   gap: 1.5rem;
   height: 100%;
-  overflow-y: hidden; /* Prevent column itself from scrolling */
-  padding-right: 0;
+  overflow: visible;
+  /* Allow shadows to show */
+  padding: 5px;
+  /* Small padding for shadow visibility */
 }
 
 /* Make Section 1 (Syllabus) flexible and internally scrollable */
@@ -798,11 +816,9 @@ button {
 
 /* --- Hero Cards --- */
 .highlight-card {
-  background: linear-gradient(
-    135deg,
-    rgba(79, 70, 229, 0.1),
-    rgba(124, 58, 237, 0.1)
-  );
+  background: linear-gradient(135deg,
+      rgba(79, 70, 229, 0.1),
+      rgba(124, 58, 237, 0.1));
   border: 1px solid rgba(124, 58, 237, 0.2);
   margin-bottom: 2rem;
 }
@@ -895,12 +911,135 @@ button {
 }
 
 /* Responsive */
+/* --- Responsive Design --- */
+
+/* Tablet and smaller desktops */
 @media (max-width: 1024px) {
   .grid-layout {
     grid-template-columns: 1fr;
     height: auto;
+    gap: 1.5rem;
+  }
+
+  .app-container {
+    padding: 1rem;
+  }
+
+  .sidebar {
+    padding: 0.75rem;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .nav-btn span {
+    display: none;
+  }
+
+  .stepper .step-label {
+    font-size: 0.85rem;
+  }
+
+  .stepper .step-line {
+    width: 25px;
   }
 }
+
+/* Mobile landscape and tablets */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+
+  .nav-menu {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .stepper {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .stepper .step-label {
+    display: none;
+  }
+
+  .stepper .step-line {
+    width: 20px;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile portrait */
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .stepper-container {
+    margin-bottom: 1rem;
+  }
+
+  .step-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .stepper .step-line {
+    width: 15px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .form-input,
+  .form-select,
+  textarea {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+}
+
 
 /* --- Progress Stepper --- */
 .stepper-container {
@@ -948,7 +1087,8 @@ button {
   background: var(--primary-color);
   border-color: var(--primary-color);
   color: white;
-  box-shadow: 0 0 0 4px rgba(24, 24, 27, 0.1); /* Soft ring */
+  box-shadow: 0 0 0 4px rgba(24, 24, 27, 0.1);
+  /* Soft ring */
 }
 
 .step-item.completed .step-circle {

@@ -93,149 +93,218 @@
       <!-- Create Quiz Tab -->
       <section id="create-quiz" class="tab-content active">
 
-        <!-- Stepper -->
-        <div class="stepper-container">
-          <div class="stepper">
-            <div class="step-item active" data-step="1">
-              <div class="step-circle">1</div>
-              <span class="step-label">Configure</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step-item" data-step="2">
-              <div class="step-circle">2</div>
-              <span class="step-label">Generate</span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step-item" data-step="3">
-              <div class="step-circle">3</div>
-              <span class="step-label">Review</span>
+        <!-- Top Panel with Stepper and Header -->
+        <div
+          style="background: white; border-radius: 16px; padding: 2rem 3rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+
+          <!-- Stepper -->
+          <div class="stepper-container" style="margin-bottom: 1.5rem;">
+            <div class="stepper">
+              <div class="step-item active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Configure</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-item" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Generate</span>
+              </div>
+              <div class="step-line"></div>
+              <div class="step-item" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Review</span>
+              </div>
             </div>
           </div>
+
+          <!-- Header -->
+          <header class="section-header" style="text-align: center;">
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; color: #1f2937;">Create New Quiz</h1>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Generate questions from syllabus content using AI.
+            </p>
+          </header>
         </div>
 
-        <!-- Header hidden in new design or simplified -->
-        <header class="section-header" style="text-align:center; margin-bottom: 2rem;">
-          <h1>Create New Quiz</h1>
-          <p>Generate questions from syllabus content using AI.</p>
-        </header>
 
         <div class="grid-layout">
-          <!-- Left Column: Syllabus & Configuration -->
+          <!-- Left Column: Configuration -->
           <div class="col-left">
             <!-- Configuration Card -->
-            <div class="card glass-panel">
-              <div class="card-header">
-                <h3>Configuration</h3>
+            <div
+              style="background: white; border-radius: 16px; padding: 1.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+
+              <h3 style="font-size: 1.15rem; font-weight: 600; color: #1f2937; margin: 0 0 1.5rem 0;">Configuration</h3>
+
+              <!-- Quiz Topic -->
+              <div style="margin-bottom: 1.25rem;">
+                <label
+                  style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Quiz
+                  Topic / Title</label>
+                <input type="text" id="quiz-title" placeholder="e.g. Introduction to Machine Learning"
+                  style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; background: white; outline: none; transition: border-color 0.2s;"
+                  onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'">
               </div>
-              <div class="card-body form-grid" style="grid-template-columns: 1fr;">
-                <!-- Topic Input -->
-                <div class="form-group">
-                  <label>Quiz Topic / Title</label>
-                  <input type="text" id="quiz-title" placeholder="e.g. Introduction to Machine Learning">
+
+              <!-- Two Columns: Questions & Sets -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+                <div>
+                  <label
+                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Total
+                    Questions</label>
+                  <input type="number" id="q-count" value="10" min="1" max="50"
+                    style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; background: white; outline: none;"
+                    onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
-
-                <div class="form-grid">
-                  <div class="form-group">
-                    <label>Total Questions</label>
-                    <input type="number" id="q-count" value="10" min="1" max="50">
-                  </div>
-                  <div class="form-group">
-                    <label>Number of Sets</label>
-                    <input type="number" id="q-sets" value="1" min="1" max="10">
-                  </div>
+                <div>
+                  <label
+                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Number
+                    of Sets</label>
+                  <input type="number" id="q-sets" value="1" min="1" max="10"
+                    style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; background: white; outline: none;"
+                    onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
-
-                <!-- Syllabus Area (moved here) -->
-                <div class="form-group">
-                  <label>Syllabus Content</label>
-                  <textarea id="syllabus-text" placeholder="Paste text or drag PDF..."
-                    style="height: 120px;"></textarea>
-                  <!-- Minified File Upload -->
-                  <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 10px;">
-                    <label for="file-upload" class="btn-secondary"
-                      style="padding: 0.4rem 0.8rem; font-size: 0.8rem; cursor: pointer;">
-                      📂 Upload PDF
-                    </label>
-                    <input type="file" id="file-upload" hidden accept=".txt,.pdf">
-                    <span id="file-details" style="font-size: 0.8rem; color: var(--text-muted);"></span>
-                  </div>
-
-                  <!-- Analyze Syllabus Button Restored -->
-                  <button class="btn-secondary full-width" id="analyze-btn" onclick="analyzeSyllabus()"
-                    style="margin-top: 15px; border: 1px solid var(--primary-color); color: var(--primary-color);">
-                    <span class="btn-icon">🔍</span> Analyze Syllabus & COs
-                  </button>
-
-                  <!-- Chapter Weights Section (Hidden by default) -->
-                  <div id="weights-container" class="hidden" style="
-                      margin-top: 20px;
-                      border-top: 1px solid var(--border-color);
-                      padding-top: 15px;
-                    ">
-                    <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Chapter Weights & CO Analysis</h4>
-                    <div id="weights-list" class="form-grid">
-                      <!-- Populated by JS -->
-                    </div>
-                    <div id="weights-summary" style="
-                        margin-top: 10px;
-                        font-size: 0.85rem;
-                        text-align: right;
-                      ">
-                      Total Weight: <span id="total-weight">0</span>%
-                    </div>
-                  </div>
-                </div>
-
-                <button class="btn-primary full-width" id="generate-btn" onclick="generateQuestions()"
-                  style="margin-top: 1rem; height: 48px; font-size: 1rem;">
-                  <span class="btn-icon">✨</span> Generate Questions
-                </button>
               </div>
+
+              <!-- Syllabus Content -->
+              <div style="margin-bottom: 1rem;">
+                <label
+                  style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Syllabus
+                  Content</label>
+                <textarea id="syllabus-text" placeholder="Paste text or drop PDF..."
+                  style="width: 100%; height: 120px; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; color: #374151; background: white; resize: none; outline: none; font-family: inherit;"
+                  onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+              </div>
+
+              <!-- Upload PDF Button - Orange with hover -->
+              <div style="margin-bottom: 1.25rem;">
+                <label for="file-upload" class="upload-btn"
+                  style="display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.25rem; font-size: 0.85rem; cursor: pointer; background: transparent; border: 1.5px solid #f59e0b; color: #f59e0b; border-radius: 8px; font-weight: 500; transition: all 0.2s;"
+                  onmouseover="this.style.background='#f59e0b'; this.style.color='white';"
+                  onmouseout="this.style.background='transparent'; this.style.color='#f59e0b';">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  Upload PDF
+                </label>
+                <input type="file" id="file-upload" hidden accept=".txt,.pdf">
+                <span id="file-details" style="font-size: 0.8rem; color: #9ca3af; margin-left: 12px;"></span>
+              </div>
+
+              <!-- Analyze Button - Purple Outlined with glassmorphism hover -->
+              <button id="analyze-btn" onclick="analyzeSyllabus()"
+                style="width: 100%; padding: 0.85rem; background: transparent; border: 1.5px solid #7c3aed; color: #7c3aed; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1rem; transition: all 0.2s;"
+                onmouseover="this.style.background='rgba(124, 58, 237, 0.08)'; this.style.boxShadow='0 4px 15px rgba(124, 58, 237, 0.15)';"
+                onmouseout="this.style.background='transparent'; this.style.boxShadow='none';">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Analyze Syllabus & COs
+              </button>
+
+              <!-- Chapter Weights Section (Hidden by default) -->
+              <div id="weights-container" class="hidden"
+                style="margin-bottom: 1rem; border-top: 1px solid #e5e7eb; padding-top: 1rem;">
+                <h4 style="margin-bottom: 10px; font-size: 0.95rem; color: #374151;">Chapter Weights & CO Analysis</h4>
+                <div id="weights-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <!-- Populated by JS -->
+                </div>
+                <div id="weights-summary"
+                  style="margin-top: 10px; font-size: 0.85rem; text-align: right; color: #6b7280;">
+                  Total Weight: <span id="total-weight">0</span>%
+                </div>
+              </div>
+
+              <!-- Generate Button - Purple Gradient with hover -->
+              <button id="generate-btn" onclick="generateQuestions()"
+                style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); border: none; color: white; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); transition: all 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(124, 58, 237, 0.45)';"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(124, 58, 237, 0.35)';">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+                Generate Questions
+              </button>
             </div>
           </div>
 
           <!-- Right Column: Question Preview -->
-          <div class="col-right">
-            <div class="card glass-panel full-height">
-              <div class="card-header">
-                <h3>
-                  3. Review Questions
-                  <span class="badge" id="q-badge">0</span>
+          <div class="col-right"
+            style="overflow: visible; padding: 5px; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- White Card Box -->
+            <div
+              style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); flex: 1; display: flex; flex-direction: column; padding: 1.5rem; overflow: hidden;">
+
+              <!-- Header -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.35rem; font-weight: 700; font-style: normal; color: #1f2937; margin: 0;">
+                  Review Questions
+                  <span class="badge" id="q-badge"
+                    style="margin-left: 0.5rem; background: #7c3aed; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.85rem;">0</span>
                 </h3>
-                <div class="actions">
-                  <button class="btn-secondary" onclick="addManually()">
-                    + Add Manual
-                  </button>
-                </div>
+                <button onclick="addManually()"
+                  style="background: transparent; border: none; color: #14b8a6; font-size: 0.9rem; font-weight: 500; cursor: pointer;">
+                  + Add Manual
+                </button>
               </div>
-              <!-- Filters -->
-              <div class="filter-bar"
-                style="padding: 10px 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px;">
-                <select id="filter-chapter" class="form-select" onchange="applyFilters()" style="flex:1;">
+
+              <!-- Filters - Stacked Vertically -->
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                <select id="filter-chapter" class="form-select" onchange="applyFilters()"
+                  style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; color: #374151; background: white; cursor: pointer;">
                   <option value="">All Chapters</option>
                 </select>
-                <select id="filter-co" class="form-select" onchange="applyFilters()" style="flex:0.5;">
+                <select id="filter-co" class="form-select" onchange="applyFilters()"
+                  style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; color: #374151; background: white; cursor: pointer;">
                   <option value="">All COs</option>
                 </select>
               </div>
-              <div class="card-body scrollable-list" id="questions-list">
-                <div class="empty-state">
-                  <div class="icon">📄</div>
-                  <p>No questions generated yet.</p>
+
+              <!-- Questions List -->
+              <div class="card-body scrollable-list" id="questions-list" style="flex: 1; overflow-y: auto;">
+                <div class="empty-state"
+                  style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af;">
+                  <!-- Star Icon -->
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"
+                    style="margin-bottom: 1rem;">
+                    <path
+                      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                  <p style="margin: 0; font-size: 0.9rem;">No questions generated yet.</p>
                 </div>
               </div>
-              <div class="card-footer"
-                style="background: transparent; border-top: 1px solid var(--border-color); padding: 15px; display: flex; gap: 10px; align-items: center;">
-                <button class="btn-text" onclick="clearAllQuestions()"
-                  style="color: var(--danger-color); font-size: 0.9rem;">
-                  Clear All
-                </button>
-                <div style="flex:1"></div>
-                <button class="btn-primary" id="start-session-btn" onclick="startSession()" disabled
-                  style="padding: 10px 25px; font-size: 1rem; border-radius: 8px;">
-                  🚀 Start Session
-                </button>
-              </div>
+            </div>
+
+            <!-- Buttons OUTSIDE the box -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; flex-shrink: 0;">
+              <!-- Clear All Button - Outlined -->
+              <button onclick="clearAllQuestions()"
+                style="width: 100%; padding: 0.85rem; background: white; border: 1.5px solid #e5e7eb; color: #6b7280; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.06);"
+                onmouseover="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5'; this.style.color='#dc2626';"
+                onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'; this.style.color='#6b7280';">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Clear All
+              </button>
+
+              <!-- Start Session Button - Green Gradient with hover -->
+              <button id="start-session-btn" onclick="startSession()" disabled
+                style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); border: none; color: white; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); transition: all 0.3s ease; opacity: 0.6;"
+                onmouseover="this.style.transform='translateY(-3px) scale(1.02)'; this.style.boxShadow='0 8px 25px rgba(16, 185, 129, 0.5)'; this.style.opacity='0.85';"
+                onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.35)'; this.style.opacity='0.6';">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Start Session
+              </button>
             </div>
           </div>
         </div>
@@ -455,6 +524,30 @@
 
   <script src="js/config.js?v=3"></script>
   <script src="js/app.js?v=3"></script>
+  <script>
+    // HTML Hack: Define missing function that app.js calls
+    function refreshStepperState() {
+      const syllabusText = document.getElementById('syllabus-text');
+      const hasContent = syllabusText && syllabusText.value.trim().length > 0;
+      if (typeof questions !== 'undefined' && questions.length > 0) {
+        updateStepper(3);
+      } else if (hasContent) {
+        updateStepper(2);
+      } else {
+        updateStepper(1);
+      }
+    }
+
+    // HTML Hack: Suppress "Generated X questions successfully" popup
+    const originalAlert = window.alert;
+    window.alert = function (msg) {
+      if (msg && msg.includes('questions successfully')) {
+        console.log(msg); // Log to console instead
+        return;
+      }
+      originalAlert(msg);
+    };
+  </script>
 </body>
 
 </html>
