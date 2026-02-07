@@ -4,6 +4,7 @@ const API_BASE = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
         ? 'http://localhost:9090'
         : `http://${window.location.hostname}:9090`); // Fallback
 
+
 console.log('Faculty App.js loaded');
 
 // State
@@ -341,22 +342,27 @@ function renderQuestions(listToRender = null) {
     badge.textContent = data.length;
     // Only disable start button if GLOBAL list is empty, not just filtered view
     startBtn.disabled = questions.length === 0;
+    const scheduleBtn = document.getElementById('schedule-btn');
+    if (scheduleBtn) scheduleBtn.disabled = questions.length === 0;
+
+    const addManualBtn = `
+        <button class="btn-dashed" onclick="addManually()">
+            <span style="font-size: 1.2rem;">+</span> Add Manual Question
+        </button>
+    `;
 
     if (data.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
                 <div class="icon">📄</div>
                 <p>No questions found.</p>
+                ${addManualBtn}
             </div>`;
         return;
     }
 
     list.innerHTML = data.map((q, idx) => {
         // We need to find the original index for editing/deleting if we are in a filtered view
-        // But for simplicity, let's pass the object logic. 
-        // Actually, existing edit/delete uses index. We need to handle that.
-        // Simple fix: Store original index in data if filtered? 
-        // OR: Just find index in global 'questions' array by object reference.
         const realIndex = questions.indexOf(q);
 
         return `
@@ -378,7 +384,7 @@ function renderQuestions(listToRender = null) {
                 D: ${q.optionD}
             </div>
         </div>
-    `}).join('');
+    `}).join('') + addManualBtn;
 }
 
 function populateFilters() {
@@ -492,15 +498,72 @@ function addManually() {
     updateStepper(3); // Move to Review
 }
 
-// Schedule Toggle
-function toggleSchedule() {
-    const checked = document.getElementById('schedule-check').checked;
-    const inputs = document.getElementById('schedule-inputs');
-    if (checked) {
-        inputs.classList.remove('hidden');
-    } else {
-        inputs.classList.add('hidden');
+// Schedule Modal Logic
+let scheduleInterval = null;
+
+function openScheduleModal() {
+    document.getElementById('schedule-modal').classList.add('active');
+    // Set default time to now + 5 mins
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 5);
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Local ISO fix
+    document.getElementById('schedule-datetime').value = now.toISOString().slice(0, 16);
+}
+
+function closeScheduleModal() {
+    document.getElementById('schedule-modal').classList.remove('active');
+    if (scheduleInterval) {
+        clearInterval(scheduleInterval);
+        scheduleInterval = null;
+        document.getElementById('schedule-countdown').style.display = 'none';
     }
+}
+
+function confirmSchedule() {
+    const dtInput = document.getElementById('schedule-datetime').value;
+    if (!dtInput) {
+        alert("Please select a start time.");
+        return;
+    }
+
+    const targetTime = new Date(dtInput).getTime();
+    const now = Date.now();
+    const diff = targetTime - now;
+
+    if (diff <= 0) {
+        alert("Please select a future time.");
+        return;
+    }
+
+    // Show Countdown
+    document.getElementById('schedule-countdown').style.display = 'block';
+    const timerEl = document.getElementById('countdown-timer');
+
+    // Disable controls
+    document.querySelector('#schedule-modal .btn-primary').disabled = true;
+    document.querySelector('#schedule-modal .btn-secondary').disabled = true;
+
+    scheduleInterval = setInterval(() => {
+        const currentDiff = targetTime - Date.now();
+
+        if (currentDiff <= 0) {
+            clearInterval(scheduleInterval);
+            timerEl.textContent = "Starting...";
+            startSession(); // Auto start
+            closeScheduleModal();
+            // Re-enable buttons just in case
+            document.querySelector('#schedule-modal .btn-primary').disabled = false;
+            document.querySelector('#schedule-modal .btn-secondary').disabled = false;
+            return;
+        }
+
+        // Format MM:SS or HH:MM:SS
+        const hours = Math.floor((currentDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((currentDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((currentDiff % (1000 * 60)) / 1000);
+
+        timerEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+    }, 1000);
 }
 
 // Start Session
@@ -510,7 +573,7 @@ async function startSession() {
     const customTitle = document.getElementById('quiz-title').value.trim();
     const payload = {
         title: customTitle || ("Web Quiz " + new Date().toLocaleTimeString()),
-        otp: "AUTO", // Backend ignores this usually and generates one, or we need to send?
+        otp: "AUTO",
         questions: questions.map(q => ({
             text: q.text,
             optionA: q.optionA || "A",
@@ -525,17 +588,6 @@ async function startSession() {
         numberOfSets: parseInt(document.getElementById('q-sets')?.value) || 1,
         durationMinutes: parseInt(document.getElementById('duration')?.value) || 60
     };
-
-    // Schedule logic (Safe Check)
-    const scheduleCheck = document.getElementById('schedule-check');
-    if (scheduleCheck && scheduleCheck.checked) {
-        const dt = document.getElementById('start-time').value;
-        if (!dt) {
-            alert("Please select a start time");
-            return;
-        }
-        payload.startTime = dt; // Format 2023-12-21T10:00
-    }
 
     try {
         const res = await fetch(`${API_BASE}/api/session/start`, {

@@ -57,16 +57,17 @@
     z-index: 0;
 }
 
-/* Active State */
+/* Active State - Purple Filled */
 .step-item.active .step-circle {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
 
 .step-item.active .step-label {
-    color: var(--accent-color);
-    font-weight: 700;
+    color: #7c3aed;
+    font-weight: 600;
 }
 
 /* Completed State (Brighter) */
