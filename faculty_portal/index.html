@@ -288,133 +288,183 @@
   </div>
   </section>
 
-  <!-- Active Sessions Tab -->
-  <section id="active-sessions" class="tab-content">
-    <header class="section-header">
-      <h1>Active Sessions</h1>
-      <p>Manage currently running quizzes.</p>
-    </header>
+      <section id="active-sessions" class="tab-content">
+        <header class="section-header" style="margin-bottom: 1.5rem;">
+          <h1 style="font-size: 1.75rem; font-weight: 700; color: #1f2937; margin: 0 0 0.25rem 0;">Active Sessions</h1>
+          <p style="color: #6b7280; font-size: 0.95rem; margin: 0;">Manage currently running quizzes.</p>
+        </header>
 
-    <!-- Latest Session Info -->
-    <div class="card glass-panel highlight-card hidden" id="current-session-card">
-      <div class="session-hero">
-        <div class="status-indicator live">LIVE</div>
-        <div class="details">
-          <h2>Session Active</h2>
-          <div class="codes">
-            <div class="code-block">
-              <span class="label">Session ID</span>
-              <span class="value" id="disp-sess-id">--</span>
+        <!-- Latest Session Info Card -->
+        <div class="hidden" id="current-session-card"
+          style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #fdf4ff 100%); border: 1px solid #a5b4fc; border-radius: 12px; padding: 2rem 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+            <!-- Left side: LIVE badge + Session Active + IDs -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div
+                style="background: linear-gradient(135deg, #ef4444, #f87171); color: white; padding: 0.4rem 0.9rem; border-radius: 16px; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(239,68,68,0.3);">
+                LIVE</div>
+              <div style="font-weight: 700; font-size: 1.05rem; color: #111827;">Session Active</div>
+              <div
+                style="display: flex; gap: 1.5rem; margin-left: 0.75rem; padding-left: 1rem; border-left: 1px solid rgba(0,0,0,0.08);">
+                <div>
+                  <div
+                    style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; margin-bottom: 2px;">
+                    SESSION ID</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: #111827;" id="disp-sess-id">2</div>
+                </div>
+                <div>
+                  <div
+                    style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; margin-bottom: 2px;">
+                    CODE</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: #059669;" id="disp-otp">708668</div>
+                </div>
+              </div>
             </div>
-            <div class="code-block">
-              <span class="label">OTP</span>
-              <span class="value" id="disp-otp">--</span>
+            <!-- Right side: Buttons -->
+            <div style="display: flex; gap: 0.6rem;">
+              <button onclick="copySessionInfo()"
+                style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; color: #374151; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);"
+                onmouseover="this.style.borderColor='#d1d5db'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.08)'"
+                onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.04)'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy Info
+              </button>
+              <button onclick="stopCurrentSession()"
+                style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; background: linear-gradient(135deg, #fef2f2, #fff1f2); border: 1px solid #fecaca; border-radius: 8px; color: #dc2626; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s;"
+                onmouseover="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5'"
+                onmouseout="this.style.background='linear-gradient(135deg, #fef2f2, #fff1f2)'; this.style.borderColor='#fecaca'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                Stop Session
+              </button>
             </div>
           </div>
         </div>
-        <div class="controls">
-          <button class="btn-secondary" onclick="copySessionInfo()">
-            Copy Info
-          </button>
-          <button class="btn-danger" onclick="stopCurrentSession()">
-            Stop Session
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <div class="card glass-panel">
-      <div class="card-header">
-        <h3>Session History</h3>
-        <button class="btn-icon" onclick="loadSessions()"><img src="icons/reload.png" alt="Refresh" /></button>
-      </div>
-      <div class="card-body">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Status</th>
-              <th>OTP</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="sessions-table-body">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+        <!-- Session History Card -->
+        <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden;">
+          <!-- Card Header -->
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 1.5rem; border-bottom: 1px solid #f3f4f6;">
+            <h3 style="font-size: 1.05rem; font-weight: 600; color: #111827; margin: 0;">Session History</h3>
+            <button onclick="loadSessions()"
+              style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; border-radius: 8px; transition: all 0.15s;"
+              onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6" />
+                <path d="M1 20v-6h6" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+            </button>
+          </div>
+          <!-- Table -->
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+              <thead>
+                <tr style="border-bottom:2px solid #e5e7eb;">
+                  <th
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    ID</th>
+                  <th
+                    style="padding:14px 14px;text-align:left;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    TITLE</th>
+                  <th
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    STATUS</th>
+                  <th
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    CODE</th>
+                  <th
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    ACTIONS</th>
+                </tr>
+                </tr>
+              </thead>
+              <tbody id="sessions-table-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-  <!-- Scoreboard Tab -->
-  <section id="scoreboard" class="tab-content">
-    <header class="section-header">
-      <h1>Live Scoreboard</h1>
-      <div class="header-controls">
-        <input type="text" placeholder="Enter Session ID" id="scoreboard-sess-id" class="search-input" />
-        <button class="btn-primary" onclick="loadScoreboard()">
-          Load
-        </button>
-      </div>
-    </header>
+      <section id="scoreboard" class="tab-content">
+        <header class="section-header">
+          <h1>Live Scoreboard</h1>
+          <div class="header-controls">
+            <input type="text" placeholder="Enter Session ID" id="scoreboard-sess-id" class="search-input" />
+            <button class="btn-primary" onclick="loadScoreboard()">
+              Load
+            </button>
+          </div>
+        </header>
 
-    <!-- Session Analytics Dashboard -->
-    <div id="session-analytics" class="card glass-panel hidden" style="margin-bottom: 20px;">
-      <div class="card-header">
-        <h3>Session Overview</h3>
-      </div>
-      <div class="card-body" style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div
-          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Average Score</h4>
-          <div id="analytics-avg" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">--</div>
+        <!-- Session Analytics Dashboard -->
+        <div id="session-analytics" class="card glass-panel hidden" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <h3>Session Overview</h3>
+          </div>
+          <div class="card-body" style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div
+              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Average Score</h4>
+              <div id="analytics-avg" style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">--</div>
+            </div>
+            <div
+              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Highest Score</h4>
+              <div id="analytics-high" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">--</div>
+            </div>
+            <div
+              style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
+              <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Lowest Score</h4>
+              <div id="analytics-low" style="font-size: 2rem; font-weight: 700; color: var(--danger-color);">--</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h4 style="margin-bottom: 15px;">Course Outcome (CO) Performance</h4>
+            <div id="analytics-co-chart" style="display: flex; gap: 10px; flex-direction: column;">
+              <!-- CO Bars injected here -->
+            </div>
+          </div>
         </div>
-        <div
-          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Highest Score</h4>
-          <div id="analytics-high" style="font-size: 2rem; font-weight: 700; color: var(--success-color);">--</div>
-        </div>
-        <div
-          style="flex: 1; min-width: 200px; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; text-align: center;">
-          <h4 style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Lowest Score</h4>
-          <div id="analytics-low" style="font-size: 2rem; font-weight: 700; color: var(--danger-color);">--</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <h4 style="margin-bottom: 15px;">Course Outcome (CO) Performance</h4>
-        <div id="analytics-co-chart" style="display: flex; gap: 10px; flex-direction: column;">
-          <!-- CO Bars injected here -->
-        </div>
-      </div>
-    </div>
 
-    <div class="card glass-panel">
-      <div class="card-body">
-        <table class="data-table scoreboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Student Name</th>
-              <th>Enrollment</th>
-              <th>Score</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Details</th>
-            </tr>
-            </tr>
-          </thead>
-          <tbody id="scoreboard-body">
-            <tr>
-              <td colspan="6" class="text-center">
-                Enter a Session ID to view results.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+        <div class="card glass-panel">
+          <div class="card-body">
+            <table class="data-table scoreboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Student Name</th>
+                  <th>Enrollment</th>
+                  <th>Score</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Details</th>
+                </tr>
+                </tr>
+              </thead>
+              <tbody id="scoreboard-body">
+                <tr>
+                  <td colspan="6" class="text-center">
+                    Enter a Session ID to view results.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
   </main>
   </div>
 
