@@ -421,6 +421,11 @@ label {
   color: var(--text-muted);
 }
 
+/* Ensure labels inside cards are dark */
+.card label {
+  color: #374151;
+}
+
 
 textarea {
   resize: none;
@@ -536,7 +541,7 @@ select {
   line-height: normal;
 }
 
-/* Input Specifics */
+/* Input Specifics - Default for dark backgrounds */
 input[type="text"],
 input[type="number"],
 input[type="datetime-local"],
@@ -554,6 +559,26 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-on-dark);
+}
+
+/* Override for inputs inside white cards */
+.card input[type="text"],
+.card input[type="number"],
+.card input[type="datetime-local"],
+.card select,
+.card textarea {
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  color: var(--text-main);
+}
+
+.card input:focus,
+.card select:focus,
+.card textarea:focus {
+  border-color: #18181b;
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
+  background: white;
+  color: var(--text-main);
 }
 
 /* Button Base Pattern */
@@ -602,8 +627,9 @@ select:focus {
 }
 
 .btn-secondary:hover {
-  background: var(--bg-dark);
-  border-color: var(--text-muted);
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: var(--text-main);
 }
 
 /* Outline: Integrated Action Button */
@@ -802,7 +828,13 @@ select:focus {
 }
 
 .data-table tr:hover td {
-  background: var(--bg-dark);
+  background: #f9fafb;
+}
+
+/* Ensure session history table has dark text */
+#active-sessions table th,
+#active-sessions table td {
+  color: var(--text-main);
 }
 
 .status-cheated {

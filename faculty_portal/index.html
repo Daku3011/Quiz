@@ -64,18 +64,18 @@
 
       <nav class="nav-menu">
         <button class="nav-btn active" data-tab="create-quiz" onclick="switchTab('create-quiz')">
-          <span class="icon"><img src="icons/icons8-question-48.png" alt="Generate"
-              style="width: 24px; filter: invert(0);"></span>
+          <span class="icon"><img src="icons/icons8-test-passed-100.png" alt="Generate"
+              style="width: 32px; filter: invert(1);"></span>
           Generate
         </button>
         <button class="nav-btn" data-tab="active-sessions" onclick="switchTab('active-sessions')">
-          <span class="icon"><img src="icons/icons8-history-48.png" alt="Session History"
-              style="width: 24px;filter: invert(0);"></span>
+          <span class="icon"><img src="icons/icons8-history-100.png" alt="Session History"
+              style="width: 32px;filter: invert(1);"></span>
           Session History
         </button>
         <button class="nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
-          <span class="icon"><img src="icons/icons8-report-card-48.png" alt="Results"
-              style="width: 24px;filter: invert(0)"></span>
+          <span class="icon"><img src="icons/icons8-ratings-100.png" alt="Results"
+              style="width: 32px;filter: invert(1)"></span>
           Results
         </button>
         <div style="flex:1"></div> <!-- Spacer -->
@@ -89,8 +89,8 @@
           <span class="role">Admin</span>
         </div>
         <button class="logout-btn" onclick="logout()" title="Logout">
-          <span class="icon"><img src="icons/icons8-logout-48.png" alt="Logout"
-              style="width: 24px; filter: invert(0)"></span>
+          <span class="icon"><img src="icons/icons8-back-100.png" alt="Logout"
+              style="width: 32px; filter: invert(1)"></span>
         </button>
       </div>
     </aside>
@@ -185,15 +185,15 @@
                     <!-- Upload PDF Button -->
                     <label for="file-upload" class="btn-secondary"
                       style="flex: 1; cursor: pointer; text-align: center; justify-content: center;">
-                      <img src="icons/icons8-upload-48.png" alt="Upload" style="width: 20px; opacity: 0.7;"> Upload PDF
+                      <img src="icons/icons8-upload-48.png" alt="Upload" style="width: 32px; opacity: 0.7;"> Upload PDF
                     </label>
                     <input type="file" id="file-upload" hidden accept=".txt,.pdf">
-                    <span id="file-details" class="hidden"></span>
+                    <span id="file-details" class="hidden" style="color: #111827;"></span>
 
                     <!-- Analyze Syllabus Button -->
                     <button id="analyze-btn" onclick="analyzeSyllabus()" class="btn-outline" style="flex: 2;">
                       <span class="btn-icon" style="padding:0;"><img src="icons/icons8-search-32.png" alt="Analyze"
-                          style="width: 20px;"></span> Analyze & COs
+                          style="width: 32px;"></span> Analyze & COs
                     </button>
                   </div>
 
@@ -203,7 +203,8 @@
                         border-top: 1px solid var(--border-color);
                         padding-top: 15px;
                       ">
-                    <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Chapter Weights & CO Analysis</h4>
+                    <h4 style="margin-bottom: 10px; font-size: 0.95rem; color: #111827;">Chapter Weights & CO Analysis
+                    </h4>
                     <div id="weights-list" class="form-grid">
                       <!-- Populated by JS -->
                     </div>
@@ -212,7 +213,7 @@
                           font-size: 0.85rem;
                           text-align: right;
                         ">
-                      Total Weight: <span id="total-weight">0</span>%
+                      <span style="color: #374151;">Total Weight:</span> <span id="total-weight">0</span>%
                     </div>
                   </div>
                 </div>
@@ -222,7 +223,7 @@
                   style="margin-top: 1.5rem;">
                   <span class="btn-icon" style="color: white; opacity: 1;">
                     <img src="icons/icons8-faq-48.png" alt="Generate"
-                      style="width: 20px; filter: brightness(0) invert(1);">
+                      style="width: 32px; filter: invert(1) saturate(5);">
                   </span> Generate Questions
                 </button>
               </div>
@@ -281,7 +282,7 @@
                   <button onclick="openScheduleModal()" id="schedule-btn" class="btn-secondary" disabled
                     style="flex: 1; height: 44px;">
                     <span class="icon" style="margin-right: 5px;">
-                      <img src="icons/icons8-schedule-48.png" alt="Schedule" style="width: 20px;">
+                      <img src="icons/icons8-schedule-48.png" alt="Schedule" style="width: 32px;">
                     </span> Schedule
                   </button>
                 </div>
@@ -362,12 +363,7 @@
             <button onclick="loadSessions()"
               style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; border-radius: 8px; transition: all 0.15s;"
               onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 4v6h-6" />
-                <path d="M1 20v-6h6" />
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-              </svg>
+              <img src="icons/icons8-reload-100.png" alt="Refresh" style="width: 32px;" >
             </button>
           </div>
           <!-- Table -->
