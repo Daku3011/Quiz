@@ -1,9 +1,9 @@
 :root {
-  /* Figma Design Palette */
-  --bg-dark: #f9fafb;
-  /* Light Gray Background */
-  --bg-sidebar: #0f172a;
-  /* Dark Slate Sidebar */
+  /* Dark Theme Palette */
+  --bg-dark: #0f172a;
+  /* Dark Slate Background */
+  --bg-sidebar: #1e293b;
+  /* Sidebar Dark Slate */
   --bg-card: #ffffff;
   /* White Card */
 
@@ -21,11 +21,13 @@
   /* Red */
 
   --text-main: #111827;
-  /* Almost Black */
+  /* Dark text on light cards */
   --text-muted: #6b7280;
   /* Gray 500 */
-  --text-on-dark: #f3f4f6;
-  /* Gray 100 */
+  --text-on-dark: #f1f5f9;
+  /* Light text on dark bg (slate-100) */
+  --text-muted-dark: #94a3b8;
+  /* Muted text on dark (slate-400) */
 
   /* Shadows & Radius */
   --radius-lg: 16px;
@@ -61,7 +63,8 @@
 
 body {
   background: var(--bg-dark);
-  color: var(--text-main);
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg-dark) 75%);
+  color: var(--text-on-dark);
   height: 100vh;
   overflow: hidden;
 }
@@ -76,13 +79,14 @@ body {
 /* Sidebar */
 .sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 40%, #fdf2f8 100%);
-  border-right: none;
+  background: var(--bg-sidebar);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1rem;
   z-index: 10;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .brand {
@@ -98,12 +102,12 @@ body {
 .brand h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-on-dark);
   letter-spacing: -0.02em;
 }
 
 .brand .highlight {
-  color: #6366f1;
+  color: #818cf8;
   -webkit-text-fill-color: initial;
 }
 
@@ -122,7 +126,7 @@ body {
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
-  color: #6b7280;
+  color: var(--text-muted-dark);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -131,17 +135,17 @@ body {
 }
 
 .nav-btn:hover {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(167, 139, 250, 0.2) 100%);
-  color: #6366f1;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-on-dark);
   border-left: 3px solid #818cf8;
 }
 
 .nav-btn.active {
-  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border-left: none;
   color: white;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.4);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
   border: none;
 }
 
@@ -175,7 +179,7 @@ body {
 .avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   border: none;
   border-radius: 50%;
   display: flex;
@@ -184,7 +188,7 @@ body {
   font-weight: 600;
   font-size: 0.85rem;
   color: white;
-  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.35);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
 .user-profile .info {
@@ -197,7 +201,7 @@ body {
 .user-profile .name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-on-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -205,7 +209,7 @@ body {
 
 .user-profile .role {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -231,6 +235,7 @@ body {
   padding: 2.5rem;
   overflow-y: auto;
   position: relative;
+  background: transparent;
 }
 
 .tab-content {
@@ -252,13 +257,14 @@ body {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--text-main);
+  /* color: var(--text-main); */
+  color: white;
   background: none;
   -webkit-text-fill-color: initial;
 }
 
 .section-header p {
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
   font-size: 1.1rem;
 }
 
@@ -271,7 +277,7 @@ body {
 /* Glass Panel & Cards */
 .card {
   background: white;
-  border: 1px solid var(--glass-border);
+  border: 1px solid #e5e7eb;
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition:
@@ -415,19 +421,25 @@ label {
   color: var(--text-muted);
 }
 
-
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-  background: white;
+/* Ensure labels inside cards are dark */
+.card label {
+  color: #374151;
 }
+
 
 textarea {
   resize: none;
   height: 220px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-on-dark);
+}
+
+textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-on-dark);
 }
 
 .search-input {
@@ -529,23 +541,44 @@ select {
   line-height: normal;
 }
 
-/* Input Specifics */
+/* Input Specifics - Default for dark backgrounds */
 input[type="text"],
 input[type="number"],
 input[type="datetime-local"],
 select {
   width: 100%;
-  background: var(--bg-dark);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-on-dark);
   outline: none;
 }
 
 input:focus,
 select:focus {
-  border-color: var(--primary-color);
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-on-dark);
+}
+
+/* Override for inputs inside white cards */
+.card input[type="text"],
+.card input[type="number"],
+.card input[type="datetime-local"],
+.card select,
+.card textarea {
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  color: var(--text-main);
+}
+
+.card input:focus,
+.card select:focus,
+.card textarea:focus {
+  border-color: #18181b;
   box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
   background: white;
+  color: var(--text-main);
 }
 
 /* Button Base Pattern */
@@ -594,8 +627,9 @@ select:focus {
 }
 
 .btn-secondary:hover {
-  background: var(--bg-dark);
-  border-color: var(--text-muted);
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: var(--text-main);
 }
 
 /* Outline: Integrated Action Button */
@@ -794,7 +828,13 @@ select:focus {
 }
 
 .data-table tr:hover td {
-  background: var(--bg-dark);
+  background: #f9fafb;
+}
+
+/* Ensure session history table has dark text */
+#active-sessions table th,
+#active-sessions table td {
+  color: var(--text-main);
 }
 
 .status-cheated {

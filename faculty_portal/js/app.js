@@ -215,7 +215,7 @@ async function analyzeSyllabus() {
 
     const btn = document.getElementById('analyze-btn');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<span class="btn-icon">⏳</span> Analyzing...';
+    btn.innerHTML = '<span class="btn-icon"><img src="icons/icons8-analyze-48.png" alt="Analyzing" style="width: 32px;"></span> Analyzing...';
     btn.disabled = true;
 
     try {
@@ -758,7 +758,7 @@ function renderAnalyticsDashboard(data) {
                 <div style="flex:1; background:#eee; height:20px; border-radius:10px; overflow:hidden;">
                     <div style="width:${co.accuracy}%; background:var(--primary-color); height:100%;"></div>
                 </div>
-                <div style="width:50px; font-size:0.9rem;">${Math.round(co.accuracy)}%</div>
+                <div style="width:50px; font-size:0.9rem; color: black;">${Math.round(co.accuracy)}%</div>
             </div>
         `).join('');
     } else {
