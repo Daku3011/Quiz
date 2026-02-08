@@ -13,6 +13,38 @@ let currentSessionId = null;
 let currentOtp = null;
 let currentUser = null;
 
+// Sync Review Questions card height to Configuration card
+function syncCardHeights() {
+    const leftCard = document.querySelector('.col-left .card');
+    const rightCard = document.querySelector('.col-right .card');
+    const questionsList = document.getElementById('questions-list');
+
+    if (leftCard && rightCard && questionsList) {
+        // Reset right card height first to get natural left card height
+        rightCard.style.height = 'auto';
+        questionsList.style.maxHeight = 'none';
+
+        // Get left card height
+        const leftHeight = leftCard.offsetHeight;
+
+        // Set right card to match exactly
+        rightCard.style.height = leftHeight + 'px';
+
+        // Calculate available height for questions list (subtract header, filters, buttons, padding)
+        const headerHeight = rightCard.querySelector('.card-header')?.offsetHeight || 60;
+        const filtersHeight = 60; // Approximate filter row height
+        const buttonsHeight = 80; // Approximate buttons row height
+        const padding = 48; // Card body padding
+
+        const availableHeight = leftHeight - headerHeight - filtersHeight - buttonsHeight - padding;
+        questionsList.style.maxHeight = Math.max(100, availableHeight) + 'px';
+    }
+}
+
+// Run on load and resize
+window.addEventListener('load', () => setTimeout(syncCardHeights, 100));
+window.addEventListener('resize', syncCardHeights);
+
 // Reactive Stepper Logic
 function updateStepper(step) {
     // Reset all
@@ -377,7 +409,7 @@ function renderQuestions(listToRender = null) {
                 </div>
             </div>
             <div class="q-text">${q.text}</div>
-            <div class="q-opts" style="font-size: 0.85rem; color: var(--text-muted);">
+            <div class="q-opts" style="font-size: 0.85rem; color: var(--text-main);">
                 A: ${q.optionA}<br>
                 B: ${q.optionB}<br>
                 C: ${q.optionC}<br>
@@ -385,6 +417,9 @@ function renderQuestions(listToRender = null) {
             </div>
         </div>
     `}).join('') + addManualBtn;
+
+    // Sync card heights after rendering
+    setTimeout(syncCardHeights, 50);
 }
 
 function populateFilters() {
