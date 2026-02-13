@@ -3,7 +3,11 @@
  * Fetch wrapper for making HTTP requests to the backend API
  */
 
-const API_BASE = (window.CONFIG && window.CONFIG.API_BASE_URL) ? window.CONFIG.API_BASE_URL + '/api' : '/api';
+const API_BASE = (window.CONFIG && window.CONFIG.API_BASE_URL)
+    ? window.CONFIG.API_BASE_URL
+    : `http://${window.location.hostname}:9090`;
+
+console.log('API_BASE set to:', API_BASE);
 
 /**
  * API Client class for making HTTP requests
@@ -277,7 +281,7 @@ const quizAPI = {
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    getStudentResults: (studentId, sessionId) => 
+    getStudentResults: (studentId, sessionId) =>
         api.get(`/quiz/student/${studentId}/session/${sessionId}/results`),
 
     /**

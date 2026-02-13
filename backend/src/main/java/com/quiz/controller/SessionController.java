@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.quiz.repository.SessionRepository;
+import com.quiz.dto.SessionDTOs;
+import com.quiz.dto.SessionDTOs.StartSessionRequest;
+import com.quiz.dto.SessionDTOs.QuestionRequest;
+import com.quiz.dto.SessionDTOs.JoinSessionRequest;
 
 // This is one of the busiest controllers. It manages the lifecycle of a quiz session—
 // from starting it and generating an OTP to letting students join and then stopping it.
@@ -38,11 +42,11 @@ public class SessionController {
     // When a faculty member clicks "Start Quiz", this method sets everything up.
     // It saves the questions, creates the session, and generates a fresh OTP.
     @PostMapping("/start")
-    public ResponseEntity<?> startSession(@RequestBody com.quiz.dto.SessionDTOs.StartSessionRequest body) {
+    public ResponseEntity<?> startSession(@RequestBody StartSessionRequest body) {
         logger.info("Request to start session: Title='{}'", body.getTitle());
 
         String title = body.getTitle() == null ? "Quiz" : body.getTitle();
-        List<com.quiz.dto.SessionDTOs.QuestionRequest> qlist = body.getQuestions() == null ? List.of()
+        List<QuestionRequest> qlist = body.getQuestions() == null ? List.of()
                 : body.getQuestions();
 
         List<Question> questions = qlist.stream().map(m -> {
@@ -101,7 +105,7 @@ public class SessionController {
     // We check the OTP and make sure the exam is actually running (not too early,
     // not too late).
     @PostMapping("/join")
-    public ResponseEntity<?> joinSession(@RequestBody com.quiz.dto.SessionDTOs.JoinSessionRequest body) {
+    public ResponseEntity<?> joinSession(@RequestBody JoinSessionRequest body) {
         Long sessionId = body.getSessionId();
         if (sessionId == null)
             return ResponseEntity.badRequest().body(Map.of("error", "invalid sessionId"));
@@ -201,7 +205,18 @@ public class SessionController {
 
     @GetMapping("/active")
     public ResponseEntity<?> getActiveSessions() {
-        return ResponseEntity.ok(sessionService.getActiveSessions());
+        // DEBUGGING LOGIC
+        long total = sessionRepo.count();
+        List<Session> all = sessionRepo.findAll();
+        logger.info("DEBUG: Total sessions in DB: {}", total);
+        for (Session s : all) {
+            logger.info("Session ID: {}, Active: {}, Start: {}, End: {}, Now: {}",
+                    s.getId(), s.isActive(), s.getStartTime(), s.getEndTime(), java.time.Instant.now());
+        }
+
+        List<Session> sessions = sessionService.getActiveSessions();
+        logger.info("Returning active sessions count: {}", sessions.size());
+        return ResponseEntity.ok(sessions);
     }
 
     @PostMapping("/{id}/stop")

@@ -8,7 +8,7 @@ import java.time.Duration;
 public class ApiClient {
     // If your backend is not on localhost:8080, change this.
     // Read from system property "app.url" or default to localhost
-    public static final String BASE_URL = System.getProperty("app.url", "http://localhost:9090");
+    public static final String BASE_URL = System.getProperty("app.url", "http://localhost:9090" );
 
     public static final HttpClient HTTP = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))

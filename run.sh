@@ -122,5 +122,9 @@ fi
 # mvn javafx:run
 
 # Just wait here if we don't start the client
+# 6. Show Access URLs
+echo ""
+bash "$PROJECT_ROOT/show_access_urls.sh"
+
 echo "   All systems go! Press Ctrl+C to stop."
 wait

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SessionDTOs {
+    // DTOs for Session management
 
     public static class StartSessionRequest {
         private String title;
