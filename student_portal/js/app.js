@@ -8,6 +8,7 @@ let quizTimer = null;
 let countdownTimer = null;
 let hasCheated = false;
 let isSubmitting = false;
+// API_BASE is defined in api.js
 
 const sections = {
     login: document.getElementById('login-section'),
@@ -128,7 +129,7 @@ async function handleLogin(event) {
             document.getElementById('waiting-instructor').textContent = 'Checking for active sessions...';
             document.getElementById('students-joined').parentElement.classList.add('hidden'); // Hide count
             document.getElementById('waiting-status').textContent = 'Please wait...';
-            
+
             checkForActiveSessions();
         } else {
             const errorText = await res.text();
@@ -294,7 +295,7 @@ function startCountdownTimer(startTime) {
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        document.getElementById('countdown-timer').textContent = 
+        document.getElementById('countdown-timer').textContent =
             `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
@@ -352,7 +353,7 @@ function startQuizTimer() {
     const updateTimer = () => {
         const minutes = Math.floor(timeRemaining / 60);
         const seconds = timeRemaining % 60;
-        document.getElementById('timer').textContent = 
+        document.getElementById('timer').textContent =
             `Time: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
         if (timeRemaining <= 0) {
@@ -437,24 +438,24 @@ document.addEventListener('keydown', (e) => {
 async function submitQuiz(autoSubmit = false) {
     if (!autoSubmit) {
         isSubmitting = true;
-        
+
         // Count unattempted questions
         const totalQuestions = questions.length;
         const answeredCount = Object.keys(answers).length;
         const unattemptedCount = totalQuestions - answeredCount;
-        
+
         let message = 'Are you sure you want to submit?';
         if (unattemptedCount > 0) {
             message = `You have missed ${unattemptedCount} question(s). even then try to submit then make those empty question to worng`;
         } // User phrasing: "you have miss the question then even then try to submit then make those empty question to worng"
-          // I will make it slightly more grammatical but keep the spirit or use the user's exact if they prefer, 
-          // but effective communication is better. 
-          // User asked: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
-          // I'll stick to a clear message: "You have missed X question(s). Submitting now will mark them as wrong. Do you want to proceed?" 
-          // Re-reading user request: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
-          // I will use a clean professional message.
+        // I will make it slightly more grammatical but keep the spirit or use the user's exact if they prefer, 
+        // but effective communication is better. 
+        // User asked: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
+        // I'll stick to a clear message: "You have missed X question(s). Submitting now will mark them as wrong. Do you want to proceed?" 
+        // Re-reading user request: "ask them one time that you have miss the question then even then try to submit then make those empty question to worng"
+        // I will use a clean professional message.
         if (unattemptedCount > 0) {
-             message = `You have missed ${unattemptedCount} question(s). Submitting now will mark them as wrong. Do you want to proceed?`;
+            message = `You have missed ${unattemptedCount} question(s). Submitting now will mark them as wrong. Do you want to proceed?`;
         }
 
         if (!confirm(message)) {
@@ -628,16 +629,16 @@ async function checkForActiveSessions() {
         const res = await fetch(`${API_BASE}/session/active`);
         if (res.ok) {
             const sessions = await res.json();
-            
+
             if (sessions.length > 0) {
                 // Session found!
                 const session = sessions[0]; // Auto-pick the first one
                 showSection('joinSession');
-                
+
                 // Pre-fill
                 document.getElementById('join-session-id').value = session.id;
                 document.getElementById('join-name').focus();
-                
+
                 const state = JSON.parse(sessionStorage.getItem('quizState'));
                 if (state && state.email) {
                     document.getElementById('join-enrollment').value = state.email;
@@ -649,7 +650,7 @@ async function checkForActiveSessions() {
                 document.getElementById('waiting-instructor').textContent = 'Waiting for Faculty to start a session...';
                 document.getElementById('students-joined').parentElement.classList.add('hidden');
                 document.getElementById('waiting-status').textContent = 'Polling for sessions...';
-                
+
                 // Poll again in 5s
                 setTimeout(checkForActiveSessions, 5000);
             }
@@ -699,10 +700,10 @@ window.onload = function () {
             studentId = state.studentId;
             // Instead of going straight to join, check if we need to standby
             if (!sessionId) {
-                 checkForActiveSessions();
+                checkForActiveSessions();
             } else {
-                 showSection('joinSession');
-                 if (state.email) {
+                showSection('joinSession');
+                if (state.email) {
                     document.getElementById('join-enrollment').value = state.email;
                 }
                 document.getElementById('join-name').focus();
