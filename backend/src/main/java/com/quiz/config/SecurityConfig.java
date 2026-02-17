@@ -34,10 +34,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/index.html", "/favicon.svg", "/images/**", "/css/**", "/js/**",
                                 "/api/auth/**", "/api/session/**",
                                 "/api/syllabus/**", "/api/quiz/**", "/api/analytics/**",
-                                "/api/student/**", "/api/admin/**", "/h2-console/**") // TODO: Tighten this up later
+                                "/api/student/**", "/api/admin/**", "/h2-console/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(
@@ -70,12 +71,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Use the injected allowedOrigins property, splitting by comma if multiple
-        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
-            configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
-        } else {
-            configuration.setAllowedOriginPatterns(List.of("*"));
-        }
+        // Allow ALL origins (hardcoded to bypass property issues)
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));

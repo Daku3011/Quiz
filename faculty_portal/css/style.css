@@ -46,6 +46,10 @@
   /* Gray 200 */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
+
+  /* Missing Variable Fix */
+  --secondary-color: #4f46e5;
+  /* Indigo 600 */
 }
 
 * {
@@ -441,10 +445,11 @@ textarea:focus {
   border-color: #818cf8;
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
   background: rgba(255, 255, 255, 0.1);
-  color: var(--text-on-dark);
+  /* color: var(--text-on-dark); removed to let specific rules apply */
 }
 
 .search-input {
+  color: black !important;
   max-width: 300px;
   background: white !important;
 }
@@ -560,27 +565,47 @@ select:focus {
   border-color: #818cf8;
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
   background: rgba(255, 255, 255, 0.1);
-  color: var(--text-on-dark);
+  /* color: var(--text-on-dark); removed */
 }
 
 /* Override for inputs inside white cards */
+/* Override for inputs inside white cards AND modals */
 .card input[type="text"],
 .card input[type="number"],
 .card input[type="datetime-local"],
 .card select,
-.card textarea {
+.card textarea,
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="datetime-local"],
+.modal-content select,
+.modal-content textarea {
   background: #f9fafb;
   border: 1px solid #d1d5db;
-  color: var(--text-main);
+  color: #111827 !important;
+  /* Force dark text */
 }
 
 .card input:focus,
 .card select:focus,
-.card textarea:focus {
+.card textarea:focus,
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
   border-color: #18181b;
   box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
   background: white;
-  color: var(--text-main);
+  color: #111827 !important;
+}
+
+/* Placeholder Fix for Modals/Cards */
+.card input::placeholder,
+.card textarea::placeholder,
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+  color: #6b7280 !important;
+  /* Gray 500 */
+  opacity: 1;
 }
 
 /* Button Base Pattern */
@@ -777,10 +802,14 @@ select:focus {
 }
 
 .q-num {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--secondary-color);
   text-transform: uppercase;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
 }
 
 .q-actions {

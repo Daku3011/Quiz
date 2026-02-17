@@ -156,14 +156,21 @@ const studentAPI = {
      * @param {object} data - Registration data
      * @returns {Promise<any>}
      */
-    register: (data) => api.post('/student/register', data),
+    register: (data) => api.post('/api/student/register', data),
+
+    /**
+     * Login student
+     * @param {object} data - Login credentials
+     * @returns {Promise<any>}
+     */
+    login: (data) => api.post('/api/student/login', data),
 
     /**
      * Get student profile
      * @param {string} studentId - Student ID
      * @returns {Promise<any>}
      */
-    getProfile: (studentId) => api.get(`/student/${studentId}`),
+    getProfile: (studentId) => api.get(`/api/student/${studentId}`),
 
     /**
      * Update student profile
@@ -171,7 +178,7 @@ const studentAPI = {
      * @param {object} data - Profile data
      * @returns {Promise<any>}
      */
-    updateProfile: (studentId, data) => api.put(`/student/${studentId}`, data),
+    updateProfile: (studentId, data) => api.put(`/api/student/${studentId}`, data),
 };
 
 /**
@@ -183,7 +190,13 @@ const sessionAPI = {
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    getStatus: (sessionId) => api.get(`/session/${sessionId}/status`),
+    getStatus: (sessionId) => api.get(`/api/session/${sessionId}/status`),
+
+    /**
+     * Get active sessions
+     * @returns {Promise<any>}
+     */
+    getActive: () => api.get('/api/session/active'),
 
     /**
      * Get session questions
@@ -193,7 +206,7 @@ const sessionAPI = {
      */
     getQuestions: (sessionId, params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/session/${sessionId}/questions${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/session/${sessionId}/questions${queryString ? '?' + queryString : ''}`);
     },
 
     /**
@@ -201,14 +214,14 @@ const sessionAPI = {
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    getDetails: (sessionId) => api.get(`/session/${sessionId}`),
+    getDetails: (sessionId) => api.get(`/api/session/${sessionId}`),
 
     /**
      * Get session scoreboard
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    getScoreboard: (sessionId) => api.get(`/session/${sessionId}/scoreboard`),
+    getScoreboard: (sessionId) => api.get(`/api/session/${sessionId}/scoreboard`),
 
     /**
      * Get all sessions
@@ -217,7 +230,7 @@ const sessionAPI = {
      */
     getAll: (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/session${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/session${queryString ? '?' + queryString : ''}`);
     },
 
     /**
@@ -225,7 +238,7 @@ const sessionAPI = {
      * @param {object} data - Session data
      * @returns {Promise<any>}
      */
-    create: (data) => api.post('/session', data),
+    create: (data) => api.post('/api/session', data),
 
     /**
      * Update session
@@ -233,28 +246,28 @@ const sessionAPI = {
      * @param {object} data - Session data
      * @returns {Promise<any>}
      */
-    update: (sessionId, data) => api.put(`/session/${sessionId}`, data),
+    update: (sessionId, data) => api.put(`/api/session/${sessionId}`, data),
 
     /**
      * Delete session
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    delete: (sessionId) => api.delete(`/session/${sessionId}`),
+    delete: (sessionId) => api.delete(`/api/session/${sessionId}`),
 
     /**
      * Start session
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    start: (sessionId) => api.post(`/session/${sessionId}/start`),
+    start: (sessionId) => api.post(`/api/session/${sessionId}/start`),
 
     /**
      * End session
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    end: (sessionId) => api.post(`/session/${sessionId}/end`),
+    end: (sessionId) => api.post(`/api/session/${sessionId}/end`),
 };
 
 /**
@@ -266,14 +279,14 @@ const quizAPI = {
      * @param {object} data - Quiz submission data
      * @returns {Promise<any>}
      */
-    submit: (data) => api.post('/quiz/submit', data),
+    submit: (data) => api.post('/api/quiz/submit', data),
 
     /**
      * Get quiz results
      * @param {string} quizId - Quiz ID
      * @returns {Promise<any>}
      */
-    getResults: (quizId) => api.get(`/quiz/${quizId}/results`),
+    getResults: (quizId) => api.get(`/api/quiz/${quizId}/results`),
 
     /**
      * Get student quiz results
@@ -282,14 +295,14 @@ const quizAPI = {
      * @returns {Promise<any>}
      */
     getStudentResults: (studentId, sessionId) =>
-        api.get(`/quiz/student/${studentId}/session/${sessionId}/results`),
+        api.get(`/api/quiz/student/${studentId}/session/${sessionId}/results`),
 
     /**
      * Create quiz
      * @param {object} data - Quiz data
      * @returns {Promise<any>}
      */
-    create: (data) => api.post('/quiz', data),
+    create: (data) => api.post('/api/quiz', data),
 
     /**
      * Update quiz
@@ -297,14 +310,14 @@ const quizAPI = {
      * @param {object} data - Quiz data
      * @returns {Promise<any>}
      */
-    update: (quizId, data) => api.put(`/quiz/${quizId}`, data),
+    update: (quizId, data) => api.put(`/api/quiz/${quizId}`, data),
 
     /**
      * Delete quiz
      * @param {string} quizId - Quiz ID
      * @returns {Promise<any>}
      */
-    delete: (quizId) => api.delete(`/quiz/${quizId}`),
+    delete: (quizId) => api.delete(`/api/quiz/${quizId}`),
 
     /**
      * Get all quizzes
@@ -313,7 +326,7 @@ const quizAPI = {
      */
     getAll: (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/quiz${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/quiz${queryString ? '?' + queryString : ''}`);
     },
 };
 
@@ -326,7 +339,7 @@ const questionAPI = {
      * @param {string} questionId - Question ID
      * @returns {Promise<any>}
      */
-    get: (questionId) => api.get(`/question/${questionId}`),
+    get: (questionId) => api.get(`/api/question/${questionId}`),
 
     /**
      * Get all questions
@@ -335,7 +348,7 @@ const questionAPI = {
      */
     getAll: (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/question${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/question${queryString ? '?' + queryString : ''}`);
     },
 
     /**
@@ -343,7 +356,7 @@ const questionAPI = {
      * @param {object} data - Question data
      * @returns {Promise<any>}
      */
-    create: (data) => api.post('/question', data),
+    create: (data) => api.post('/api/question', data),
 
     /**
      * Update question
@@ -351,14 +364,14 @@ const questionAPI = {
      * @param {object} data - Question data
      * @returns {Promise<any>}
      */
-    update: (questionId, data) => api.put(`/question/${questionId}`, data),
+    update: (questionId, data) => api.put(`/api/question/${questionId}`, data),
 
     /**
      * Delete question
      * @param {string} questionId - Question ID
      * @returns {Promise<any>}
      */
-    delete: (questionId) => api.delete(`/question/${questionId}`),
+    delete: (questionId) => api.delete(`/api/question/${questionId}`),
 };
 
 /**
@@ -370,7 +383,7 @@ const facultyAPI = {
      * @param {string} facultyId - Faculty ID
      * @returns {Promise<any>}
      */
-    getProfile: (facultyId) => api.get(`/faculty/${facultyId}`),
+    getProfile: (facultyId) => api.get(`/api/faculty/${facultyId}`),
 
     /**
      * Update faculty profile
@@ -378,14 +391,14 @@ const facultyAPI = {
      * @param {object} data - Profile data
      * @returns {Promise<any>}
      */
-    updateProfile: (facultyId, data) => api.put(`/faculty/${facultyId}`, data),
+    updateProfile: (facultyId, data) => api.put(`/api/faculty/${facultyId}`, data),
 
     /**
      * Get faculty sessions
      * @param {string} facultyId - Faculty ID
      * @returns {Promise<any>}
      */
-    getSessions: (facultyId) => api.get(`/faculty/${facultyId}/sessions`),
+    getSessions: (facultyId) => api.get(`/api/faculty/${facultyId}/sessions`),
 
     /**
      * Get faculty analytics
@@ -395,7 +408,7 @@ const facultyAPI = {
      */
     getAnalytics: (facultyId, params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/faculty/${facultyId}/analytics${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/faculty/${facultyId}/analytics${queryString ? '?' + queryString : ''}`);
     },
 };
 
@@ -408,47 +421,47 @@ const authAPI = {
      * @param {object} data - Login credentials
      * @returns {Promise<any>}
      */
-    login: (data) => api.post('/auth/login', data),
+    login: (data) => api.post('/api/auth/login', data),
 
     /**
      * Logout
      * @returns {Promise<any>}
      */
-    logout: () => api.post('/auth/logout'),
+    logout: () => api.post('/api/auth/logout'),
 
     /**
      * Register
      * @param {object} data - Registration data
      * @returns {Promise<any>}
      */
-    register: (data) => api.post('/auth/register', data),
+    register: (data) => api.post('/api/auth/register', data),
 
     /**
      * Forgot password
      * @param {object} data - Email data
      * @returns {Promise<any>}
      */
-    forgotPassword: (data) => api.post('/auth/forgot-password', data),
+    forgotPassword: (data) => api.post('/api/auth/forgot-password', data),
 
     /**
      * Reset password
      * @param {object} data - Reset data
      * @returns {Promise<any>}
      */
-    resetPassword: (data) => api.post('/auth/reset-password', data),
+    resetPassword: (data) => api.post('/api/auth/reset-password', data),
 
     /**
      * Verify email
      * @param {object} data - Verification data
      * @returns {Promise<any>}
      */
-    verifyEmail: (data) => api.post('/auth/verify-email', data),
+    verifyEmail: (data) => api.post('/api/auth/verify-email', data),
 
     /**
      * Refresh token
      * @returns {Promise<any>}
      */
-    refreshToken: () => api.post('/auth/refresh-token'),
+    refreshToken: () => api.post('/api/auth/refresh-token'),
 };
 
 /**
@@ -462,7 +475,7 @@ const analyticsAPI = {
      */
     getDashboard: (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        return api.get(`/analytics/dashboard${queryString ? '?' + queryString : ''}`);
+        return api.get(`/api/analytics/dashboard${queryString ? '?' + queryString : ''}`);
     },
 
     /**
@@ -470,20 +483,20 @@ const analyticsAPI = {
      * @param {string} sessionId - Session ID
      * @returns {Promise<any>}
      */
-    getSession: (sessionId) => api.get(`/analytics/session/${sessionId}`),
+    getSession: (sessionId) => api.get(`/api/analytics/session/${sessionId}`),
 
     /**
      * Get question analytics
      * @param {string} questionId - Question ID
      * @returns {Promise<any>}
      */
-    getQuestion: (questionId) => api.get(`/analytics/question/${questionId}`),
+    getQuestion: (questionId) => api.get(`/api/analytics/question/${questionId}`),
 
     /**
      * Get student analytics
      * @param {string} studentId - Student ID
      * @returns {Promise<any>}
      */
-    getStudent: (studentId) => api.get(`/analytics/student/${studentId}`),
+    getStudent: (studentId) => api.get(`/api/analytics/student/${studentId}`),
 };
 

@@ -108,14 +108,9 @@ async function handleLogin(event) {
     loginSpinner.classList.remove('hidden');
 
     try {
-        const res = await fetch(`${API_BASE}/student/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+        const data = await studentAPI.login({ email, password });
 
-        if (res.ok) {
-            const data = await res.json();
+        if (data) {
             studentId = data.studentId;
 
 
@@ -131,13 +126,10 @@ async function handleLogin(event) {
             document.getElementById('waiting-status').textContent = 'Please wait...';
 
             checkForActiveSessions();
-        } else {
-            const errorText = await res.text();
-            document.getElementById('login-error').textContent = 'Login failed: ' + errorText;
         }
-    } catch (e) {
-        console.error(e);
-        document.getElementById('login-error').textContent = 'Error connecting to server';
+    } catch (error) {
+        console.error(error);
+        document.getElementById('login-error').textContent = error.message || 'Login failed';
     } finally {
         loginBtn.disabled = false;
         loginBtnText.textContent = 'Login';
@@ -218,14 +210,9 @@ async function handleJoinSession(event) {
     joinSpinner.classList.remove('hidden');
 
     try {
-        const res = await fetch(`${API_BASE}/student/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, enrollment, sessionId, otp })
-        });
+        const data = await studentAPI.register({ name, enrollment, sessionId, otp });
 
-        if (res.ok) {
-            const data = await res.json();
+        if (data) {
             studentId = data.studentId;
 
             sessionStorage.setItem('quizState', JSON.stringify({
@@ -233,13 +220,10 @@ async function handleJoinSession(event) {
             }));
 
             checkSessionStatus();
-        } else {
-            const errorText = await res.text();
-            document.getElementById('join-error').textContent = 'Join failed: ' + errorText;
         }
-    } catch (e) {
-        console.error(e);
-        document.getElementById('join-error').textContent = 'Error connecting to server';
+    } catch (error) {
+        console.error(error);
+        document.getElementById('join-error').textContent = error.message || 'Join failed';
     } finally {
         joinBtn.disabled = false;
         joinBtnText.textContent = 'Join Session';
@@ -250,9 +234,8 @@ async function handleJoinSession(event) {
 // Waiting room (2.3)
 async function checkSessionStatus() {
     try {
-        const res = await fetch(`${API_BASE}/session/${sessionId}/status`);
-        if (res.ok) {
-            const data = await res.json();
+        const data = await sessionAPI.getStatus(sessionId);
+        if (data) {
             if (data.status === 'ACTIVE') {
                 showSection('quiz');
                 await loadQuestions();
@@ -268,12 +251,13 @@ async function checkSessionStatus() {
                 alert('This session has ended');
                 showSection('login');
             }
-        } else {
-            document.getElementById('waiting-status').textContent = 'Error checking status. Retrying...';
-            setTimeout(checkSessionStatus, 5000);
         }
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
+        console.error(error);
+        // Only show status update if we are in the waiting room
+        if (!sections.waiting.classList.contains('hidden')) {
+            document.getElementById('waiting-status').textContent = 'Error checking status. Retrying...';
+        }
         setTimeout(checkSessionStatus, 5000);
     }
 }
@@ -313,9 +297,9 @@ function leaveSession() {
 // Quiz interface (2.4)
 async function loadQuestions() {
     try {
-        const res = await fetch(`${API_BASE}/session/${sessionId}/questions?studentId=${studentId}`);
-        if (res.ok) {
-            questions = await res.json();
+        const data = await sessionAPI.getQuestions(sessionId, { studentId });
+        if (data) {
+            questions = data;
             if (questions.length > 0) {
                 currentIndex = 0;
                 answers = {};
@@ -326,12 +310,10 @@ async function loadQuestions() {
             } else {
                 alert('No questions in this session');
             }
-        } else {
-            alert('Failed to load questions');
         }
-    } catch (e) {
-        console.error(e);
-        alert('Error loading questions');
+    } catch (error) {
+        console.error(error);
+        alert('Error loading questions: ' + (error.message || 'Unknown error'));
     }
 }
 
@@ -490,14 +472,9 @@ async function submitQuiz(autoSubmit = false) {
     };
 
     try {
-        const res = await fetch(`${API_BASE}/quiz/submit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        const data = await quizAPI.submit(payload);
 
-        if (res.ok) {
-            const data = await res.json();
+        if (data) {
             displayResults(data);
 
             /*
@@ -514,12 +491,10 @@ async function submitQuiz(autoSubmit = false) {
 
             showSection('result');
             window.onbeforeunload = null;
-        } else {
-            alert('Submission failed');
         }
-    } catch (e) {
-        console.error(e);
-        alert('Error submitting quiz');
+    } catch (error) {
+        console.error(error);
+        alert('Error submitting quiz: ' + (error.message || 'Unknown error'));
     }
 }
 
@@ -560,31 +535,31 @@ function displayResults(data) {
             const statusIcon = isCorrect ? '✅' : '❌';
 
             resultItem.innerHTML = `
-                <div class="result-item-header ${headerClass}" onclick="toggleResultItem(this)">
-                    <span>${statusIcon} Question ${idx + 1}: ${isCorrect ? 'Correct' : 'Incorrect'}</span>
-                    <span>▼</span>
+            <div class="result-item-header ${headerClass}" onclick="toggleResultItem(this)">
+                <span>${statusIcon} Question ${idx + 1}: ${isCorrect ? 'Correct' : 'Incorrect'}</span>
+                <span>▼</span>
+            </div>
+            <div class="result-item-content">
+                <div class="result-answer">
+                    <div class="result-answer-label">Question:</div>
+                    <div class="result-answer-value">${r.text}</div>
                 </div>
-                <div class="result-item-content">
-                    <div class="result-answer">
-                        <div class="result-answer-label">Question:</div>
-                        <div class="result-answer-value">${r.text}</div>
-                    </div>
-                    <div class="result-answer">
-                        <div class="result-answer-label">Your Answer:</div>
-                        <div class="result-answer-value">${r.selected || 'Not answered'}</div>
-                    </div>
-                    ${!isCorrect ? `
-                        <div class="result-answer">
-                            <div class="result-answer-label">Correct Answer:</div>
-                            <div class="result-answer-value">${r.correctOption}</div>
-                        </div>
-                    ` : ''}
-                    <div class="result-explanation">
-                        <div class="result-explanation-label">Explanation:</div>
-                        <p>${r.explanation || 'No explanation provided.'}</p>
-                    </div>
+                <div class="result-answer">
+                    <div class="result-answer-label">Your Answer:</div>
+                    <div class="result-answer-value">${r.selected || 'Not answered'}</div>
                 </div>
-            `;
+                ${!isCorrect ? `
+                    <div class="result-answer">
+                        <div class="result-answer-label">Correct Answer:</div>
+                        <div class="result-answer-value">${r.correctOption}</div>
+                    </div>
+                ` : ''}
+                <div class="result-explanation">
+                    <div class="result-explanation-label">Explanation:</div>
+                    <p>${r.explanation || 'No explanation provided.'}</p>
+                </div>
+            </div>
+        `;
 
             details.appendChild(resultItem);
         });
@@ -626,9 +601,9 @@ function handleCheating() {
 // Standby Mode Logic
 async function checkForActiveSessions() {
     try {
-        const res = await fetch(`${API_BASE}/session/active`);
-        if (res.ok) {
-            const sessions = await res.json();
+        const sessions = await sessionAPI.getActive();
+        if (sessions) {
+
 
             if (sessions.length > 0) {
                 // Session found!
@@ -654,12 +629,10 @@ async function checkForActiveSessions() {
                 // Poll again in 5s
                 setTimeout(checkForActiveSessions, 5000);
             }
-        } else {
-            console.error("Failed to check sessions");
-            setTimeout(checkForActiveSessions, 5000);
+
         }
-    } catch (e) {
-        console.error("Network error checking sessions", e);
+    } catch (error) {
+        console.error("Network error checking sessions", error);
         setTimeout(checkForActiveSessions, 5000);
     }
 }
