@@ -1,22 +1,75 @@
 <!doctype html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Faculty Command Center</title>
+  <title>Faculty Command Center - QuizMaster OS</title>
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
-  <!-- Google Fonts for Premium Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
-    rel="stylesheet" />
+  
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Faculty Command Center - QuizMaster OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "command-bg": "#02040a",
+                        "command-surface": "#0d1117",
+                        "command-accent": "#00f2ff", // Electric Blue
+                        "command-critical": "#ccff00", // Lime Green
+                        "command-border": "#1f2937",
+                        "primary": "#2b4bee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "primary": "#2b4bee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["'Roboto Condensed'", "sans-serif"],
+                        "data": ["'JetBrains Mono'", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-command-bg text-slate-300 antialiased overflow-hidden;
+            }
+        }
+        .window-shadow {
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.05), 0 0 1px rgba(0, 242, 255, 0.2);
+        }
+        .glow-blue {
+            text-shadow: 0 0 8px rgba(0, 242, 255, 0.6);
+        }
+        .glow-lime {
+            text-shadow: 0 0 8px rgba(204, 255, 0, 0.6);
+        }
+        .window-active {
+            border-color: #00f2ff !important;
+            z-index: 50 !important;
+        }
+        .grid-bg {
+            background-image: radial-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+    </style>
+
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/stepper_partial.css" />
+  
   <!-- PDF.js for parsing PDFs in browser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
@@ -31,7 +84,6 @@
       if (!user) {
         window.location.replace("login.html");
       } else {
-        // Optional: Validate token structure if needed
         try {
           const u = JSON.parse(user);
           if (!u.username || !u.role) {
@@ -45,265 +97,382 @@
       }
     })();
   </script>
-</head>
 
-<body style="opacity: 0; transition: opacity 0.3s ease">
+</head>
+<body class="font-display" style="opacity: 0; transition: opacity 0.3s ease;">
   <script>
-    // Show body if we get here (auth passed)
     document.addEventListener("DOMContentLoaded", () => {
       document.body.style.opacity = "1";
     });
   </script>
-  <div class="app-container">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="brand">
-        <!-- <div class="logo-icon">Q</div> -->
-        <div style="display: flex; align-items: center; gap: 4px;">
-          <img src="icons/faculty.webp" alt="Faculty" style="height: 24px; filter: invert(1);">
-          <img src="icons/portal.webp" alt="Portal" style="height: 24px;">
-        </div>
+
+<div class="flex h-screen overflow-hidden grid-bg">
+<aside class="w-20 lg:w-24 flex-shrink-0 border-r border-command-border bg-command-bg flex flex-col items-center py-6 z-50">
+<div class="mb-10 relative">
+<div class="size-12 rounded-lg bg-command-accent/10 border border-command-accent flex items-center justify-center group cursor-pointer">
+<span class="material-symbols-outlined text-command-accent text-3xl glow-blue">terminal</span>
+</div>
+<div class="absolute -bottom-1 -right-1 size-3 bg-command-critical rounded-full border-2 border-command-bg"></div>
+</div>
+<nav class="flex-1 space-y-6">
+<button class="flex flex-col items-center gap-1 group text-slate-500 hover:text-command-accent transition-colors nav-btn" data-tab="dashboard" onclick="switchTab('dashboard')">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">grid_view</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Root</span>
+</button>
+<button class="flex flex-col items-center gap-1 group text-slate-500 hover:text-command-accent transition-colors nav-btn" data-tab="create-quiz" onclick="switchTab('create-quiz')">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">description</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Quizzes</span>
+</button>
+<button class="flex flex-col items-center gap-1 group text-slate-500 hover:text-command-accent transition-colors nav-btn" data-tab="active-sessions" onclick="switchTab('active-sessions')">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">quiz</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Query</span>
+</button>
+
+<button class="flex flex-col items-center gap-1 group text-slate-500 hover:text-command-accent transition-colors nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">analytics</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Data</span>
+</button>
+<button onclick="logout()" title="Logout" class="flex flex-col items-center gap-1 group text-slate-500 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">logout</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Sys</span>
+</button>
+</nav>
+<div class="mt-auto pt-6 border-t border-command-border w-full flex flex-col items-center">
+<div class="size-12 rounded-full border border-command-critical/50 p-0.5 bg-command-critical/5">
+<img alt="Biometric Avatar" class="w-full h-full object-cover rounded-full mix-blend-screen opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjF8EzTQMoUs18zpOxgADIdDD7lv_zyWCXGkQI3VVBDZsa4vmXskXT9xUtlRwtZPJGIeNQvoy4dT4B69zryoaD_UDqmc9dZqy6lyuPJNDt0gWnCBHlN8z-dF7SI23KY1r_pRDj8lkLVPQjHqkDOlbHft_DFy3i04ohOxE5aAJB0c7zY_-1ttol5DWqJGMn7UiQkl4QuMnfwVthk3b5zLp5cRlo8Z8YSQYMQQGapGhiX4NcQRju2Zg1hVgB3XUwHPlhmtkrMU2sX9I"/>
+</div>
+<div class="mt-2 text-[10px] font-bold text-command-critical glow-lime">BIO_ACTIVE</div>
+</div>
+</aside>
+
+<main class="flex-1 relative overflow-hidden p-6 main-content" style="position: relative; background: transparent; padding: 0;">
+<section id="dashboard" class="tab-content active" style="height: 100%; overflow-y: auto;">
+
+<header class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-8">
+<div>
+<h1 class="text-2xl font-bold tracking-tight text-white uppercase italic">Faculty Command Center <span class="text-command-accent">v2.4.0</span></h1>
+<p class="text-[10px] font-data text-slate-500 uppercase tracking-widest mt-1">Logged in: DR_JENKINS // Security Clearance: LEVEL_05</p>
+</div>
+<div class="h-10 w-[1px] bg-command-border"></div>
+<div class="flex gap-4">
+<div class="bg-command-surface border border-command-border px-4 py-2 rounded flex flex-col">
+<span class="text-[10px] text-slate-500 uppercase font-bold">Network Load</span>
+<span class="text-sm font-data text-command-accent">0.24ms <span class="text-command-critical">STABLE</span></span>
+</div>
+<div class="bg-command-surface border border-command-border px-4 py-2 rounded flex flex-col">
+<span class="text-[10px] text-slate-500 uppercase font-bold">Uptime</span>
+<span class="text-sm font-data text-command-accent">142:22:18</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+<input class="bg-command-surface border-command-border text-slate-300 text-xs rounded-none border-b-2 focus:border-command-accent focus:ring-0 w-64 pl-9 font-data" placeholder="EXECUTE_CMD..." type="text"/>
+</div>
+<button class="size-10 flex items-center justify-center border border-command-border text-slate-500 hover:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<div class="mb-8 bg-command-critical/10 border-l-4 border-command-critical p-4 flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-command-critical glow-lime animate-pulse">warning</span>
+<div>
+<h4 class="text-xs font-bold text-command-critical uppercase tracking-widest">System Alert: Engagement Anomaly</h4>
+<p class="text-sm text-slate-300 font-data">Physics 401: Final Exam completion rate dropped below 80%. Automated feedback sequences recommended.</p>
+</div>
+</div>
+<button class="bg-command-critical text-command-bg px-4 py-1 text-xs font-bold uppercase hover:bg-white transition-colors">Execute Patch</button>
+</div>
+<div class="relative h-[calc(100vh-240px)] w-full">
+<div class="absolute top-0 left-0 w-[45%] h-[320px] bg-command-surface border border-command-border window-shadow rounded-sm flex flex-col window-active overflow-hidden">
+<div class="bg-command-bg/50 border-b border-command-border px-4 py-2 flex items-center justify-between cursor-move">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-command-accent">monitoring</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white">Module_Analytics.exe</span>
+</div>
+<div class="flex gap-2">
+<div class="size-2 rounded-full border border-slate-600"></div>
+<div class="size-2 rounded-full bg-slate-600"></div>
+</div>
+</div>
+<div class="p-6 flex-1 overflow-auto">
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="border border-command-border p-3">
+<p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Total_Quizzes</p>
+<p class="text-3xl font-data text-command-accent glow-blue">042</p>
+</div>
+<div class="border border-command-border p-3">
+<p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Avg_Performance</p>
+<p class="text-3xl font-data text-command-critical glow-lime">88%</p>
+</div>
+</div>
+<div class="h-24 flex items-end gap-1">
+<div class="flex-1 bg-command-accent/20 border-t-2 border-command-accent h-[40%]"></div>
+<div class="flex-1 bg-command-accent/20 border-t-2 border-command-accent h-[65%]"></div>
+<div class="flex-1 bg-command-accent/20 border-t-2 border-command-accent h-[55%]"></div>
+<div class="flex-1 bg-command-accent/20 border-t-2 border-command-accent h-[90%]"></div>
+<div class="flex-1 bg-command-accent/20 border-t-2 border-command-accent h-[75%]"></div>
+<div class="flex-1 bg-command-critical/20 border-t-2 border-command-critical h-[95%]"></div>
+</div>
+</div>
+</div>
+<div class="absolute top-10 right-0 w-[52%] h-[400px] bg-command-surface border border-command-border window-shadow rounded-sm flex flex-col overflow-hidden">
+<div class="bg-command-bg/50 border-b border-command-border px-4 py-2 flex items-center justify-between cursor-move">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-command-accent">list_alt</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white">Module_Task_Manager.sh</span>
+</div>
+<div class="flex gap-2">
+<div class="size-2 rounded-full border border-slate-600"></div>
+<div class="size-2 rounded-full bg-slate-600"></div>
+</div>
+</div>
+<div class="p-0 flex-1 overflow-auto">
+<table class="w-full text-left font-data text-[11px]">
+<thead class="bg-command-bg border-b border-command-border text-slate-500 uppercase">
+<tr>
+<th class="px-6 py-3">Task_Identifier</th>
+<th class="px-6 py-3">Status</th>
+<th class="px-6 py-3">Completion</th>
+<th class="px-6 py-3">Score</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-command-border">
+<tr class="hover:bg-command-accent/5">
+<td class="px-6 py-4">
+<p class="text-white font-bold">ADV_THERMO_FINAL</p>
+<p class="text-[9px] text-slate-500">PHYS_401 • 2024.01.24</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 border border-command-critical text-command-critical text-[9px] font-bold">RUNNING</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1 bg-command-border">
+<div class="h-full bg-command-accent w-[92%]"></div>
+</div>
+<span>92%</span>
+</div>
+</td>
+<td class="px-6 py-4 text-command-accent">84.5%</td>
+</tr>
+<tr class="hover:bg-command-accent/5">
+<td class="px-6 py-4">
+<p class="text-white font-bold">QUANTUM_MECH_Q1</p>
+<p class="text-[9px] text-slate-500">PHYS_202 • 2024.01.22</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 border border-slate-500 text-slate-500 text-[9px] font-bold">DRAFT</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1 bg-command-border"></div>
+<span>00%</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500">---</td>
+</tr>
+<tr class="hover:bg-command-accent/5">
+<td class="px-6 py-4">
+<p class="text-white font-bold">ENERGY_SYS_MID</p>
+<p class="text-[9px] text-slate-500">ENG_305 • 2024.01.28</p>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 border border-command-accent text-command-accent text-[9px] font-bold">PENDING</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1 bg-command-border"></div>
+<span>00%</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500">---</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-command-border flex justify-end gap-2">
+<button class="px-3 py-1 border border-command-accent text-command-accent text-[10px] font-bold uppercase hover:bg-command-accent hover:text-command-bg transition-colors">Export_Log</button>
+<button class="px-3 py-1 bg-command-accent text-command-bg text-[10px] font-bold uppercase">New_Task</button>
+</div>
+</div>
+<div class="absolute bottom-4 left-[10%] w-[320px] h-[180px] bg-command-surface border border-command-border window-shadow rounded-sm flex flex-col overflow-hidden">
+<div class="bg-command-bg/50 border-b border-command-border px-4 py-2 flex items-center justify-between cursor-move">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-command-critical">terminal</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-white">SysLog.log</span>
+</div>
+</div>
+<div class="p-4 flex-1 overflow-auto font-data text-[10px] text-slate-500 space-y-1">
+<p><span class="text-command-critical">[14:02:11]</span> STUDENT_ID_442 AUTHENTICATED</p>
+<p><span class="text-command-accent">[14:04:02]</span> QUIZ_FINAL_UPLOADED (2.4MB)</p>
+<p><span class="text-white">[14:05:45]</span> DR_JENKINS VIEWED_ANALYTICS</p>
+<p><span class="text-command-critical animate-pulse">[14:08:12]</span> WARNING: ANOMALOUS_DROP_RATE</p>
+<p><span class="text-command-accent">[14:10:00]</span> BACKGROUND_SYNC_COMPLETE</p>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 flex gap-4">
+<button class="size-14 bg-command-accent rounded-full text-command-bg flex items-center justify-center shadow-[0_0_20px_rgba(0,242,255,0.4)] hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+</div>
+
+</section>
+
+<div style="padding: 1.5rem; height: 100%; overflow-y: auto;">
+<section id="create-quiz" class="tab-content">
+<main class="flex-1 flex flex-col lg:flex-row max-w-screen-2xl mx-auto w-full gap-8 p-6 lg:p-10 font-display text-slate-900" style="height: 100%; overflow-y: auto;">
+
+<!-- Left Side: Configuration -->
+<div class="flex-1 flex flex-col gap-8">
+<!-- Progress Indicator -->
+<div class="bg-white p-6 rounded-xl border border-slate-200">
+<div class="flex justify-between items-center mb-4">
+<span class="text-sm font-semibold text-primary">STEP 1 OF 3</span>
+<span class="text-sm font-medium text-slate-500">33% Completed</span>
+</div>
+<div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-1/3 rounded-full"></div>
+</div>
+<div class="grid grid-cols-3 mt-6 gap-2">
+<div class="flex flex-col gap-1 items-center md:items-start">
+<span class="text-xs font-bold text-primary">CONFIGURE</span>
+<div class="h-1 w-full bg-primary rounded-full"></div>
+</div>
+<div class="flex flex-col gap-1 items-center md:items-start opacity-40">
+<span class="text-xs font-bold text-slate-500">GENERATE</span>
+<div class="h-1 w-full bg-slate-300 rounded-full"></div>
+</div>
+<div class="flex flex-col gap-1 items-center md:items-start opacity-40">
+<span class="text-xs font-bold text-slate-500">REVIEW</span>
+<div class="h-1 w-full bg-slate-300 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Config Form -->
+<div class="space-y-8">
+<div>
+<h1 class="text-3xl font-black tracking-tight mb-2 font-display text-white">Create New Quiz</h1>
+<p class="text-slate-300">Define your parameters and upload your study material to generate questions using AI.</p>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">settings</span>
+                            Quiz Configuration
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700">Quiz Topic / Title</label>
+<input id="quiz-title" class="w-full px-4 py-3 rounded-lg bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all !text-slate-900" placeholder="e.g. Introduction to Computer Networking" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700">Number of Sets</label>
+<input type="number" id="q-sets" value="3" min="1" max="10" class="w-full px-4 py-3 rounded-lg bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all !text-slate-900"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700">Total Questions</label>
+<input id="q-count" class="w-full px-4 py-3 rounded-lg bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all !text-slate-900" type="number" value="20"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700">Duration (Minutes)</label>
+<input id="duration" class="w-full px-4 py-3 rounded-lg bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all !text-slate-900" type="number" value="30"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700 flex justify-between">
+                                Syllabus Content
+                                <span class="text-xs text-primary cursor-pointer hover:underline" onclick="document.getElementById('syllabus-text').value='';">Clear all</span>
+</label>
+<textarea id="syllabus-text" class="w-full px-4 py-3 rounded-lg bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none !text-slate-900" placeholder="Paste your course syllabus, lecture notes, or key topics here..." rows="6"></textarea>
+
+    <!-- Chapter Weights Section (Hidden by default) -->
+    <div id="weights-container" class="hidden mt-4 pt-4 border-t border-slate-200">
+      <h4 class="text-xs font-bold text-slate-400 uppercase mb-2 text-primary">Chapter Weights & CO Analysis</h4>
+      <div id="weights-list" class="grid grid-cols-2 gap-4">
+        <!-- Populated by JS -->
       </div>
-
-      <nav class="nav-menu">
-        <button class="nav-btn active" data-tab="create-quiz" onclick="switchTab('create-quiz')">
-          <span class="icon"><img src="icons/icons8-test-passed-100.png" alt="Generate"
-              style="width: 32px; filter: invert(1);"></span>
-          Generate
-        </button>
-        <button class="nav-btn" data-tab="active-sessions" onclick="switchTab('active-sessions')">
-          <span class="icon"><img src="icons/icons8-history-100.png" alt="Session History"
-              style="width: 32px;filter: invert(1);"></span>
-          Session History
-        </button>
-        <button class="nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
-          <span class="icon"><img src="icons/icons8-ratings-100.png" alt="Results"
-              style="width: 32px;filter: invert(1)"></span>
-          Results
-        </button>
-        <div style="flex:1"></div> <!-- Spacer -->
-        <!-- Settings removed as per request -->
-      </nav>
-
-      <div class="user-profile">
-        <div class="avatar">F</div>
-        <div class="info">
-          <span class="name">Faculty User</span>
-          <span class="role">Admin</span>
-        </div>
-        <button class="logout-btn" onclick="logout()" title="Logout">
-          <span class="icon"><img src="icons/icons8-back-100.png" alt="Logout"
-              style="width: 32px; filter: invert(1)"></span>
-        </button>
+      <div id="weights-summary" class="mt-2 text-xs text-right text-slate-400">
+        <span class="font-bold">Total Weight:</span> <span id="total-weight" class="text-primary">0</span>%
       </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="main-content">
-      <!-- Create Quiz Tab -->
-      <section id="create-quiz" class="tab-content active">
-
-        <!-- Top Panel with Stepper and Header -->
-        <div
-          style="background: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;">
-
-          <!-- Stepper -->
-          <div class="stepper-container"
-            style="margin-bottom: 0.5rem; transform: scale(1.1); width: 100%; max-width: 500px;">
-            <div class="stepper">
-              <div class="step-item active" data-step="1">
-                <div class="step-circle">1</div>
-                <span class="step-label">Configure</span>
-              </div>
-              <div class="step-line"></div>
-              <div class="step-item" data-step="2">
-                <div class="step-circle">2</div>
-                <span class="step-label">Generate</span>
-              </div>
-              <div class="step-line"></div>
-              <div class="step-item" data-step="3">
-                <div class="step-circle">3</div>
-                <span class="step-label">Review</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Header -->
-          <header class="section-header" style="text-align: center; margin-bottom: 0;">
-            <h1 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: #1f2937;">Create New Quiz</h1>
-            <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0 0 0;">AI-powered Question Generation & Review
-            </p>
-          </header>
-        </div>
+    </div>
 
 
-        <div class="grid-layout">
-          <!-- Left Column: Configuration -->
-          <div class="col-left">
-            <!-- Configuration Card -->
-            <div class="card">
-              <div class="card-header">
-                <h3 style="margin: 0;">Configuration</h3>
-              </div>
+</div>
+<div class="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-200">
 
-              <div class="card-body">
-                <!-- Quiz Topic -->
-                <div style="margin-bottom: 1.25rem;">
-                  <label
-                    style="display: block; font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; font-weight: 500;">Quiz
-                    Topic / Title</label>
-                  <input type="text" id="quiz-title" placeholder="e.g. Introduction to Machine Learning">
-                </div>
+<label for="file-upload" class="cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-slate-200 text-slate-700 font-bold hover:bg-slate-300:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined">upload_file</span>
+                                Upload PDF
+</label>
+<input type="file" id="file-upload" hidden accept=".txt,.pdf">
+<span id="file-details" class="hidden text-sm text-slate-400"></span>
 
-                <!-- 3-Column Inputs Row -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-                  <div>
-                    <label
-                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Total
-                      Questions</label>
-                    <input type="number" id="q-count" value="45" min="1" max="50">
-                  </div>
-                  <div>
-                    <label
-                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Number
-                      of Sets</label>
-                    <input type="number" id="q-sets" value="3" min="1" max="10">
-                  </div>
-                  <div>
-                    <label
-                      style="display: block; font-size: 0.85rem; color: #000000; margin-bottom: 0.5rem; font-weight: 500;">Duration
-                      (Min)</label>
-                    <input type="number" id="duration" value="60" min="10" max="180">
-                  </div>
-                </div>
+<button id="analyze-btn" onclick="analyzeSyllabus()" class="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+                                Analyze &amp; COs
+                            </button>
+<button id="generate-btn" onclick="generateQuestions()" class="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-white font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
+<span class="material-symbols-outlined">auto_fix_high</span>
+                                Generate Questions
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Review Panel -->
+<aside class="w-full lg:w-[420px] shrink-0 h-full">
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xl flex flex-col h-full max-h-[calc(100vh-140px)]">
+<div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+<div>
+<h3 class="font-bold text-lg">Review Queue <span id="q-badge" class="bg-primary text-white px-2 rounded-full text-[10px] font-black">0</span></h3>
+</div>
+<button onclick="clearAllQuestions()" class="text-xs text-red-500 hover:text-red-400 transition-colors">
+Clear All
+</button>
+</div>
+<div class="p-4 border-b border-slate-200 flex gap-2">
+    <select id="filter-chapter" class="w-full px-2 py-1.5 rounded bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary outline-none transition-all !text-slate-900" onchange="applyFilters()">
+    <option value="">All Chapters</option>
+    </select>
+    <select id="filter-co" class="w-full px-2 py-1.5 rounded bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary outline-none transition-all !text-slate-900" onchange="applyFilters()">
+    <option value="">All COs</option>
+    </select>
+</div>
+<div id="questions-list" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-700">
+<!-- Question Items -->
+    <div class="empty-state flex flex-col items-center justify-center text-slate-500 gap-4 py-10 opacity-50">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+    </svg>
+    <p class="m-0 text-sm font-display">No questions generated yet.</p>
+    </div>
+</div>
+<div class="p-6 border-t border-slate-200 bg-slate-50/50 flex gap-2">
+    <button id="start-session-btn" onclick="startSession()" disabled class="flex-2 w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold transition-opacity disabled:opacity-30 disabled:hover:bg-green-500 text-sm">
+      Start Session
+    </button>
+    <button onclick="openScheduleModal()" id="schedule-btn" disabled class="flex-1 py-3 rounded-lg border border-slate-300 flex items-center justify-center gap-1 font-bold hover:bg-slate-100:bg-slate-800 transition-all disabled:opacity-30 text-sm">
+      <span class="material-symbols-outlined text-sm">schedule</span> Schedule
+    </button>
+</div>
+</div>
+</aside>
 
-                <!-- Syllabus Area (Full Width) -->
-                <div class="form-group" style="margin-top: 1rem; width: 100%;">
-                  <label>Syllabus Content</label>
-                  <textarea id="syllabus-text" placeholder="Paste text or drag PDF..."
-                    style="height: 120px; border-radius: var(--radius-sm); width: 100%;"></textarea>
-
-                  <!-- Actions Row -->
-                  <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-                    <!-- Upload PDF Button -->
-                    <label for="file-upload" class="btn-secondary"
-                      style="flex: 1; cursor: pointer; text-align: center; justify-content: center;">
-                      <img src="icons/icons8-upload-48.png" alt="Upload" style="width: 32px; opacity: 0.7;"> Upload PDF
-                    </label>
-                    <input type="file" id="file-upload" hidden accept=".txt,.pdf">
-                    <span id="file-details" class="hidden" style="color: #111827;"></span>
-
-                    <!-- Analyze Syllabus Button -->
-                    <button id="analyze-btn" onclick="analyzeSyllabus()" class="btn-outline" style="flex: 2;">
-                      <span class="btn-icon" style="padding:0;"><img src="icons/icons8-search-32.png" alt="Analyze"
-                          style="width: 32px;"></span> Analyze & COs
-                    </button>
-                  </div>
-
-                  <!-- Chapter Weights Section (Hidden by default) -->
-                  <div id="weights-container" class="hidden" style="
-                        margin-top: 20px;
-                        border-top: 1px solid var(--border-color);
-                        padding-top: 15px;
-                      ">
-                    <h4 style="margin-bottom: 10px; font-size: 0.95rem; color: #111827;">Chapter Weights & CO Analysis
-                    </h4>
-                    <div id="weights-list" class="form-grid">
-                      <!-- Populated by JS -->
-                    </div>
-                    <div id="weights-summary" style="
-                          margin-top: 10px;
-                          font-size: 0.85rem;
-                          text-align: right;
-                        ">
-                      <span style="color: #374151;">Total Weight:</span> <span id="total-weight">0</span>%
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Generate Questions Button (Moved inside body) -->
-                <button class="btn-primary full-width" id="generate-btn" onclick="generateQuestions()"
-                  style="margin-top: 1.5rem;">
-                  <span class="btn-icon" style="color: white; opacity: 1;">
-                    <img src="icons/icons8-faq-48.png" alt="Generate"
-                      style="width: 32px; filter: invert(1) saturate(5);">
-                  </span> Generate Questions
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Question Preview -->
-          <div class="col-right">
-            <!-- Single Unified White Card -->
-            <div class="card">
-
-              <!-- Header -->
-              <div class="card-header"
-                style="justify-content: space-between; border-bottom: 1px solid var(--border-color);">
-                <h3 style="font-size: 1.35rem; font-weight: 700; color: #1f2937; margin: 0;">
-                  Review Questions
-                  <span class="badge" id="q-badge"
-                    style="margin-left: 0.5rem; background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem;">0</span>
-                </h3>
-                <button onclick="clearAllQuestions()" class="btn-text" style="color: var(--danger-color);">
-                  Clear All
-                </button>
-              </div>
-
-              <div class="card-body">
-                <!-- Filters -->
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
-                  <select id="filter-chapter" class="form-select" onchange="applyFilters()" style="flex: 1;">
-                    <option value="">All Chapters</option>
-                  </select>
-                  <select id="filter-co" class="form-select" onchange="applyFilters()" style="flex: 1;">
-                    <option value="">All COs</option>
-                  </select>
-                </div>
-
-                <!-- Questions List (Scrollable) -->
-                <div id="questions-list" style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem;">
-                  <div class="empty-state"
-                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); gap: 1rem; padding: 2rem 0;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                      style="opacity: 0.4;">
-                      <path
-                        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                    </svg>
-                    <p style="margin: 0; font-size: 0.9rem;">No questions generated yet.</p>
-                  </div>
-                </div>
-
-                <!-- Action Buttons Row (Stuck to bottom) -->
-                <div
-                  style="display: flex; gap: 0.75rem; margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--border-color); flex: none;">
-                  <button id="start-session-btn" onclick="startSession()" disabled class="btn-success"
-                    style="flex: 2; height: 44px;">
-                    Start Session
-                  </button>
-                  <button onclick="openScheduleModal()" id="schedule-btn" class="btn-secondary" disabled
-                    style="flex: 1; height: 44px;">
-                    <span class="icon" style="margin-right: 5px;">
-                      <img src="icons/icons8-schedule-48.png" alt="Schedule" style="width: 32px;">
-                    </span> Schedule
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="active-sessions" class="tab-content">
+</main>
+</section>
+  <section id="active-sessions" class="tab-content">
         <header class="section-header" style="margin-bottom: 1.5rem;">
           <h1 style="font-size: 1.75rem; font-weight: 700; color: #ffffff; margin: 0 0 0.25rem 0;">Active Sessions</h1>
-          <p style="color: #6b7280; font-size: 0.95rem; margin: 0;">Manage currently running quizzes.</p>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">Manage currently running quizzes.</p>
         </header>
 
         <!-- Latest Session Info Card -->
         <div class="hidden" id="current-session-card"
-          style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #fdf4ff 100%); border: 1px solid #a5b4fc; border-radius: 12px; padding: 2rem 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+          style="background: var(--bg-card); border: 1px solid var(--command-border); border: 1px solid #a5b4fc; border-radius: 12px; padding: 2rem 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
           <div
             style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
             <!-- Left side: LIVE badge + Session Active + IDs -->
@@ -311,14 +480,14 @@
               <div
                 style="background: linear-gradient(135deg, #ef4444, #f87171); color: white; padding: 0.4rem 0.9rem; border-radius: 8px; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(239,68,68,0.3);">
                 LIVE</div>
-              <div style="font-weight: 700; font-size: 1.05rem; color: #111827;">Session Active</div>
+              <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">Session Active</div>
               <div
                 style="display: flex; gap: 1.5rem; margin-left: 0.75rem; padding-left: 1rem; border-left: 1px solid rgba(0,0,0,0.08);">
                 <div>
                   <div
                     style="font-size: 0.65rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; margin-bottom: 2px;">
                     SESSION ID</div>
-                  <div style="font-size: 1.1rem; font-weight: 700; color: #111827;" id="disp-sess-id">2</div>
+                  <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);" id="disp-sess-id">2</div>
                 </div>
                 <div>
                   <div
@@ -331,7 +500,7 @@
             <!-- Right side: Buttons -->
             <div style="display: flex; gap: 0.6rem;">
               <button onclick="copySessionInfo()"
-                style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; color: #374151; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);"
+                style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; background: var(--bg-card); border: 1px solid #e5e7eb; border-radius: 8px; color: #374151; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);"
                 onmouseover="this.style.borderColor='#d1d5db'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.08)'"
                 onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.04)'">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -358,11 +527,11 @@
         </div>
 
         <!-- Session History Card -->
-        <div style="background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden;">
+        <div style="background: var(--bg-card); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden;">
           <!-- Card Header -->
           <div
-            style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 1.5rem; border-bottom: 1px solid #f3f4f6;">
-            <h3 style="font-size: 1.05rem; font-weight: 600; color: #111827; margin: 0;">Session History</h3>
+            style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <h3 style="font-size: 1.05rem; font-weight: 600; color: var(--text-main); margin: 0;">Session History</h3>
             <button onclick="loadSessions()"
               style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; border-radius: 8px; transition: all 0.15s;"
               onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
@@ -373,21 +542,21 @@
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
               <thead>
-                <tr style="border-bottom:2px solid #e5e7eb;">
+                <tr style="border-bottom: 1px solid var(--border-color);">
                   <th
-                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background: var(--bg-card);">
                     ID</th>
                   <th
-                    style="padding:14px 14px;text-align:left;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    style="padding:14px 14px;text-align:left;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background: var(--bg-card);">
                     TITLE</th>
                   <th
-                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background: var(--bg-card);">
                     STATUS</th>
                   <th
-                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background: var(--bg-card);">
                     CODE</th>
                   <th
-                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background:#fafafa;">
+                    style="padding:14px 14px;text-align:center;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;background: var(--bg-card);">
                     ACTIONS</th>
                 </tr>
                 </tr>
@@ -467,8 +636,42 @@
           </div>
         </div>
       </section>
-    </main>
-  </div>
+    
+
+</div>
+</main>
+
+</div>
+<footer class="fixed bottom-0 left-0 w-full bg-command-surface border-t border-command-border h-8 flex items-center px-6 z-[60]">
+<div class="flex items-center gap-6 overflow-hidden">
+<div class="flex items-center gap-2 whitespace-nowrap">
+<span class="size-2 rounded-full bg-command-critical animate-ping"></span>
+<span class="text-[10px] font-data font-bold text-white uppercase tracking-tighter">Live Monitor:</span>
+</div>
+<div class="flex gap-8 whitespace-nowrap text-[10px] font-data text-slate-400">
+<span>STUDENT_ACTIVE: 1,284</span>
+<span class="text-command-accent">COMPLETED_TODAY: 156</span>
+<span>ERROR_RATE: 0.002%</span>
+<span class="text-command-critical">AVG_SCORE: 88.42%</span>
+<span>SYSTEM_CPU: 12%</span>
+<span>RAM_USAGE: 4.2GB</span>
+</div>
+</div>
+<div class="ml-auto flex items-center gap-4 text-[10px] font-data font-bold text-slate-500 uppercase">
+<span>UTC-08:00</span>
+<span class="text-command-accent glow-blue" id="clock">14:22:45</span>
+</div>
+</footer>
+<script>
+    // Purely for the "clock" feel requested by "high-tech" - not functional logic
+    setInterval(() => {
+        const now = new Date();
+        const time = now.toTimeString().split(' ')[0];
+        const clockEl = document.getElementById('clock');
+        if (clockEl) clockEl.innerText = time;
+    }, 1000);
+</script>
+
 
   <!-- Modal for Question Editing -->
   <div class="modal" id="edit-modal">
@@ -581,10 +784,10 @@
     </div>
   </div>
 
+  
   <script src="js/config.js?v=3"></script>
   <script src="js/app.js?v=3"></script>
   <script>
-    // HTML Hack: Define missing function that app.js calls
     function refreshStepperState() {
       const syllabusText = document.getElementById('syllabus-text');
       const hasContent = syllabusText && syllabusText.value.trim().length > 0;
@@ -596,17 +799,14 @@
         updateStepper(1);
       }
     }
-
-    // HTML Hack: Suppress "Generated X questions successfully" popup
     const originalAlert = window.alert;
     window.alert = function (msg) {
       if (msg && msg.includes('questions successfully')) {
-        console.log(msg); // Log to console instead
+        console.log(msg);
         return;
       }
       originalAlert(msg);
     };
   </script>
-</body>
 
 </html>
