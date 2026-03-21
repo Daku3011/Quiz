@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuth() {
     const user = sessionStorage.getItem('faculty_user');
     if (!user) {
-        // If not on login page, redirect
-        if (!window.location.href.includes('login.html')) {
+        // If not on login page or register page, redirect
+        if (!window.location.href.includes('login.html') && !window.location.href.includes('register.html')) {
             window.location.href = 'login.html';
         }
     } else {
@@ -108,6 +108,24 @@ function checkAuth() {
             window.location.href = 'index.html';
         }
         updateProfileUI();
+    }
+}
+
+async function register(name,email) {
+    try {
+        const res = await fetch(`${API_BASE}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ name, email })
+        });
+        if (res.ok) {
+            alert("Registration successful! Check your email for credentials.");
+            return true;
+        } else {
+            alert("Registration failed: " + await res.text());
+        }
+    } catch (e) {
+        alert("Registration failed: " + e.message);
     }
 }
 

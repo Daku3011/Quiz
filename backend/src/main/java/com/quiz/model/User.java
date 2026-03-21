@@ -24,6 +24,9 @@ public class User implements org.springframework.security.core.userdetails.UserD
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = true)
+    private String email;
+
     public User() {
     }
 
@@ -65,6 +68,14 @@ public class User implements org.springframework.security.core.userdetails.UserD
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
