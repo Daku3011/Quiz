@@ -85,6 +85,7 @@ public class AIService {
                         .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_SINGLE_QUOTES)
                         .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
                         .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                        .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
                         .build();
 
         // Batch size for parallel requests. Increased to 10 for higher throughput.
@@ -185,9 +186,17 @@ public class AIService {
                                 String responseText = root.path("candidates").get(0).path("content").path("parts")
                                                 .get(0).path("text").asText();
                                 String cleanedJson = responseText.replace("```json", "").replace("```", "").trim();
-                                return mapper.readValue(cleanedJson,
-                                                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
-                                                });
+                                try {
+                                        return mapper.readValue(cleanedJson,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                                                        });
+                                } catch (Exception e) {
+                                        logger.warn("Initial JSON parse failed, attempting auto-repair: {}", e.getMessage());
+                                        String repaired = repairJson(cleanedJson);
+                                        return mapper.readValue(repaired,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                                                        });
+                                }
                         }
                 } catch (Exception e) {
                         logger.error("Failed to analyze syllabus", e);
@@ -241,9 +250,17 @@ public class AIService {
                                                 .asText();
                                 String cleanedJson = extractJsonArray(responseText);
 
-                                return mapper.readValue(cleanedJson,
-                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                });
+                                try {
+                                        return mapper.readValue(cleanedJson,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                        });
+                                } catch (Exception e) {
+                                        logger.warn("Initial JSON parse failed, attempting auto-repair: {}", e.getMessage());
+                                        String repaired = repairJson(cleanedJson);
+                                        return mapper.readValue(repaired,
+                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                        });
+                                }
                         } else {
                                 logger.error("Gemini Multimodal Error: Status={}, Body={}", response.statusCode(),
                                                 response.body());
@@ -459,18 +476,16 @@ public class AIService {
                                                         new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                         });
                                 } catch (Exception e) {
-                                        logger.error("Failed to parse GLM batch JSON: {}", e.getMessage());
-                                        // Basic repair attempt
-                                        if (e.getMessage().contains("Unexpected end-of-input")) {
-                                                try {
-                                                        return mapper.readValue(cleanedJson + "]",
-                                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                                        });
-                                                } catch (Exception ex) {
-                                                        logger.error("Second attempt failed: {}", ex.getMessage());
-                                                }
+                                        logger.warn("GLM JSON parse failed, attempting auto-repair: {}", e.getMessage());
+                                        try {
+                                                String repaired = repairJson(cleanedJson);
+                                                return mapper.readValue(repaired,
+                                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                                });
+                                        } catch (Exception ex) {
+                                                logger.error("GLM JSON repair failed", ex);
+                                                return new ArrayList<>();
                                         }
-                                        return new ArrayList<>();
                                 }
                         } else if (response.statusCode() == 429) {
                                 attempt++;
@@ -545,42 +560,38 @@ public class AIService {
                                                         new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
                                                         });
                                 } catch (Exception e) {
-                                        logger.error("Failed to parse batch JSON: {}", e.getMessage());
-
-                                        // Fallback: Regex-based extraction for partial recovery
-                                        List<Question> recovered = new ArrayList<>();
-                                        java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\{[\\s\\S]*?\\}");
-                                        java.util.regex.Matcher m = p.matcher(cleanedJson);
-                                        while (m.find()) {
-                                                String objStr = m.group();
-                                                try {
-                                                        Question q = mapper.readValue(objStr, Question.class);
-                                                        // Basic validation
-                                                        if (q.getText() != null && !q.getText().isBlank()) {
-                                                                recovered.add(q);
+                                        logger.warn("Initial JSON parse failed, attempting auto-repair: {}", e.getMessage());
+                                        try {
+                                                String repaired = repairJson(cleanedJson);
+                                                return mapper.readValue(repaired,
+                                                                new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
+                                                                });
+                                        } catch (Exception ex) {
+                                                logger.error("Auto-repair failed, falling back to regex extraction", ex);
+                                                // Fallback: Regex-based extraction for partial recovery
+                                                List<Question> recovered = new ArrayList<>();
+                                                java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\{[\\s\\S]*?\\}");
+                                                java.util.regex.Matcher m = p.matcher(cleanedJson);
+                                                while (m.find()) {
+                                                        String objStr = m.group();
+                                                        try {
+                                                                Question q = mapper.readValue(objStr, Question.class);
+                                                                // Basic validation
+                                                                if (q.getText() != null && !q.getText().isBlank()) {
+                                                                        recovered.add(q);
+                                                                }
+                                                        } catch (Exception exc) {
+                                                                // Ignore individual malformed objects
                                                         }
-                                                } catch (Exception ex) {
-                                                        // Ignore individual malformed objects
                                                 }
-                                        }
 
-                                        if (!recovered.isEmpty()) {
-                                                logger.info("Recovered {} questions via regex fallback.",
-                                                                recovered.size());
-                                                return recovered;
-                                        }
-
-                                        // Try one more repair if it failed: adding closing bracket if missing
-                                        if (e.getMessage().contains("Unexpected end-of-input")) {
-                                                try {
-                                                        return mapper.readValue(cleanedJson + "]",
-                                                                        new com.fasterxml.jackson.core.type.TypeReference<List<Question>>() {
-                                                                        });
-                                                } catch (Exception ex) {
-                                                        logger.error("Second attempt failed: {}", ex.getMessage());
+                                                if (!recovered.isEmpty()) {
+                                                        logger.info("Recovered {} questions via regex fallback.",
+                                                                        recovered.size());
+                                                        return recovered;
                                                 }
+                                                return new ArrayList<>();
                                         }
-                                        return new ArrayList<>();
                                 }
                         } else if (response.statusCode() == 429) {
                                 attempt++;
@@ -613,6 +624,100 @@ public class AIService {
                 // Fallback: return input if brackets not found (might be raw json without
                 // markdown) or just cleanup markdown if no brackets found (unlikely for array)
                 return input.replace("```json", "").replace("```", "").trim();
+        }
+
+        private String repairJson(String json) {
+                if (json == null) return "{}";
+                json = json.trim();
+                
+                int firstBrace = json.indexOf('{');
+                int firstBracket = json.indexOf('[');
+                int startIdx = 0;
+                if (firstBrace != -1 && firstBracket != -1) {
+                        startIdx = Math.min(firstBrace, firstBracket);
+                } else if (firstBrace != -1) {
+                        startIdx = firstBrace;
+                } else if (firstBracket != -1) {
+                        startIdx = firstBracket;
+                }
+                
+                json = json.substring(startIdx);
+                
+                java.util.Stack<Character> stack = new java.util.Stack<>();
+                boolean inString = false;
+                boolean escaped = false;
+                
+                for (int i = 0; i < json.length(); i++) {
+                        char c = json.charAt(i);
+                        if (inString) {
+                                if (escaped) {
+                                        escaped = false;
+                                } else if (c == '\\') {
+                                        escaped = true;
+                                } else if (c == '"') {
+                                        inString = false;
+                                }
+                        } else {
+                                if (c == '"') {
+                                        inString = true;
+                                } else if (c == '{' || c == '[') {
+                                        stack.push(c);
+                                } else if (c == '}') {
+                                        if (!stack.isEmpty() && stack.peek() == '{') {
+                                                stack.pop();
+                                        }
+                                } else if (c == ']') {
+                                        if (!stack.isEmpty() && stack.peek() == '[') {
+                                                stack.pop();
+                                        }
+                                }
+                        }
+                }
+                
+                StringBuilder repaired = new StringBuilder(json);
+                
+                // 1. If we ended inside a string, close it first
+                if (inString) {
+                        repaired.append('"');
+                }
+                
+                // 2. Trim trailing whitespace and commas
+                while (repaired.length() > 0) {
+                        char lastChar = repaired.charAt(repaired.length() - 1);
+                        if (Character.isWhitespace(lastChar) || lastChar == ',') {
+                                repaired.deleteCharAt(repaired.length() - 1);
+                        } else {
+                                break;
+                        }
+                }
+                
+                // 3. If we end with a colon, it means a key was written but the value was truncated.
+                // Append a default null value to make it valid.
+                if (repaired.length() > 0 && repaired.charAt(repaired.length() - 1) == ':') {
+                        repaired.append("null");
+                }
+                
+                // 4. Trim again just in case
+                while (repaired.length() > 0) {
+                        char lastChar = repaired.charAt(repaired.length() - 1);
+                        if (Character.isWhitespace(lastChar) || lastChar == ',') {
+                                repaired.deleteCharAt(repaired.length() - 1);
+                        } else {
+                                break;
+                        }
+                }
+                
+                // 5. Append closing braces/brackets
+                while (!stack.isEmpty()) {
+                        char open = stack.pop();
+                        if (open == '{') {
+                                repaired.append('}');
+                        } else if (open == '[') {
+                                repaired.append(']');
+                        }
+                }
+                
+                return repaired.toString();
         }
 
         private List<Question> generateMockQuestions(int count) {
