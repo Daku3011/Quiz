@@ -3,6 +3,8 @@
  * Tests form validation, calculations, and core functionality
  */
 
+const { validateEmail, validatePassword, validateName, validateEnrollment, validateSessionId, validateOTP } = require('./validation');
+
 // Test Suite: Form Validation
 describe('Form Validation', () => {
     
