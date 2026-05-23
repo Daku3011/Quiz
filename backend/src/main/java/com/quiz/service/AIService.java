@@ -61,10 +61,10 @@ public class AIService {
         @org.springframework.beans.factory.annotation.Value("${gemini.api.key:#{null}}")
         private String geminiApiKey;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent}")
         private String geminiApiUrl;
 
-        @org.springframework.beans.factory.annotation.Value("${gemini.model:gemma-3-27b-it}")
+        @org.springframework.beans.factory.annotation.Value("${gemini.model:gemini-2.5-flash}")
         private String geminiModel;
 
         @org.springframework.beans.factory.annotation.Value("${glm.api.key:#{null}}")
@@ -197,6 +197,8 @@ public class AIService {
                                                         new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
                                                         });
                                 }
+                        } else {
+                                logger.error("Gemini API Syllabus Analysis Error: Status={}, Body={}", response.statusCode(), response.body());
                         }
                 } catch (Exception e) {
                         logger.error("Failed to analyze syllabus", e);
