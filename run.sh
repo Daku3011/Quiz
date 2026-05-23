@@ -6,7 +6,7 @@ PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # Starts Backend in background, then launches Portals
 
 echo "========================================"
-echo "   🚀 Smart Quiz System - Launcher"
+echo "    Smart Quiz System - Launcher"
 echo "========================================"
 echo "Project Root: $PROJECT_ROOT"
 
