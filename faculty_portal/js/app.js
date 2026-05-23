@@ -943,7 +943,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set default datetime to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('start-time').value = now.toISOString().slice(0, 16);
+    const startTimeEl = document.getElementById('start-time');
+    if (startTimeEl) {
+        startTimeEl.value = now.toISOString().slice(0, 16);
+    }
 
     // Restore active session if exists
     const storedSession = localStorage.getItem('activeSession');
