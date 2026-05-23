@@ -3,6 +3,7 @@
 *.class
 *.jar
 *.log
+AGENTS.md
 
 # IDEs
 .vscode/
@@ -11,8 +12,10 @@
 
 # Enviroment
 .env
-backend/src/main/resources/application.properties
-show_access_urls.sh
 access_guide.md
 backend/data/
+logs/
 
+# node
+node_modules/
+dist/
