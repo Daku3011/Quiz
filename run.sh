@@ -10,6 +10,9 @@ echo "    Smart Quiz System - Launcher"
 echo "========================================"
 echo "Project Root: $PROJECT_ROOT"
 
+# Create logs directory
+mkdir -p "$PROJECT_ROOT/logs"
+
 # Function to kill backend on exit
 cleanup() {
     echo ""
@@ -54,10 +57,10 @@ if [ ! -z "$EXISTING_BACKEND" ]; then
 fi
 
 cd "$PROJECT_ROOT/backend"
-mvn spring-boot:run -Dspring-boot.run.profiles=dev > "$PROJECT_ROOT/backend.log" 2>&1 &
+mvn spring-boot:run -Dspring-boot.run.profiles=dev > "$PROJECT_ROOT/logs/backend.log" 2>&1 &
 BACKEND_PID=$!
 
-echo "   Backend running with PID $BACKEND_PID. Logs: backend.log"
+echo "   Backend running with PID $BACKEND_PID. Logs: logs/backend.log"
 
 # 2. Wait for Backend
 echo "   Waiting for server to be ready on port 9090..."
@@ -71,7 +74,7 @@ while ! curl --output /dev/null --silent --fail "$URL"; do
     COUNT=$((COUNT+1))
     if [ $COUNT -ge $MAX_RETRIES ]; then
         echo ""
-        echo "❌ Backend failed to start in time. Check backend.log."
+        echo "❌ Backend failed to start in time. Check logs/backend.log."
         cleanup
     fi
 done
@@ -90,9 +93,9 @@ fi
 
 if command -v python3 &> /dev/null; then
     # Run in subshell to ensure directory change applies only to the server process
-    (cd "$PROJECT_ROOT/faculty_portal" && python3 -m http.server 9876) > /dev/null 2>&1 &
+    (cd "$PROJECT_ROOT/faculty_portal" && python3 -m http.server 9876) > "$PROJECT_ROOT/logs/faculty_portal.log" 2>&1 &
     FACULTY_WEB_PID=$!
-    echo "   Faculty Portal running at http://localhost:9876"
+    echo "   Faculty Portal running at http://localhost:9876 (logs: logs/faculty_portal.log)"
 else
     echo "   ⚠️  Python3 not found. Faculty Web Portal skipped."
 fi
@@ -109,9 +112,9 @@ fi
 
 if command -v python3 &> /dev/null; then
     # Run in subshell to ensure directory change applies only to the server process
-    (cd "$PROJECT_ROOT/student_portal" && python3 -m http.server 8080) > /dev/null 2>&1 &
+    (cd "$PROJECT_ROOT/student_portal" && python3 -m http.server 8080) > "$PROJECT_ROOT/logs/student_portal.log" 2>&1 &
     STUDENT_WEB_PID=$!
-    echo "   Student Portal running at http://localhost:8080"
+    echo "   Student Portal running at http://localhost:8080 (logs: logs/student_portal.log)"
 else
     echo "   ⚠️  Python3 not found. Student Web Portal skipped."
 fi
@@ -127,4 +130,5 @@ echo ""
 bash "$PROJECT_ROOT/show_access_urls.sh"
 
 echo "   All systems go! Press Ctrl+C to stop."
+echo "   Logs directory: $PROJECT_ROOT/logs/"
 wait
