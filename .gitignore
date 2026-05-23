@@ -12,6 +12,7 @@ AGENTS.md
 
 # Enviroment
 .env
+!.env.example
 access_guide.md
 backend/data/
 logs/
