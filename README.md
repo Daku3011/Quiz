@@ -122,7 +122,7 @@ The system uses a **3-service architecture** — each component is a standalone 
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript (ES6) — No heavy frameworks                    |
 | **Styling**  | CSS Variables, Dark theme, Glassmorphism, Responsive design, Custom SVG icons  |
 | **Deploy**   | Docker (Backend), Static Site (Portals), Render-ready                          |
-| **Scripts**  | Bash (`run.sh`, `setup.sh`, `show_access_urls.sh`), Batch (`run.bat`)          |
+| **Scripts**  | Bash (`run.sh`, `setup.sh`, `show_access_urls.sh`), Batch (`run.bat`, `setup.bat`, `show_access_urls.bat`) |
 
 ---
 
@@ -193,7 +193,8 @@ QuizFinal/
 │
 ├── run.sh                        # Launch all 3 services (Linux/Mac)
 ├── run.bat                       # Launch all 3 services (Windows)
-├── setup.sh                      # Environment check & build
+├── setup.sh                      # Environment check & build (Linux/Mac)
+├── setup.bat                     # Environment check & build (Windows)
 ├── show_access_urls.sh           # Display LAN IPs for lab access
 ├── show_access_urls.bat          # Display LAN IPs (Windows)
 ├── README.md                     # This file
@@ -222,7 +223,11 @@ cd Quiz
 echo "GEMINI_API_KEY=your_api_key_here" > backend/.env
 
 # 3. Run the setup script (checks dependencies & builds)
+# Linux / macOS:
 ./setup.sh
+
+# Windows:
+setup.bat
 ```
 
 ---

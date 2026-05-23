@@ -122,7 +122,8 @@ QuizFinal/
 │
 ├── run.sh                            # 🚀 Launch all 3 services (Linux/Mac)
 ├── run.bat                           # 🚀 Launch all 3 services (Windows)
-├── setup.sh                          # 🔧 Dependency check & build script
+├── setup.sh                          # 🔧 Dependency check & build script (Linux/Mac)
+├── setup.bat                         # 🔧 Dependency check & build script (Windows)
 ├── show_access_urls.sh               # 📱 Display LAN access URLs
 ├── show_access_urls.bat              # 📱 Display LAN access URLs (Windows)
 ├── .gitignore                        # Ignores: target/, .env, .vscode/, logs
