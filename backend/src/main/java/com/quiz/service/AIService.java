@@ -167,7 +167,7 @@ public class AIService {
 
                         Map<String, Object> bodyMap = Map.of(
                                         "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
-                                        "generationConfig", Map.of("temperature", 0.5, "maxOutputTokens", 2048));
+                                        "generationConfig", Map.of("temperature", 0.5, "maxOutputTokens", 8192));
 
                         String requestBody = mapper.writeValueAsString(bodyMap);
                         String urlWithKey = geminiApiUrl + "?key=" + geminiApiKey;
@@ -708,8 +708,58 @@ public class AIService {
                                 break;
                         }
                 }
+
+                // 5. Clean up any trailing incomplete key-value pairs (i.e. keys with no values)
+                int lastColon = -1;
+                int lastComma = -1;
+                int lastOpenBrace = -1;
+                int lastOpenBracket = -1;
+                boolean inStringScan = false;
+                boolean escapedScan = false;
                 
-                // 5. Append closing braces/brackets
+                for (int i = 0; i < repaired.length(); i++) {
+                        char c = repaired.charAt(i);
+                        if (inStringScan) {
+                                if (escapedScan) {
+                                        escapedScan = false;
+                                } else if (c == '\\') {
+                                        escapedScan = true;
+                                } else if (c == '"') {
+                                        inStringScan = false;
+                                }
+                        } else {
+                                if (c == '"') {
+                                        inStringScan = true;
+                                } else if (c == ':') {
+                                        lastColon = i;
+                                } else if (c == ',') {
+                                        lastComma = i;
+                                } else if (c == '{') {
+                                        lastOpenBrace = i;
+                                } else if (c == '[') {
+                                        lastOpenBracket = i;
+                                }
+                        }
+                }
+                
+                // The last block starts at the maximum of lastComma, lastOpenBrace, lastOpenBracket
+                int lastSeparator = Math.max(lastComma, Math.max(lastOpenBrace, lastOpenBracket));
+                if (lastSeparator != -1 && lastColon < lastSeparator) {
+                        // There is a separator after the last colon, meaning the last item is an incomplete key
+                        repaired.setLength(lastSeparator);
+                }
+                
+                // 6. Trim trailing whitespace and commas one more time after deletion
+                while (repaired.length() > 0) {
+                        char lastChar = repaired.charAt(repaired.length() - 1);
+                        if (Character.isWhitespace(lastChar) || lastChar == ',') {
+                                repaired.deleteCharAt(repaired.length() - 1);
+                        } else {
+                                break;
+                        }
+                }
+                
+                // 7. Append closing braces/brackets
                 while (!stack.isEmpty()) {
                         char open = stack.pop();
                         if (open == '{') {
