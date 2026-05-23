@@ -27,8 +27,12 @@ echo "✅ Maven found: $(mvn -version | head -n 1)"
 ENV_FILE="backend/.env"
 if [ ! -f "$ENV_FILE" ]; then
     echo "⚠️  .env file not found in backend/. Creating template..."
-    echo "GEMINI_API_KEY=replace_with_your_key" > "$ENV_FILE"
-    echo "✅ Created backend/.env. Please edit it with your API Key!"
+    cat > "$ENV_FILE" << 'EOF'
+GEMINI_API_KEY=replace_with_your_key
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+EOF
+    echo "✅ Created backend/.env. Please edit it with your API Key & email credentials!"
 else
     echo "✅ backend/.env exists."
 fi
@@ -57,8 +61,23 @@ fi
 cd ..
 echo "✅ Client built successfully."
 
+# 6. Install Student Portal JS test dependencies
+echo ""
+echo "📦 Installing Student Portal JS test dependencies..."
+cd student_portal
+npm install
+if [ $? -ne 0 ]; then
+    echo "⚠️  npm install failed — JS tests won't run until fixed."
+fi
+cd ..
+echo "✅ Student Portal JS dependencies installed."
+
 echo ""
 echo "========================================"
 echo "🎉 Setup Complete! You can now run:"
 echo "   ./run.sh"
+echo ""
+echo "   Test commands:"
+echo "   cd backend && mvn test        (5 backend tests)"
+echo "   cd student_portal && npm test  (51 JS tests)"
 echo "========================================"
