@@ -200,7 +200,11 @@ public class SessionController {
         }
 
         return ResponseEntity
-                .ok(Map.of("status", status, "startTime", s.getStartTime() != null ? s.getStartTime().toString() : ""));
+                .ok(Map.of(
+                    "status", status, 
+                    "startTime", s.getStartTime() != null ? s.getStartTime().toString() : "",
+                    "coding", s.isCoding()
+                ));
     }
 
     @GetMapping("/active")

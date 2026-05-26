@@ -95,4 +95,48 @@ public class Session {
     public void setEndTime(Instant endTime) {
         this.endTime = endTime;
     }
+
+    // Coding Exam support
+    private Boolean coding = false;
+    private String programmingLanguage;
+
+    @Lob
+    @Column(length = 10000)
+    private String problemStatementEven;
+
+    @Lob
+    @Column(length = 10000)
+    private String problemStatementOdd;
+
+    public boolean isCoding() {
+        return coding != null && coding;
+    }
+
+    public void setCoding(boolean coding) {
+        this.coding = coding;
+    }
+
+    public String getProgrammingLanguage() {
+        return programmingLanguage;
+    }
+
+    public void setProgrammingLanguage(String programmingLanguage) {
+        this.programmingLanguage = programmingLanguage;
+    }
+
+    public String getProblemStatementEven() {
+        return problemStatementEven;
+    }
+
+    public void setProblemStatementEven(String problemStatementEven) {
+        this.problemStatementEven = problemStatementEven;
+    }
+
+    public String getProblemStatementOdd() {
+        return problemStatementOdd;
+    }
+
+    public void setProblemStatementOdd(String problemStatementOdd) {
+        this.problemStatementOdd = problemStatementOdd;
+    }
 }
