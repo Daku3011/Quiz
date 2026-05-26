@@ -753,6 +753,8 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
 
 // Scoreboard
+let isCurrentSessionCoding = false;
+
 async function loadScoreboard() {
     const sid = document.getElementById('scoreboard-sess-id').value;
     if (!sid) {
@@ -761,19 +763,29 @@ async function loadScoreboard() {
     }
 
     try {
-        const res = await fetch(`${API_BASE}/api/session/${sid}/scoreboard`);
+        // Try loading coding results first
+        let res = await fetch(`${API_BASE}/api/session/${sid}/coding-results`);
         if (res.ok) {
             const data = await res.json();
+            isCurrentSessionCoding = true;
+            document.getElementById('session-analytics').classList.add('hidden'); // Hide MCQ analytics
+            renderCodingScoreboard(data, sid);
+            return;
+        }
 
-            // Render Analytics Dashboard (New)
+        // If not a coding session, fall back to MCQ
+        isCurrentSessionCoding = false;
+        res = await fetch(`${API_BASE}/api/session/${sid}/scoreboard`);
+        if (res.ok) {
+            const data = await res.json();
             loadSessionAnalytics(sid);
-
             renderScoreboard(data, sid);
         } else {
             alert("Session not found or empty.");
         }
     } catch (e) {
         console.error(e);
+        alert("Error loading scoreboard.");
     }
 }
 
@@ -824,7 +836,7 @@ function renderScoreboard(data, sessionId) {
     currentScoreboardData = data; // Store for access
     const tbody = document.getElementById('scoreboard-body');
     if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No submissions yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No submissions yet.</td></tr>';
         return;
     }
 
@@ -848,6 +860,47 @@ function renderScoreboard(data, sessionId) {
     `).join('');
 }
 
+// Render Coding Scoreboard
+function renderCodingScoreboard(data, sessionId) {
+    currentScoreboardData = data; // Store for access
+    const tbody = document.getElementById('scoreboard-body');
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No submissions yet.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = data.map((row, idx) => {
+        let statusText = 'Valid';
+        let statusClass = 'status-valid';
+        if (row.cheated) {
+            statusText = '⚠️ CHEATING';
+            statusClass = 'status-cheated';
+        } else if (row.aiGeneratedProbability >= 70) {
+            statusText = `⚠️ AI GEN (${Math.round(row.aiGeneratedProbability)}%)`;
+            statusClass = 'status-cheated';
+        } else if (row.aiGeneratedProbability >= 30) {
+            statusText = `AI SUSPICIOUS (${Math.round(row.aiGeneratedProbability)}%)`;
+            statusClass = 'status-warn';
+        }
+
+        return `
+            <tr>
+                <td>#${idx + 1}</td>
+                <td>${row.studentName}</td>
+                <td>${row.enrollment}</td>
+                <td style="font-weight:bold; color: var(--primary-color)">${row.score} / 100</td>
+                <td>${new Date(row.submittedAt).toLocaleTimeString()}</td>
+                <td class="${statusClass}">
+                    ${statusText}
+                </td>
+                <td>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="openCodingStudentDetails(${row.submissionId})">View Code</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
 // Student Details Modal
 let currentScoreboardData = [];
 
@@ -862,7 +915,8 @@ async function openStudentDetails(sessionId, idx) {
     }
 
     const modal = document.getElementById('student-details-modal');
-    const content = modal.querySelector('.modal-body');
+    document.getElementById('mcq-detail-container').style.display = 'block';
+    document.getElementById('coding-detail-container').style.display = 'none';
 
     // Show loading
     document.getElementById('detail-answers-list').innerHTML = '<p>Loading...</p>';
@@ -920,6 +974,228 @@ function renderStudentDetails(data, studentInfo) {
         `).join('');
     } else {
         list.innerHTML = '<p>No answer details available.</p>';
+    }
+}
+
+// Open Coding Submission Details Modal
+let currentSubIdForOverride = null;
+
+async function openCodingStudentDetails(subId) {
+    const modal = document.getElementById('student-details-modal');
+    document.getElementById('mcq-detail-container').style.display = 'none';
+    const codingContainer = document.getElementById('coding-detail-container');
+    codingContainer.style.display = 'block';
+
+    document.getElementById('detail-score').textContent = '--';
+    document.getElementById('detail-cheated').textContent = 'Loading...';
+    document.getElementById('coding-detail-problem').textContent = 'Loading problem...';
+    document.getElementById('coding-detail-code').textContent = 'Loading code...';
+    document.getElementById('coding-detail-feedback').textContent = 'Loading AI analysis...';
+    document.getElementById('coding-detail-ai-explain').textContent = 'Loading details...';
+    document.getElementById('override-status-msg').style.display = 'none';
+
+    modal.classList.add('active');
+
+    try {
+        const res = await fetch(`${API_BASE}/api/coding-submission/${subId}/details`);
+        if (res.ok) {
+            const data = await res.json();
+            currentSubIdForOverride = data.submissionId;
+
+            document.getElementById('detail-score').textContent = data.score;
+            
+            const cheatEl = document.getElementById('detail-cheated');
+            cheatEl.textContent = data.cheated ? "YES (Disqualified)" : "NO";
+            cheatEl.style.color = data.cheated ? "red" : "green";
+
+            document.getElementById('coding-detail-problem').textContent = data.problemStatement || "Not loaded.";
+            document.getElementById('coding-detail-code').textContent = data.code || "";
+            document.getElementById('coding-detail-feedback').textContent = data.aiFeedback || "No feedback available.";
+
+            // AI badge and container suspicious level
+            const prob = Math.round(data.aiGeneratedProbability || 0);
+            document.getElementById('coding-detail-ai-prob').textContent = prob;
+            document.getElementById('coding-detail-ai-explain').textContent = data.aiDetectionExplanation || "No explanation provided.";
+
+            const badge = document.getElementById('coding-detail-ai-badge');
+            const alertBox = document.getElementById('coding-detail-ai-alert');
+
+            if (prob >= 70) {
+                badge.textContent = "High AI Probability";
+                badge.style.background = "#ef4444"; // red
+                alertBox.style.background = "#fef2f2";
+                alertBox.style.border = "1px solid #fecaca";
+                alertBox.style.color = "#991b1b";
+            } else if (prob >= 30) {
+                badge.textContent = "Moderate Suspicion";
+                badge.style.background = "#f59e0b"; // orange
+                alertBox.style.background = "#fffbeb";
+                alertBox.style.border = "1px solid #fde68a";
+                alertBox.style.color = "#92400e";
+            } else {
+                badge.textContent = "Low AI Probability";
+                badge.style.background = "#10b981"; // green
+                alertBox.style.background = "#f0fdf4";
+                alertBox.style.border = "1px solid #bbf7d0";
+                alertBox.style.color = "#166534";
+            }
+
+            document.getElementById('override-score-val').value = data.score;
+        } else {
+            alert("Failed to load coding submission details");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error connecting to backend for details");
+    }
+}
+
+// Manual Override score submission
+async function submitMarksOverride() {
+    if (!currentSubIdForOverride) return;
+
+    const val = document.getElementById('override-score-val').value;
+    if (val === "" || isNaN(val)) {
+        alert("Please enter a valid marks number");
+        return;
+    }
+
+    const marks = parseInt(val);
+    if (marks < 0 || marks > 100) {
+        alert("Marks must be between 0 and 100");
+        return;
+    }
+
+    const msg = document.getElementById('override-status-msg');
+    msg.style.display = 'block';
+    msg.style.color = '#4b5563';
+    msg.textContent = "Submitting changes...";
+
+    try {
+        const res = await fetch(`${API_BASE}/api/coding-submission/${currentSubIdForOverride}/override-marks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ marks: marks })
+        });
+
+        if (res.ok) {
+            msg.style.color = 'var(--success-color)';
+            msg.textContent = "✅ Score updated successfully!";
+            document.getElementById('detail-score').textContent = marks;
+            // Reload scoreboard to update main table
+            loadScoreboard();
+        } else {
+            msg.style.color = 'var(--danger-color)';
+            msg.textContent = "❌ Failed to update score: " + await res.text();
+        }
+    } catch (e) {
+        console.error(e);
+        msg.style.color = 'var(--danger-color)';
+        msg.textContent = "❌ Error connecting to backend.";
+    }
+}
+
+function escapeHTML(str) {
+    if (!str) return "";
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function toggleExamType(type) {
+    const lblMcq = document.getElementById('lbl-mcq');
+    const lblCoding = document.getElementById('lbl-coding');
+    const mcqFields = document.getElementById('mcq-config-fields');
+    const codingFields = document.getElementById('coding-config-fields');
+
+    if (type === 'MCQ') {
+        lblMcq.style.border = '2px solid var(--primary-color)';
+        lblMcq.style.color = 'var(--primary-color)';
+        lblMcq.style.background = 'rgba(37, 99, 235, 0.05)';
+
+        lblCoding.style.border = '2px solid #e5e7eb';
+        lblCoding.style.color = '#374151';
+        lblCoding.style.background = 'transparent';
+
+        mcqFields.style.display = 'block';
+        codingFields.style.display = 'none';
+
+        // Update Review button states
+        document.getElementById('start-session-btn').disabled = questions.length === 0;
+        document.getElementById('schedule-btn').disabled = questions.length === 0;
+    } else {
+        lblCoding.style.border = '2px solid var(--primary-color)';
+        lblCoding.style.color = 'var(--primary-color)';
+        lblCoding.style.background = 'rgba(37, 99, 235, 0.05)';
+
+        lblMcq.style.border = '2px solid #e5e7eb';
+        lblMcq.style.color = '#374151';
+        lblMcq.style.background = 'transparent';
+
+        mcqFields.style.display = 'none';
+        codingFields.style.display = 'block';
+
+        // Review sidebar is disabled for Coding exams
+        document.getElementById('start-session-btn').disabled = true;
+        document.getElementById('schedule-btn').disabled = true;
+    }
+}
+
+async function startCodingExamSession() {
+    const title = document.getElementById('quiz-title').value.trim() || "Coding Exam";
+    const language = document.getElementById('coding-lang').value;
+    const probEven = document.getElementById('coding-prob-even').value.trim();
+    const probOdd = document.getElementById('coding-prob-odd').value.trim();
+    const duration = parseInt(document.getElementById('duration').value) || 60;
+
+    if (!probEven || !probOdd) {
+        alert("Please provide both Problem Statement A (Even) and B (Odd).");
+        return;
+    }
+
+    const btn = document.getElementById('start-coding-btn');
+    const originalText = btn.textContent;
+    btn.textContent = "Starting Session...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/session/start-coding`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: title,
+                programmingLanguage: language,
+                problemStatementEven: probEven,
+                problemStatementOdd: probOdd,
+                durationMinutes: duration
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            currentSessionId = data.sessionId;
+            currentOtp = data.otp;
+
+            document.getElementById('disp-sess-id').textContent = currentSessionId;
+            document.getElementById('disp-otp').textContent = currentOtp;
+            document.getElementById('current-session-card').classList.remove('hidden');
+
+            // Save active session
+            localStorage.setItem('activeSession', JSON.stringify({ sessionId: currentSessionId, otp: currentOtp, coding: true }));
+
+            alert(`Coding Exam Session Started!\nSession ID: ${currentSessionId}\nOTP: ${currentOtp}`);
+            switchTab('active-sessions');
+            loadSessions();
+
+            // Set up scoreboard tab prefill
+            document.getElementById('scoreboard-sess-id').value = currentSessionId;
+        } else {
+            alert("Failed to start coding session: " + await res.text());
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error connecting to backend");
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
     }
 }
 
