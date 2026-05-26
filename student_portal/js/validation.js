@@ -16,7 +16,8 @@ function validateEnrollment(enrollment) {
 }
 
 function validateSessionId(sessionId) {
-    return sessionId.trim().length >= 4;
+    const trimmed = sessionId.trim();
+    return /^\d+$/.test(trimmed) || trimmed.length >= 4;
 }
 
 function validateOTP(otp) {

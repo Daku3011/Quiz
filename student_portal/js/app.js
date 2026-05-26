@@ -7,6 +7,7 @@ let answers = {};
 let quizTimer = null;
 let countdownTimer = null;
 let hasCheated = false;
+let antiCheatingActive = false;
 let isSubmitting = false;
 // API_BASE is defined in api.js
 
@@ -15,28 +16,24 @@ const sections = {
     joinSession: document.getElementById('join-session-section'),
     waiting: document.getElementById('waiting-section'),
     quiz: document.getElementById('quiz-section'),
+    coding: document.getElementById('coding-exam-section'),
     result: document.getElementById('result-section'),
     cheating: document.getElementById('cheating-section')
 };
 
 // Anti-cheating system
 document.addEventListener('visibilitychange', () => {
-    if (isSubmitting) return;
-    if (document.hidden && !sections.quiz.classList.contains('hidden')) {
-        handleCheating();
-    }
-});
-
-window.addEventListener('blur', () => {
-    if (isSubmitting) return;
-    if (!sections.quiz.classList.contains('hidden')) {
+    if (isSubmitting || !antiCheatingActive) return;
+    const isExamActive = !sections.quiz.classList.contains('hidden') || (sections.coding && !sections.coding.classList.contains('hidden'));
+    if (document.hidden && isExamActive) {
         handleCheating();
     }
 });
 
 document.addEventListener('fullscreenchange', () => {
-    if (isSubmitting) return;
-    if (!document.fullscreenElement && !sections.quiz.classList.contains('hidden')) {
+    if (isSubmitting || !antiCheatingActive) return;
+    const isExamActive = !sections.quiz.classList.contains('hidden') || (sections.coding && !sections.coding.classList.contains('hidden'));
+    if (!document.fullscreenElement && isExamActive) {
         handleCheating();
     }
 });
@@ -166,14 +163,12 @@ async function handleJoinSession(event) {
 
     if (!isValid) return;
 
-    // Constraint relaxed: Allow shared devices. Backend handles duplicate submissions per student.
-    /*
+    // Constraint: One device can only give one exam per session ID
     const completedSessions = JSON.parse(localStorage.getItem('completed_sessions') || '[]');
-    if (completedSessions.includes(sessionId)) {
+    if (completedSessions.some(id => String(id) === String(sessionId))) {
         document.getElementById('join-error').textContent = 'You have already completed this session on this device';
         return;
     }
-    */
 
     const joinBtn = document.getElementById('join-btn');
     const joinBtnText = document.getElementById('join-btn-text');
@@ -210,8 +205,13 @@ async function checkSessionStatus() {
         const data = await sessionAPI.getStatus(sessionId);
         if (data) {
             if (data.status === 'ACTIVE') {
-                showSection('quiz');
-                await loadQuestions();
+                if (data.coding === true) {
+                    showSection('coding');
+                    await loadCodingExam();
+                } else {
+                    showSection('quiz');
+                    await loadQuestions();
+                }
             } else if (data.status === 'WAITING') {
                 showSection('waiting');
                 document.getElementById('waiting-session-title').textContent = data.title || 'Waiting Room';
@@ -280,6 +280,7 @@ async function loadQuestions() {
                 showSection('quiz');
                 startQuizTimer();
                 renderQuestion();
+                setTimeout(() => { antiCheatingActive = true; }, 3000);
             } else {
                 alert('No questions in this session');
             }
@@ -450,13 +451,11 @@ async function submitQuiz(autoSubmit = false) {
         if (data) {
             displayResults(data);
 
-            /*
             const completedSessions = JSON.parse(localStorage.getItem('completed_sessions') || '[]');
-            if (!completedSessions.includes(sessionId)) {
-                completedSessions.push(sessionId);
+            if (!completedSessions.some(id => String(id) === String(sessionId))) {
+                completedSessions.push(String(sessionId));
                 localStorage.setItem('completed_sessions', JSON.stringify(completedSessions));
             }
-            */
 
             const state = JSON.parse(sessionStorage.getItem('quizState'));
             state.completed = true;
@@ -568,7 +567,13 @@ function handleCheating() {
     }
 
     showSection('cheating');
-    submitQuiz(true);
+
+    // Auto-submit based on current active section
+    if (!sections.coding.classList.contains('hidden')) {
+        submitCodingSolution(true);
+    } else {
+        submitQuiz(true);
+    }
 }
 
 // Standby Mode Logic
@@ -620,6 +625,25 @@ function showSection(name) {
     if (name !== 'waiting') {
         document.getElementById('students-joined').parentElement.classList.remove('hidden');
     }
+
+    if (name !== 'quiz' && name !== 'coding') {
+        antiCheatingActive = false;
+    }
+
+    // Dynamic width expansion for exam screens to allow spacious coding and quiz layout
+    const container = document.getElementById('main-content');
+    if (container) {
+        if (name === 'coding') {
+            container.style.maxWidth = '2200px';
+            container.style.width = '95%';
+        } else if (name === 'quiz') {
+            container.style.maxWidth = '850px';
+            container.style.width = '95%';
+        } else {
+            container.style.maxWidth = '';
+            container.style.width = '';
+        }
+    }
 }
 
 // Page initialization
@@ -665,7 +689,261 @@ window.onload = function () {
 };
 
 window.onbeforeunload = function () {
-    if (!sections.quiz.classList.contains('hidden')) {
+    const isExamActive = !sections.quiz.classList.contains('hidden') || (sections.coding && !sections.coding.classList.contains('hidden'));
+    if (isExamActive) {
         return 'Are you sure you want to leave? Your progress will be lost.';
     }
 };
+
+// ==========================================
+// Practical Coding Exam Supporting Functions
+// ==========================================
+let codingTimerInterval = null;
+
+async function loadCodingExam() {
+    try {
+        const res = await fetch(`${API_BASE}/api/session/${sessionId}/coding-details?studentId=${studentId}`);
+        if (res.ok) {
+            const data = await res.json();
+
+            document.getElementById('coding-exam-title').textContent = data.title || "Practical Coding Exam";
+            document.getElementById('coding-assigned-problem-name').textContent = data.assignedProblemName || "Assigned Problem";
+            document.getElementById('coding-problem-text').textContent = data.problemStatement || "No problem statement loaded.";
+            document.getElementById('editor-lang-indicator').textContent = `Monaco Editor - ${data.programmingLanguage.toUpperCase()} Mode`;
+
+            // Enforce fullscreen
+            await requestFullScreen();
+
+            // Load and init Monaco Editor
+            if (typeof require !== 'undefined') {
+                require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+                require(['vs/editor/editor.main'], function () {
+                    const container = document.getElementById('monaco-editor-placeholder');
+                    container.innerHTML = ''; // Clear placeholder loading text
+
+                    window.monacoEditor = monaco.editor.create(container, {
+                        value: getBoilerplate(data.programmingLanguage),
+                        language: data.programmingLanguage === 'cpp' ? 'cpp' : (data.programmingLanguage === 'c' ? 'c' : data.programmingLanguage),
+                        theme: 'vs-dark',
+                        automaticLayout: true,
+                        fontSize: 14,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        minimap: { enabled: false },
+                        tabSize: 4
+                    });
+                });
+            } else {
+                alert("Monaco Editor loader not available in page. Please contact support.");
+            }
+
+            startCodingTimer(data.endTime);
+            setTimeout(() => { antiCheatingActive = true; }, 3000);
+        } else {
+            alert("Failed to load coding details");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error loading coding exam details");
+    }
+}
+
+function getBoilerplate(lang) {
+    switch (lang.toLowerCase()) {
+        case 'python':
+            return `def solve():\n    # Write your python code here\n    pass\n\nif __name__ == '__main__':\n    solve()`;
+        case 'c':
+            return `#include <stdio.h>\n\nint main() {\n    // Write your C code here\n    return 0;\n}`;
+        case 'cpp':
+            return `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your C++ code here\n    return 0;\n}`;
+        case 'java':
+            return `public class Solution {\n    public static void main(String[] args) {\n        // Write your Java code here\n    }\n}`;
+        case 'javascript':
+            return `function solve() {\n    // Write your JavaScript code here\n}\n\nsolve();`;
+        default:
+            return `// Write your code here`;
+    }
+}
+
+function startCodingTimer(endTime) {
+    if (codingTimerInterval) clearInterval(codingTimerInterval);
+
+    const updateTimer = () => {
+        const now = new Date().getTime();
+        const end = new Date(endTime).getTime();
+        const distance = end - now;
+
+        if (distance <= 0) {
+            clearInterval(codingTimerInterval);
+            document.getElementById('coding-timer').textContent = "Time: 00:00";
+            submitCodingSolution(true);
+            return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('coding-timer').textContent =
+            `Time: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+
+    updateTimer();
+    codingTimerInterval = setInterval(updateTimer, 1000);
+}
+
+async function submitCodingSolution(autoSubmit = false) {
+    if (!autoSubmit) {
+        if (!confirm("Are you sure you want to submit your code solution?")) {
+            return;
+        }
+    }
+
+    isSubmitting = true;
+    if (codingTimerInterval) clearInterval(codingTimerInterval);
+
+    const code = window.monacoEditor ? window.monacoEditor.getValue() : "";
+
+    const saved = sessionStorage.getItem('quizState');
+    let name = 'Unknown';
+    let enrollment = 'Unknown';
+    if (saved) {
+        const state = JSON.parse(saved);
+        name = state.name;
+        enrollment = state.enrollment;
+    }
+
+    const payload = {
+        sessionId: sessionId,
+        studentId: studentId,
+        code: code,
+        cheated: hasCheated,
+        name: name,
+        enrollment: enrollment
+    };
+
+    // Show a premium loading indicator in place of Monaco editor
+    const container = document.getElementById('monaco-editor-placeholder');
+    container.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-family:'Outfit',sans-serif; gap:15px; background:#1e1e1e;">
+            <div class="spinner-inline" style="border-top-color:#3b82f6; width:40px; height:40px; border-width:4px;"></div>
+            <div style="font-size:1.1rem; font-weight:600;">Running Gemini AI Evaluation...</div>
+            <div style="font-size:0.85rem; opacity:0.7;">This may take a few seconds as we analyze correctness and quality.</div>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/quiz/submit-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            displayCodingResults(data);
+
+            const completedSessions = JSON.parse(localStorage.getItem('completed_sessions') || '[]');
+            if (!completedSessions.some(id => String(id) === String(sessionId))) {
+                completedSessions.push(String(sessionId));
+                localStorage.setItem('completed_sessions', JSON.stringify(completedSessions));
+            }
+
+            const state = JSON.parse(sessionStorage.getItem('quizState'));
+            state.completed = true;
+            sessionStorage.setItem('quizState', JSON.stringify(state));
+
+            showSection('result');
+            window.onbeforeunload = null;
+        } else {
+            alert("Submission failed: " + await res.text());
+            isSubmitting = false;
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Failed to submit code solution.");
+        isSubmitting = false;
+    }
+}
+
+function parseMarkdown(text) {
+    if (!text) return '';
+    
+    const lines = text.split('\n');
+    const processedLines = lines.map(line => {
+        // Escape HTML to prevent XSS
+        let escaped = line
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+            
+        // Check for headers
+        if (escaped.startsWith('### ')) {
+            return `<h4 style="margin-top: 1.25rem; margin-bottom: 0.5rem; font-weight: 700; color: #1e293b; font-size: 1.05rem; text-align: left;">${escaped.substring(4)}</h4>`;
+        }
+        if (escaped.startsWith('## ')) {
+            return `<h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-weight: 700; color: #0f172a; font-size: 1.2rem; text-align: left;">${escaped.substring(3)}</h3>`;
+        }
+        if (escaped.startsWith('# ')) {
+            return `<h2 style="margin-top: 1.75rem; margin-bottom: 1rem; font-weight: 800; color: #0f172a; font-size: 1.4rem; text-align: left;">${escaped.substring(2)}</h2>`;
+        }
+        
+        // Check for bullet points
+        if (escaped.startsWith('- ')) {
+            return `<li style="margin-left: 1.25rem; margin-bottom: 0.25rem; list-style-type: disc; text-align: left;">${escaped.substring(2)}</li>`;
+        }
+        if (escaped.startsWith('* ')) {
+            return `<li style="margin-left: 1.25rem; margin-bottom: 0.25rem; list-style-type: disc; text-align: left;">${escaped.substring(2)}</li>`;
+        }
+        
+        return escaped;
+    });
+    
+    // Rejoin and process inline elements (bold, italic, code)
+    let html = processedLines.join('\n');
+    
+    // Bold: **text**
+    html = html.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic: *text*
+    html = html.replace(/\*([\s\S]*?)\*/g, '<em>$1</em>');
+    
+    // Inline Code: `code`
+    html = html.replace(/`([^`]+)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: \'JetBrains Mono\', monospace; font-size: 0.9em; color: #2563eb;">$1</code>');
+    
+    // Convert newlines between blocks to `<br>`
+    const finalLines = html.split('\n').map(line => {
+        const isBlock = line.startsWith('<h') || line.startsWith('<li') || line.startsWith('</li') || line.startsWith('</h');
+        if (isBlock || line.trim() === '') {
+            return line;
+        }
+        return line + '<br>';
+    });
+    
+    return finalLines.join('\n');
+}
+
+function displayCodingResults(data) {
+    document.getElementById('score-display').textContent = `${data.score}/100`;
+    document.getElementById('score-percentage').textContent = `${data.score}%`;
+
+    const badge = document.getElementById('performance-badge');
+    badge.className = 'performance-badge';
+    if (data.score >= 80) {
+        badge.textContent = '⭐ Excellent!';
+        badge.classList.add('badge-excellent');
+    } else if (data.score >= 60) {
+        badge.textContent = '👍 Good!';
+        badge.classList.add('badge-good');
+    } else if (data.score >= 40) {
+        badge.textContent = '📚 Average';
+        badge.classList.add('badge-average');
+    } else {
+        badge.textContent = '📚 Disqualified or Needs Practice';
+        badge.classList.add('badge-poor');
+    }
+
+    const details = document.getElementById('results-details');
+    details.innerHTML = `
+        <h3>AI Correction Insight</h3>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:20px; border-radius:10px; color:#334155; font-size:0.95rem; line-height:1.5; font-family:'Outfit', sans-serif; text-align: left;">${parseMarkdown(data.aiFeedback)}</div>
+    `;
+}
